@@ -1,0 +1,454 @@
+/* MIZORA guest design. Owner Control retains its platform palette. */
+@font-face { font-family: 'Instrument Sans'; src: url('assets/fonts/instrument-sans.woff2') format('woff2'); font-weight: 400 700; font-style: normal; font-display: swap; }
+.restaurant-link { color: inherit; font-size: 11px; text-decoration: none; opacity: .8; margin-left: auto; }
+.owner-logo small { display: block; font: 500 10px/1.4 var(--sans); letter-spacing: .14em; margin-top: 4px; }
+[data-surface="owner"] .topbar-brand small { display: block; font-size: 9px; letter-spacing: .14em; margin-top: 2px; }
+.owner-shell .source-label { display: block; font-size: 10px; line-height: 1.35; color: #635b4e; }
+[data-restaurant="mizora"] .guest-stage { --serif: 'Instrument Sans',Arial,sans-serif; --sans: 'Instrument Sans',Arial,sans-serif; --gold:#b79a70; --lightgold:#ede2d0; --g2:#612e34; font-family:var(--sans); }
+[data-restaurant="mizora"][data-surface="guest"] .app-wrap { background:#211918; }
+[data-restaurant="mizora"][data-surface="guest"] .topbar { background:#211918; border-color:#b79a7022; }
+[data-restaurant="mizora"] .device-frame { border-color:#493737; background:#211918; box-shadow:0 24px 75px #0005; }
+[data-restaurant="mizora"] .phone-screen { background:#211918; }
+
+[data-restaurant="mizora"] .restaurant-header { top:30px; height:68px; gap:8px; }
+[data-restaurant="mizora"] .rest-brand { flex:1; }
+[data-restaurant="mizora"] .mizora-logo { width:210px; max-width:100%; height:68px; display:flex; align-items:center; justify-content:center; overflow:visible; background:none; }
+[data-restaurant="mizora"] .mizora-logo img { display:block; position:static; width:100%; height:auto; max-height:68px; object-fit:contain; }
+
+[data-restaurant="mizora"] .quick-tabs { top:112px; padding:2px 16px 10px; gap:18px; }
+[data-restaurant="mizora"] .quick-tab { background:none; border:0; border-radius:0; padding:8px 0; color:#ede2d0aa; font-weight:450; font-size:11px; }
+[data-restaurant="mizora"] .quick-tab.is-active { background:none; border:0; border-bottom:1px solid #ede2d0; color:#fff5e9; box-shadow:none; }
+[data-restaurant="mizora"] .guest-toggle { top:158px; left:16px; right:16px; border:1px solid #ede2d02b; border-radius:12px; padding:3px; background:#21191880; box-shadow:none; backdrop-filter:blur(12px); }
+[data-restaurant="mizora"] .guest-toggle button { border:0; border-radius:9px; font-size:11px; font-weight:450; text-shadow:none; }
+[data-restaurant="mizora"] .guest-toggle button.active { background:#ede2d01c; box-shadow:none; color:#fff5e9; }
+[data-restaurant="mizora"] .guest-toggle button:not(.active) { color:#ede2d0c2; text-shadow:none; }
+[data-restaurant="mizora"] .guest-toggle button .ic { width:14px; height:14px; }
+[data-restaurant="mizora"] .guest-toggle button[data-value="explore"] .ic { display:none; }
+[data-restaurant="mizora"] .filter-on b { background:#ede2d0; color:#211918; }
+[data-restaurant="mizora"] .hero-image { object-fit:contain; object-position:center center!important; transform:translate(var(--photo-x,0%),var(--photo-y,0%)) scale(var(--photo-scale,1)); filter:brightness(var(--photo-light,1.1)); }
+[data-restaurant="mizora"] .hero-shade { background:linear-gradient(180deg,#211918d9 0%,#21191880 18%,transparent 33%,transparent 66%,#211918a1 86%,#211918 100%); }
+[data-restaurant="mizora"] .phone-screen.explore .hero-content-minimal { left:20px; right:20px; bottom:91px; gap:10px; }
+[data-restaurant="mizora"] .hero-kicker { color:#ede2d0a8; font-size:9px; letter-spacing:.13em; font-weight:400; }
+[data-restaurant="mizora"] .swipe-indicator { font-size:8px; letter-spacing:.06em; opacity:.6; }
+[data-restaurant="mizora"] .phone-screen.explore .hero-content-minimal .hero-title-row h1 { font-family:'Instrument Sans',Arial,sans-serif; font-size:28px; font-weight:450; letter-spacing:-.045em; line-height:1.12; text-shadow:none; max-width:80%; margin:0; }
+[data-restaurant="mizora"] .phone-screen.explore .hero-content-minimal .hero-price { color:#ede2d0; font:400 24px/1.15 'Instrument Sans',Arial,sans-serif; letter-spacing:-.04em; text-shadow:none; }
+[data-restaurant="mizora"] .phone-screen.explore .hero-content-minimal .hero-summary { font-size:12px; font-weight:350; line-height:1.6; color:#ede2d0bd; text-shadow:none; max-width:95%; }
+.raw-mark { font-size:12px; vertical-align:super; margin-left:2px; }
+[data-restaurant="mizora"] .phone-screen.explore .details-pill { background:none; box-shadow:none; border:1px solid #ede2d033; color:#ede2d0; padding:7px 11px; min-height:32px; font-size:10px; font-weight:450; }
+[data-restaurant="mizora"] .fab-cart-add { background:#211918a8; border:1px solid #ede2d080; box-shadow:none; color:#ede2d0; width:43px; height:43px; }
+[data-restaurant="mizora"] .phone-screen.explore .hero-fab-stack { right:16px; top:57%; }
+[data-restaurant="mizora"] .guest-cartbar { background:#211918ee; border-color:#ede2d026; box-shadow:none; }
+[data-restaurant="mizora"] .table-cart { background:transparent; border-color:#ede2d026; box-shadow:none; color:#ede2d0; }
+[data-restaurant="mizora"] .cart-action { background:#ede2d0; color:#211918; border:0; border-radius:10px; box-shadow:none; font-weight:500; }
+[data-restaurant="mizora"] :is(.allergen-card,.language-card) { background:#ede2d0; color:#211918; border:0; box-shadow:0 24px 60px #0004; padding:24px; border-radius:20px; }
+[data-restaurant="mizora"] :is(.allergen-card-head h2,.language-card h2) { font:500 24px/1.2 'Instrument Sans',Arial,sans-serif; letter-spacing:-.04em; }
+[data-restaurant="mizora"] .icon-close { background:#21191809; border:0; color:#211918; box-shadow:none; border-radius:50%; }
+[data-restaurant="mizora"] .detail-switch { background:#21191808; border-radius:10px; padding:3px; gap:3px; }
+[data-restaurant="mizora"] .detail-switch button { border:0; background:none; color:#454741; font:450 11px/1.3 'Instrument Sans',Arial,sans-serif; flex:1; border-radius:7px; }
+[data-restaurant="mizora"] .detail-switch button[aria-pressed="true"] { background:#fff9f0; color:#211918; border:0; box-shadow:0 1px 3px #21191812; }
+[data-restaurant="mizora"] .allergen-card .allergen-icon-pill { background:#fff9f080; border-color:#21191820; box-shadow:none; border-radius:7px; color:#612e34; }
+[data-restaurant="mizora"] .allergen-card .allergen-icon-pill em { color:#211918; }
+[data-restaurant="mizora"] .allergen-card-note { color:#655b52; border-color:#21191820; font-size:10px; line-height:1.65; }
+[data-restaurant="mizora"] .nutrition-source { font-size:11px; font-weight:500; color:#612e34; }
+[data-restaurant="mizora"] .nutrition-values { font-size:13px; gap:11px; margin-block:18px; }
+[data-restaurant="mizora"] .nutrition-values dd { font-weight:500; }
+[data-restaurant="mizora"] .nutrition-values div:last-child { font-size:10px; padding-top:8px; border-top:1px solid #21191815; color:#655b52; }
+[data-restaurant="mizora"] .guest-stage :focus-visible { outline:2px solid #b79a70; outline-offset:3px; }
+[data-restaurant="mizora"] .preview-phone { background:#ede2d0; font-family:'Instrument Sans',Arial,sans-serif; }
+[data-restaurant="mizora"] .preview-photo img { object-fit:contain; background:#211918; }
+[data-restaurant="mizora"] .preview-dish strong { font:450 21px/1.15 'Instrument Sans',Arial,sans-serif; letter-spacing:-.04em; }
+[data-restaurant="mizora"] .preview-selected { background:#612e34; color:#fff5e7; border-color:#612e34; }
+[data-restaurant="mizora"] .phone-screen[data-guest-theme] :is(.cart-action,.quick-tab.is-active,.guest-toggle button.active) { background:var(--guest-accent); color:var(--guest-accent-ink); }
+[data-restaurant="mizora"] .phone-screen.overview[data-guest-theme], [data-restaurant="mizora"] .preview-phone[data-guest-theme] { background:var(--guest-surface); }
+[data-restaurant="mizora"] .preview-phone[data-guest-theme] .preview-selected { background:var(--guest-accent); color:var(--guest-accent-ink); }
+@media(max-width:780px) {
+.restaurant-link { display:none; }
+[data-restaurant="mizora"] .restaurant-header { top:calc(27px + env(safe-area-inset-top)); }
+[data-restaurant="mizora"] .quick-tabs { top:calc(111px + env(safe-area-inset-top)); }
+[data-restaurant="mizora"] .guest-toggle { top:calc(157px + env(safe-area-inset-top)); }
+[data-restaurant="mizora"] .overview-scroll { top:calc(211px + env(safe-area-inset-top)); }
+}
+@media(max-width:350px) {
+[data-restaurant="mizora"] .mizora-logo { height:54px; }
+[data-restaurant="mizora"] .phone-screen.explore .hero-content-minimal .hero-title-row h1 { font-size:24px; }
+[data-restaurant="mizora"] .dish-card-main img { width:82px; height:61.5px; }
+[data-restaurant="mizora"] .dish-card-copy strong { font-size:12px; }
+[data-restaurant="mizora"] .filter-scroll { padding-inline:17px; }
+[data-restaurant="mizora"] .filters-sheet .sheet-head { padding-inline:17px; }
+}
+@media(prefers-reduced-motion:no-preference) {
+[data-restaurant="mizora"] .filters-sheet { animation:mizora-sheet-in .18s ease-out; }
+@keyframes mizora-sheet-in { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+}
+[data-restaurant="mizora"] .phone-screen.overview .quick-tab { background:transparent; box-shadow:none; border:0; border-radius:0; }
+[data-restaurant="mizora"] .phone-screen.overview .quick-tab.is-active { background:transparent; box-shadow:none; border:0; border-bottom:1px solid #612e34; color:#211918; }
+
+/* Venue-led Overview and focused menu refinement. */
+[data-restaurant="mizora"] .phone-screen.overview,
+[data-restaurant="mizora"] .phone-screen.overview[data-guest-theme] {
+  color:#f3e6d4;
+  background:linear-gradient(180deg,#100e0c26,#100e0c4d),url('assets/mizora/slate-background.png') center / cover no-repeat;
+}
+[data-restaurant="mizora"] .phone-screen.overview::after { display:none; }
+[data-restaurant="mizora"] .phone-screen.overview .guest-status { color:#f3e6d4; }
+[data-restaurant="mizora"] .phone-screen.overview .mizora-logo img { filter:none; opacity:1; }
+[data-restaurant="mizora"] .phone-screen.overview :is(.glass-icon,.lang-pill) { background:#21191865; color:#f3e6d4; border-color:#f3e6d440; }
+[data-restaurant="mizora"] .phone-screen.overview .quick-tab { color:#f3e6d4b3; background:none; box-shadow:none; border:0; }
+[data-restaurant="mizora"] .phone-screen.overview .quick-tab.is-active { color:#fff4e6; border-bottom:1px solid #b79a70; background:none; }
+[data-restaurant="mizora"] .phone-screen.overview .guest-toggle { background:#211918a1; border-color:#f3e6d429; }
+[data-restaurant="mizora"] .phone-screen.overview .guest-toggle button { color:#f3e6d4a6; background:none; }
+[data-restaurant="mizora"] .phone-screen.overview .guest-toggle button.active { color:#fff4e6; background:#f3e6d41f; }
+[data-restaurant="mizora"] .overview-scroll.venue-menu { top:211px; padding:16px 16px 28px; }
+.venue-menu-heading { display:flex; align-items:end; justify-content:space-between; gap:16px; margin-bottom:25px; }
+.venue-menu-heading p { margin:0 0 8px; color:#e6c49d; font-size:8px; font-weight:450; letter-spacing:.14em; }
+.venue-menu-heading h1 { font:400 29px/1.15 'Instrument Sans',Arial,sans-serif; letter-spacing:-.045em; margin:0; color:#f3e6d4; }
+.venue-menu-heading > span { color:#e6d8c7b0; font-size:10px; white-space:nowrap; padding-bottom:3px; }
+.menu-category-section { margin-bottom:26px; }
+.menu-category-section > h2 { font:450 13px/1.3 'Instrument Sans',Arial,sans-serif; color:#f3e6d4; margin:0 0 11px; letter-spacing:.01em; }
+.menu-photo-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; align-items:stretch; }
+[data-restaurant="mizora"] .venue-menu .menu-photo-card { position:relative; display:block; min-width:0; padding:0; margin:0; min-height:0; border:1px solid #d5ae781e; border-radius:11px; overflow:hidden; background:#211918d9; box-shadow:0 4px 16px #00000015; }
+[data-restaurant="mizora"] .venue-menu .dish-card-main { width:100%; height:100%; display:flex; flex-direction:column; gap:0; padding:0; align-items:stretch; text-align:left; color:#f3e6d4; border-radius:0; }
+[data-restaurant="mizora"] .venue-menu .dish-card-main img { width:100%; height:auto; aspect-ratio:4/3; object-fit:cover; border-radius:0; box-shadow:none; }
+[data-restaurant="mizora"] .venue-menu .dish-card-copy { display:flex; flex-direction:column; flex:1; gap:7px; padding:12px 11px 45px; }
+[data-restaurant="mizora"] .venue-menu .dish-card-copy strong { font:450 13px/1.35 'Instrument Sans',Arial,sans-serif; letter-spacing:-.02em; color:#f3e6d4; text-wrap:balance; }
+[data-restaurant="mizora"] .venue-menu .dish-card-copy small { color:#d5c7b8a8; font:350 10px/1.6 'Instrument Sans',Arial,sans-serif; }
+[data-restaurant="mizora"] .venue-menu .dish-card-copy em { position:absolute; bottom:17px; left:11px; color:#e6c49d; font:450 13px/1 'Instrument Sans',Arial,sans-serif; letter-spacing:0; margin:0; }
+[data-restaurant="mizora"] .venue-menu .dish-card-actions { position:absolute; right:8px; bottom:9px; display:flex; flex-direction:row; gap:4px; color:#f3e6d4; font-size:10px; }
+[data-restaurant="mizora"] .venue-menu .tiny-round { background:#f3e6d40c; color:#f3e6d4; border-color:#f3e6d43b; box-shadow:none; width:27px; height:27px; }
+[data-restaurant="mizora"] .venue-menu .tiny-round.emphasis { background:#e6d8c7; color:#211918; border-color:#e6d8c7; }
+[data-restaurant="mizora"] .venue-menu .tiny-round .ic { width:13px; height:13px; }
+[data-restaurant="mizora"] .venue-menu .dish-card-actions:has(b) { padding:4px; border-radius:20px; background:#211918; right:5px; bottom:5px; }
+.menu-active-filters { display:flex; align-items:center; gap:8px; color:#e6c49d; background:#211918c9; border:1px solid #b79a7055; border-radius:8px; font-size:11px; padding:10px 12px; margin:0 0 19px; }
+.menu-active-filters .ic { width:14px; height:14px; }
+[data-restaurant="mizora"] .venue-menu .overview-disclaimer { font:350 10px/1.7 'Instrument Sans',Arial,sans-serif; color:#e6d8c799; padding:0; margin:8px 0 0; }
+[data-restaurant="mizora"] .venue-menu .no-results { color:#f3e6d4; background:#211918cc; padding:20px; border-radius:12px; }
+@media(max-width:350px) {
+.menu-photo-grid { gap:9px; }
+[data-restaurant="mizora"] .overview-scroll.venue-menu { padding-inline:12px; }
+[data-restaurant="mizora"] .venue-menu .dish-card-copy { padding:10px 9px 45px; }
+[data-restaurant="mizora"] .venue-menu .dish-card-copy strong { font-size:12px; }
+[data-restaurant="mizora"] .venue-menu .dish-card-copy small { font-size:9px; }
+}
+
+[data-restaurant="mizora"] .hero-image {
+  inset:auto;
+  top:50%; left:0; width:100%; height:auto; aspect-ratio:3/4;
+  transform:translate(var(--photo-x,0%),calc(-50% + var(--photo-y,0%))) scale(var(--photo-scale,1));
+  transform-origin:center;
+  mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent),linear-gradient(to bottom,transparent,#000 6%,#000 93%,transparent);
+  mask-composite:intersect;
+}
+
+/* MIZORA mobile navigation and compact visual menu. */
+.visually-hidden { position:absolute!important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+.food-icon { width:24px; height:24px; display:block; flex-shrink:0; }
+[data-restaurant="mizora"] .phone-screen .compact-guest-header { top:calc(30px + env(safe-area-inset-top)); left:16px; right:16px; height:36px; justify-content:flex-end; }
+[data-restaurant="mizora"] .phone-screen.overview .compact-guest-header { justify-content:space-between; height:41px; }
+[data-restaurant="mizora"] .compact-guest-header .mizora-logo { width:126px; height:41px; flex:none; }
+[data-restaurant="mizora"] .compact-guest-header .mizora-logo img { width:100%; height:auto; max-height:41px; }
+[data-restaurant="mizora"] .compact-guest-header .guest-header-tools { gap:6px; }
+[data-restaurant="mizora"] .phone-screen.explore .quick-tabs { top:calc(73px + env(safe-area-inset-top)); }
+[data-restaurant="mizora"] .phone-screen.overview .quick-tabs { top:calc(88px + env(safe-area-inset-top)); }
+[data-restaurant="mizora"] .phone-screen .quick-tabs { gap:16px; padding-bottom:8px; }
+[data-restaurant="mizora"] .phone-screen .quick-tab { font-size:10px; }
+[data-restaurant="mizora"] .phone-screen .guest-cartbar.mizora-dock {
+  height:calc(70px + env(safe-area-inset-bottom)); padding:5px 8px max(7px,env(safe-area-inset-bottom));
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:0;
+  background:#171312f5; border-top:1px solid #ede2d026; backdrop-filter:blur(16px); z-index:24;
+}
+.mizora-dock button { position:relative; min-width:0; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:6px; min-height:53px; border:0; border-radius:8px; padding:6px 2px; background:none; color:#ab9d8f; font:400 9px/1.2 'Instrument Sans',Arial,sans-serif; }
+.mizora-dock button.is-active { color:#f6e8d7; }
+.mizora-dock button:hover { color:#f6e8d7; background:#ede2d008; }
+.dock-icon { display:block; position:relative; }
+.dock-icon :is(.food-icon,.ic) { width:21px; height:21px; }
+.dock-badge { position:absolute; top:-5px; right:-9px; display:grid; place-items:center; min-width:14px; height:14px; padding-inline:3px; border-radius:12px; background:#b79a70; color:#211918; font:600 8px/1 'Instrument Sans',Arial,sans-serif; }
+[data-restaurant="mizora"] .phone-screen.explore .hero-content-minimal { bottom:calc(91px + env(safe-area-inset-bottom)); }
+.dish-information { display:flex; align-items:center; gap:10px; margin-top:2px; }
+.dish-information button { display:flex; align-items:center; gap:7px; min-height:34px; padding:6px 10px; border:1px solid #ede2d02e; border-radius:8px; background:#21191888; color:#ede2d0; font:400 11px/1.3 'Instrument Sans',Arial,sans-serif; }
+.dish-information .nutrition-peek .food-icon { width:15px; height:15px; color:#b79a70; }
+.dish-information .allergen-peek { border-color:transparent; padding-inline:2px; background:none; gap:7px; }
+.allergen-peek .food-icon { width:20px; height:20px; }
+.allergen-peek > span { font-size:10px; }
+[data-restaurant="mizora"] .overview-scroll.venue-menu.compact-menu { top:calc(131px + env(safe-area-inset-top)); bottom:calc(76px + env(safe-area-inset-bottom)); padding:7px 15px 24px; }
+.compact-menu-status { display:flex; gap:8px; align-items:center; justify-content:space-between; min-height:27px; margin-bottom:9px; color:#e6d8c7b3; font:400 9px/1.3 'Instrument Sans',Arial,sans-serif; }
+.compact-menu-status button { background:none; border:0; color:#e6c49d; font-size:9px; text-decoration:underline; padding:6px; }
+[data-restaurant="mizora"] .compact-menu .menu-photo-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px 11px; }
+[data-restaurant="mizora"] .compact-menu .menu-photo-card { position:relative; background:none; border:0; border-radius:0; overflow:visible; box-shadow:none; transition:opacity .18s ease; }
+[data-restaurant="mizora"] .compact-menu .dish-card-main { display:block; width:100%; height:auto; padding:0; color:#f3e6d4; text-align:left; border:0; background:none; }
+.menu-card-photo { display:block; position:relative; width:100%; aspect-ratio:4/3; }
+[data-restaurant="mizora"] .compact-menu .menu-card-photo img { display:block; position:static; width:100%; height:auto; aspect-ratio:4/3; object-fit:cover; border-radius:10px; box-shadow:none; }
+[data-restaurant="mizora"] .compact-menu .menu-card-photo em { position:absolute; left:5px; bottom:5px; padding:3px 5px; border-radius:5px; color:#f8eddf; background:#1b1411bd; font:450 10px/1 'Instrument Sans',Arial,sans-serif; }
+.card-quantity { position:absolute; top:5px; right:5px; display:grid; place-items:center; min-width:15px; height:15px; padding-inline:3px; background:#e6d8c7; color:#211918; border-radius:12px; font:500 9px/1 'Instrument Sans',Arial,sans-serif; }
+[data-restaurant="mizora"] .compact-menu .dish-card-copy { display:flex; flex-direction:column; gap:4px; padding:8px 0 0; }
+[data-restaurant="mizora"] .compact-menu .dish-card-copy strong { font:450 11px/1.25 'Instrument Sans',Arial,sans-serif; color:#f5e9da; letter-spacing:-.015em; text-wrap:pretty; }
+[data-restaurant="mizora"] .compact-menu .dish-card-copy small { color:#d8c4afa6; font:350 9px/1.3 'Instrument Sans',Arial,sans-serif; }
+[data-restaurant="mizora"] .compact-menu .dish-card-copy .raw-mark { font-size:8px; margin-left:1px; }
+.card-quick-add { position:absolute; top:calc(75cqw - 27px); right:5px; display:grid; place-items:center; width:22px; height:22px; padding:0; border:1px solid #ede2d080; border-radius:50%; background:#e6d8c7; color:#211918; }
+.card-quick-add .ic { width:12px; height:12px; }
+[data-restaurant="mizora"] .compact-menu .is-muted { opacity:.88; }
+[data-restaurant="mizora"] .compact-menu .is-muted img { filter:grayscale(1); }
+[data-restaurant="mizora"] .compact-menu .is-muted .dish-card-main { opacity:1; }
+[data-restaurant="mizora"] .compact-menu .is-muted button { cursor:default; }
+.no-match-note { color:#ead2b5; font-size:11px; line-height:1.5; margin:0 0 14px; }
+.cart-table-link { display:inline-flex; align-items:center; gap:5px; padding:0; border:0; background:none; color:inherit; font:inherit; }
+.cart-table-link .ic { width:12px; height:12px; }
+[data-restaurant="mizora"] .filters-sheet.icon-filter-sheet {
+  display:flex; flex-direction:column; max-height:91%; height:auto; padding:0; border:1px solid #b79a7036; border-bottom:0;
+  border-radius:22px 22px 0 0; background:#211918f7; color:#f3e6d4; box-shadow:0 -20px 65px #0005; backdrop-filter:blur(20px);
+}
+.icon-filter-sheet .sheet-handle { width:28px; height:3px; margin:10px auto 0; background:#b79a7050; flex-shrink:0; }
+[data-restaurant="mizora"] .icon-filter-sheet .sheet-head { display:flex; align-items:center; padding:17px 20px 14px; margin:0; }
+[data-restaurant="mizora"] .icon-filter-sheet .sheet-head h2 { font:450 24px/1.1 'Instrument Sans',Arial,sans-serif; letter-spacing:-.035em; color:#f3e6d4; margin:0; }
+[data-restaurant="mizora"] .icon-filter-sheet .icon-close { width:32px; height:32px; color:#f3e6d4; background:#f3e6d409; border:1px solid #f3e6d41a; }
+[data-restaurant="mizora"] .icon-filter-sheet .filter-scroll { padding:0 20px 10px; overflow-y:auto; min-height:0; flex:1; }
+.icon-filter-group { border:0; padding:0; margin:0 0 18px; min-inline-size:0; }
+.icon-filter-group legend { padding:0; margin:0 0 9px; color:#d5c0a9; font:400 10px/1.4 'Instrument Sans',Arial,sans-serif; }
+.diet-icon-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; }
+.allergen-icon-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; }
+.icon-filter { position:relative; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:6px; min-width:0; min-height:62px; padding:8px 3px; border:1px solid #e6d8c729; border-radius:10px; color:#e6d8c7; background:#e6d8c708; }
+.icon-filter > .food-icon { width:23px; height:23px; }
+.icon-filter > span { display:block; font:400 8px/1.2 'Instrument Sans',Arial,sans-serif; text-align:center; overflow-wrap:anywhere; }
+.icon-filter.is-selected { background:#e6d8c7; color:#211918; border-color:#f3e6d4; }
+.icon-filter.is-selected::after { content:""; position:absolute; top:4px; right:4px; width:4px; height:4px; border-radius:50%; background:#612e34; }
+.allergen-icon-grid .icon-filter { background:#ede2d0; color:#211918; border:1px solid #ede2d0; }
+.allergen-icon-grid .icon-filter.is-selected { background:#612e34; border-color:#e6c49d; color:#f3e6d4; }
+.allergen-icon-grid .icon-filter.is-selected::after { background:#e6c49d; }
+.energy-heat-grid { display:grid; grid-template-columns:minmax(0,1fr); gap:0; }
+.energy-options,.chili-options { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+.energy-options button,.chili-options button { display:flex; align-items:center; justify-content:center; min-width:0; min-height:36px; padding:5px; border:1px solid #e6d8c729; border-radius:8px; background:none; color:#e6d8c7; font-size:11px; }
+.energy-options button[aria-pressed="true"],.chili-options button[aria-pressed="true"] { color:#211918; background:#e6d8c7; border-color:#e6d8c7; }
+.chili-options button { min-height:40px; gap:0; }
+.chili-options .food-icon { width:18px; height:21px; }
+.chili-options button[aria-pressed="true"] .food-icon { color:#612e34; }
+[data-restaurant="mizora"] .icon-filter-sheet .filter-warning { padding:0; margin:2px 0 8px; color:#b6a18f; background:none; border:0; font:350 9px/1.6 'Instrument Sans',Arial,sans-serif; }
+[data-restaurant="mizora"] .icon-filter-sheet .filter-sheet-actions { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px 20px max(18px,env(safe-area-inset-bottom)); border-top:1px solid #f3e6d418; background:#1b1615; flex-shrink:0; }
+[data-restaurant="mizora"] .icon-filter-sheet .filter-reset { border:0; background:none; color:#cbb6a4; font-size:10px; padding:10px 0; }
+[data-restaurant="mizora"] .icon-filter-sheet .filter-sheet-actions .primary-btn { display:flex; align-items:center; justify-content:center; gap:9px; min-height:42px; padding:12px 16px; border:0; border-radius:8px; box-shadow:none; color:#211918; background:#e6d8c7; font-size:11px; }
+.icon-filter-sheet .primary-btn span { opacity:.65; }
+@media(max-width:350px) {
+  [data-restaurant="mizora"] .overview-scroll.venue-menu.compact-menu { padding-inline:12px; }
+  [data-restaurant="mizora"] .compact-menu .menu-photo-grid { gap:14px 8px; }
+  [data-restaurant="mizora"] .compact-menu .dish-card-copy strong { font-size:10px; }
+  [data-restaurant="mizora"] .compact-menu .dish-card-copy small { font-size:8px; }
+  .allergen-icon-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  [data-restaurant="mizora"] .icon-filter-sheet .filter-scroll { padding-inline:16px; }
+  [data-restaurant="mizora"] .icon-filter-sheet .sheet-head { padding-inline:16px; }
+}
+
+[data-restaurant="mizora"] .phone-screen[data-guest-theme] .mizora-dock button.is-active { color:var(--guest-accent); }
+[data-restaurant="mizora"] .compact-menu .menu-photo-card { container-type:inline-size; }
+
+/* Tactile guest controls; restaurant styling stays inside the guest surface. */
+[data-restaurant="mizora"] .guest-stage { --foodie-orange:#ed9656; }
+[data-restaurant="mizora"] .phone-screen .lang-pill { min-width:42px; height:28px; padding:0 8px; border-radius:9px; font-size:9px; font-weight:500; box-shadow:none; }
+[data-restaurant="mizora"] .phone-screen .quick-tabs { gap:9px; padding:3px 16px 9px; scrollbar-width:none; }
+[data-restaurant="mizora"] .phone-screen:is(.explore,.overview) .quick-tab { flex:none; min-height:40px; padding:11px 16px; border:1px solid #e9d9c526; border-radius:12px; background:#302522d9; color:#e9d9c5; font:500 12px/1.2 'Instrument Sans',Arial,sans-serif; letter-spacing:0; box-shadow:inset 0 1px #ffffff05; }
+[data-restaurant="mizora"] .phone-screen:is(.explore,.overview) .quick-tab.is-active { border:1px solid #e9d9c570; background:var(--guest-accent,#612e34); color:var(--guest-accent-ink,#fff3e5); box-shadow:none; }
+[data-restaurant="mizora"] .phone-screen .quick-tab:hover { border-color:#e9d9c57a; }
+[data-restaurant="mizora"] .overview-scroll.venue-menu.compact-menu { top:calc(143px + env(safe-area-inset-top)); bottom:calc(84px + env(safe-area-inset-bottom)); }
+[data-restaurant="mizora"] .phone-screen .guest-cartbar.mizora-dock { height:calc(78px + env(safe-area-inset-bottom)); padding:8px 11px max(9px,env(safe-area-inset-bottom)); gap:7px; border-top-color:#ede2d01a; background:#1a1412f5; }
+.mizora-dock button { border:1px solid #e9d9c51c; border-radius:13px; gap:5px; min-height:58px; color:#c8b9a8; background:#2a211e; font-size:10px; font-weight:500; }
+.mizora-dock button:hover { background:#372a25; }
+.mizora-dock button.is-active { background:#ede2d0; border-color:#ede2d0; color:#612e34; box-shadow:0 2px 8px #0002; }
+[data-restaurant="mizora"] .phone-screen[data-guest-theme] .mizora-dock button.is-active { background:#ede2d0; border-color:#ede2d0; color:var(--guest-accent,#612e34); box-shadow:0 2px 8px #0002; }
+.dock-icon :is(.food-icon,.ic) { width:20px; height:20px; }
+.dock-badge { background:#ed9656; color:#291b13; }
+[data-restaurant="mizora"] .phone-screen.explore .hero-content-minimal { bottom:calc(96px + env(safe-area-inset-bottom)); }
+[data-restaurant="mizora"] .phone-screen.explore .hero-content-minimal .hero-title-row h1 { font-size:29px; font-weight:500; letter-spacing:-.035em; line-height:1.1; }
+.dish-information { gap:10px; min-height:42px; }
+.dish-information .nutrition-peek { min-height:38px; white-space:nowrap; border-radius:11px; padding:8px 10px; background:#302622b3; font-size:11px; }
+.dish-information .nutrition-peek .food-icon { color:#ffda47; fill:#ffda47; stroke:#ffda47; }
+.dish-information .allergen-peek { display:flex; align-items:center; flex-wrap:wrap; gap:5px; min-width:0; max-width:110px; color:#e9d9c5; cursor:default; }
+.allergen-peek > span { display:flex; align-items:center; font-size:10px; }
+.allergen-peek .food-icon { width:18px; height:18px; }
+.dish-information .dish-add { position:relative; margin-left:auto; flex:none; display:grid; place-items:center; width:44px; height:42px; padding:0; border-radius:12px; border:1px solid #ffc39480; background:var(--foodie-orange); color:#2b1c14; box-shadow:inset 0 1px #ffe5cf66; }
+.dish-add .ic { width:21px; height:21px; margin-right:3px; }
+.dish-add-plus { position:absolute; right:6px; top:3px; font-size:13px; font-weight:600; }
+.dish-add b { position:absolute; top:-6px; right:-5px; min-width:17px; height:17px; display:grid; place-items:center; padding:0 3px; border-radius:8px; border:1px solid #ed9656; background:#2b1c14; color:#ffe1bf; font-size:9px; }
+[data-restaurant="mizora"] .nutrition-backdrop { align-items:flex-end; justify-content:center; padding:20px 20px calc(158px + env(safe-area-inset-bottom)); background:#140e0b45; backdrop-filter:blur(3px); }
+.nutrition-card { width:290px; max-width:100%; padding:15px 16px 12px; border:1px solid #e9d9c533; border-radius:16px; background:#2b2522; color:#faf1e7; box-shadow:0 12px 40px #0005; font-family:'Instrument Sans',Arial,sans-serif; }
+.nutrition-card header { display:flex; align-items:center; gap:10px; margin-bottom:15px; }
+.nutrition-card .nutrition-total { display:flex; align-items:center; gap:5px; font-size:18px; font-weight:600; letter-spacing:-.025em; white-space:nowrap; }
+.nutrition-total .food-icon { width:15px; height:18px; fill:#ffda47; color:#ffda47; }
+[data-restaurant="mizora"] .nutrition-card .nutrition-source { color:#d3c1ae; font-size:8px; font-weight:500; margin:0 0 0 auto; }
+[data-restaurant="mizora"] .nutrition-card .icon-close { flex:none; width:24px; height:24px; min-width:24px; padding:5px; background:#ede2d00c; color:#e9d9c5; }
+.nutrition-card .icon-close .ic { width:14px; height:14px; }
+[data-restaurant="mizora"] .nutrition-card .nutrition-values { display:grid; gap:10px; margin:0; font-size:12px; }
+[data-restaurant="mizora"] .nutrition-card .nutrition-values div { display:flex; align-items:center; justify-content:space-between; padding:0; border:0; font-size:12px; color:#e9d9c5; }
+.nutrition-card .nutrition-values :is(dt,dd) { margin:0; }
+.nutrition-card .nutrition-values dd { font-variant-numeric:tabular-nums; color:#fff6eb; }
+.nutrition-card > p { margin:13px 0 0; font-size:9px; line-height:1.4; color:#c4b19f; }
+.icon-filter { border-radius:12px; min-height:65px; }
+.icon-filter > .food-icon { width:25px; height:25px; }
+.icon-filter[data-value="vegetarian"] .food-icon,.icon-filter[data-value="vegan"] .food-icon { color:#91bc80; }
+.icon-filter[data-value="glutenFree"] .food-icon { color:#e5bf63; }
+.icon-filter[data-value="lactoseFree"] .food-icon { color:#9ec7d0; }
+.icon-filter[data-value="halal"] .food-icon { color:#c9ad80; }
+.icon-filter.is-selected[data-value="vegetarian"] .food-icon,.icon-filter.is-selected[data-value="vegan"] .food-icon { color:#386744; }
+.icon-filter.is-selected[data-value="glutenFree"] .food-icon { color:#8b651d; }
+.icon-filter.is-selected[data-value="lactoseFree"] .food-icon { color:#416b7a; }
+.icon-filter.is-selected[data-value="halal"] .food-icon { color:#745925; }
+.allergen-icon-grid .icon-filter { background:#e9dfcf; border-color:#f4e9da55; }
+:is(.allergen-icon-grid,.allergen-peek) .food-icon { color:#716044; }
+:is(.allergen-icon-grid,.allergen-peek) [data-value="Gluten"] .food-icon { color:#a77b1c; }
+:is(.allergen-icon-grid,.allergen-peek) [data-value="Fish"] .food-icon { color:#397481; }
+:is(.allergen-icon-grid,.allergen-peek) [data-value="Crustaceans"] .food-icon { color:#b35740; }
+:is(.allergen-icon-grid,.allergen-peek) :is([data-value="Peanuts"],[data-value="Tree nuts"]) .food-icon { color:#94603b; }
+:is(.allergen-icon-grid,.allergen-peek) :is([data-value="Soy"],[data-value="Celery"],[data-value="Lupin"]) .food-icon { color:#5a7945; }
+:is(.allergen-icon-grid,.allergen-peek) [data-value="Milk"] .food-icon { color:#526f83; }
+:is(.allergen-icon-grid,.allergen-peek) :is([data-value="Eggs"],[data-value="Mustard"]) .food-icon { color:#a57929; }
+.allergen-peek > [data-value] { display:grid; place-items:center; flex:none; width:23px; height:23px; border-radius:6px; background:#e9dfcf; }
+.allergen-icon-grid .icon-filter.is-selected .food-icon { color:#f6debb; }
+.chili-options .food-icon { color:#ed7560; fill:#ed756022; }
+.chili-options button[aria-pressed="true"] .food-icon { color:#ad3d2d; fill:#ad3d2d22; }
+.chili-options button[data-value="any"] .food-icon { color:inherit; fill:none; }
+@media(prefers-reduced-motion:no-preference) {
+  [data-restaurant="mizora"] .quick-tab,.mizora-dock button,.dish-add,.icon-filter { transition:background-color .16s,color .16s,border-color .16s; }
+  .dish-add:active { transform:scale(.96); }
+}
+@media(max-width:350px) {
+  [data-restaurant="mizora"] .phone-screen .quick-tab { padding-inline:14px; font-size:11px; }
+  [data-restaurant="mizora"] .phone-screen.explore .hero-content-minimal .hero-title-row h1 { font-size:25px; }
+  .dish-information { gap:7px; }
+  .dish-information .allergen-peek { max-width:89px; gap:3px; }
+  .allergen-peek .food-icon { width:16px; height:16px; }
+}
+
+/* Guest selection: calm surfaces, precise totals and a distinct review invitation. */
+[data-restaurant="mizora"] .cart-backdrop { background:#100c0a70; backdrop-filter:blur(6px); }
+[data-restaurant="mizora"] .guest-sheet.mizora-cart-sheet { display:flex; flex-direction:column; max-height:92%; overflow:hidden; padding:0; border:1px solid #c6a88644; border-bottom:0; border-radius:26px 26px 0 0; background:#241c18; color:#f5e9da; box-shadow:0 -16px 60px #0c080754; }
+.mizora-cart-sheet .sheet-handle { flex:none; width:30px; height:3px; margin:11px auto 0; background:#ac91724d; }
+.mizora-cart-sheet .sheet-head { flex:none; align-items:flex-start; padding:17px 20px 13px; margin:0; }
+.mizora-cart-sheet .cart-table-link { display:inline-flex; align-items:center; gap:6px; min-height:29px; padding:5px 9px; border:1px solid #e9d9c526; border-radius:8px; background:#e9d9c507; color:#d2bfa8; font-size:11px; }
+.mizora-cart-sheet .cart-table-link .ic:first-child { width:13px; height:13px; }
+.mizora-cart-sheet .cart-table-link .ic:last-child { width:10px; height:10px; margin-left:3px; }
+.mizora-cart-sheet .sheet-head h2 { margin:13px 0 0; color:#faf0e5; font:500 29px/1.1 'Instrument Sans',Arial,sans-serif; letter-spacing:-.035em; }
+.cart-item-count { margin:7px 0 0; font-size:10px; line-height:1.4; color:#bba792; }
+[data-restaurant="mizora"] .mizora-cart-sheet .icon-close,[data-restaurant="mizora"] .mizora-review-card .icon-close { width:32px; height:32px; padding:0; border:1px solid #e9d9c51e; background:#e9d9c509; color:#e9d9c5; }
+.mizora-cart-sheet .cart-items { flex:1 1 auto; min-height:0; max-height:none; padding:0 20px; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#9d80614d transparent; }
+.mizora-cart-sheet .cart-item { display:grid; grid-template-columns:72px minmax(0,1fr) auto; align-items:center; gap:12px; padding:17px 0; border-bottom:1px solid #e9d9c516; }
+.mizora-cart-sheet .cart-item:last-child { border-bottom:0; }
+.mizora-cart-sheet .cart-item > img { display:block; width:72px; height:78px; aspect-ratio:auto; border-radius:12px; object-fit:cover; }
+.mizora-cart-sheet .cart-item-detail { min-width:0; }
+.mizora-cart-sheet .cart-item-detail > strong { font-size:13px; font-weight:500; line-height:1.35; color:#f6ebdf; }
+.mizora-cart-sheet .cart-item-detail > span { display:block; margin-top:5px; color:#bba792; font-size:10px; line-height:1.3; }
+.mizora-cart-sheet .cart-item > b { align-self:start; padding-top:2px; color:#f5e9da; font:500 18px/1.3 'Instrument Sans',Arial,sans-serif; letter-spacing:-.035em; font-variant-numeric:tabular-nums; }
+.mizora-cart-sheet .quantity { display:inline-grid; grid-template-columns:30px 24px 30px; gap:0; align-items:center; margin-top:10px; border:1px solid #e9d9c529; border-radius:9px; background:#e9d9c508; overflow:hidden; }
+.mizora-cart-sheet .quantity button { display:grid; place-items:center; width:30px; height:30px; padding:0; border:0; border-radius:0; color:#e2c8a5; background:none; }
+.mizora-cart-sheet .quantity button:hover { background:#e9d9c515; }
+.mizora-cart-sheet .quantity button .ic { width:13px; height:13px; }
+.mizora-cart-sheet .quantity b { text-align:center; font-size:11px; font-weight:500; color:#faf0e5; font-variant-numeric:tabular-nums; }
+.cart-footer { flex:none; padding:0 20px max(21px,env(safe-area-inset-bottom)); background:#241c18; }
+.mizora-cart-sheet .sheet-total { margin:0; padding:18px 0; border-top:1px solid #e9d9c526; color:#cbb9a5; font-size:12px; font-weight:400; }
+.mizora-cart-sheet .sheet-total strong { color:#faf0e5; font:500 32px/1.1 'Instrument Sans',Arial,sans-serif; letter-spacing:-.04em; font-variant-numeric:tabular-nums; }
+.cart-continue,.review-open { display:flex; width:100%; min-height:46px; align-items:center; justify-content:center; gap:14px; padding:12px 17px; border:1px solid #ffc89966; border-radius:12px; background:var(--foodie-orange,#ed9656); color:#2a1c13; box-shadow:inset 0 1px #ffe9d144; font:600 12px/1.4 'Instrument Sans',Arial,sans-serif; }
+.cart-continue .ic,.review-open .ic { width:17px; height:17px; }
+.cart-continue:hover,.review-open:hover { background:#f5a66c; }
+.mizora-cart-sheet .cart-review-entry { display:grid; grid-template-columns:72px minmax(0,1fr) 20px; gap:10px; align-items:center; width:100%; margin:16px 0 0; padding:10px 12px 10px 10px; border:1px solid #f5ead9; border-radius:16px; background:#f4eee5; color:#2b221c; text-align:left; }
+.google-brand-mark { display:block; width:72px; height:72px; flex:none; border-radius:12px; background:#fff; object-fit:contain; }
+.review-entry-copy { display:flex; flex-direction:column; gap:7px; min-width:0; }
+.review-entry-copy small { font-size:9px; line-height:1.3; color:#7a6b5c; }
+.review-entry-copy strong { font-size:16px; line-height:1.2; font-weight:600; letter-spacing:-.025em; color:#30251e; }
+.review-entry-arrow { display:grid; place-items:center; color:#8d6039; }
+.review-entry-arrow .ic { width:19px; height:19px; transform:rotate(-40deg); }
+.mizora-cart-sheet .cart-review-entry:hover { background:#fff8ef; border-color:#fff8ef; }
+.mizora-cart-sheet .empty-cart { display:flex; align-items:center; flex-direction:column; padding:27px 10px; margin:0; color:#bba792; text-align:center; }
+.mizora-cart-sheet .empty-cart > .food-icon { width:32px; height:32px; color:#d0ae85; margin-bottom:12px; }
+.mizora-cart-sheet .empty-cart h3 { color:#f3e5d5; font-size:16px; font-weight:500; margin:0 0 8px; letter-spacing:-.02em; }
+.mizora-cart-sheet .empty-cart p { max-width:230px; font-size:11px; line-height:1.65; margin:0; }
+[data-restaurant="mizora"] .mizora-review-backdrop { align-items:center; justify-content:center; padding:20px; background:#100c0a70; backdrop-filter:blur(6px); }
+.mizora-review-card { position:relative; width:100%; max-width:340px; max-height:100%; overflow-y:auto; padding:28px 23px 20px; border:1px solid #c6a88644; border-radius:24px; background:#241c18; color:#f5e9da; box-shadow:0 20px 60px #0c080754; text-align:center; }
+.mizora-review-card .icon-close { position:absolute; top:13px; right:13px; }
+.mizora-review-card .google-brand-mark { width:108px; height:108px; border-radius:20px; margin:7px auto 23px; }
+.review-eyebrow { margin:0 0 8px; color:#bba792; font-size:10px; }
+.mizora-review-card h2 { margin:0; color:#faf0e5; font:500 28px/1.15 'Instrument Sans',Arial,sans-serif; letter-spacing:-.04em; text-wrap:balance; }
+.review-copy { margin:13px 0 24px; color:#cbb9a5; font-size:12px; line-height:1.6; }
+.review-availability { margin:0 0 15px; padding:14px 12px; border:1px solid #e9d9c526; border-radius:11px; background:#e9d9c508; color:#cbb9a5; font-size:11px; line-height:1.5; }
+.review-back { display:flex; align-items:center; justify-content:center; gap:7px; margin-top:13px; min-height:40px; width:100%; padding:8px; border:0; border-radius:9px; color:#d7c2a8; background:none; font-size:11px; }
+.review-back:hover { background:#e9d9c508; }
+.review-back .ic { width:13px; height:13px; }
+[data-restaurant="mizora"] .mizora-table-sheet { padding:12px 20px 25px; border-color:#c6a88644; background:#241c18; color:#f5e9da; box-shadow:0 -16px 60px #0c080754; }
+.mizora-table-sheet .sheet-head { margin-bottom:24px; }
+.mizora-table-sheet .micro-overline { color:#bba792; font-size:9px; letter-spacing:.12em; }
+.mizora-table-sheet .sheet-head h2 { margin-top:10px; font-size:27px; font-weight:500; letter-spacing:-.035em; }
+[data-restaurant="mizora"] .mizora-table-sheet .icon-close { color:#e9d9c5; background:#e9d9c509; border:1px solid #e9d9c51e; }
+.mizora-table-sheet .table-pick-grid { gap:8px; }
+.mizora-table-sheet .table-pick-grid button { min-height:45px; border:1px solid #e9d9c526; border-radius:10px; background:#e9d9c507; color:#e9d9c5; font-size:11px; }
+.mizora-table-sheet .table-pick-grid button.active { background:#ede2d0; border-color:#ede2d0; color:#612e34; }
+.mizora-table-sheet .table-pick-grid button:disabled { opacity:.4; cursor:default; }
+[data-restaurant="mizora"] .phone-screen:has(.mizora-sheet,.mizora-review-backdrop) > .floating-toast { display:none; }
+@media(max-width:350px) {
+  .mizora-cart-sheet .sheet-head { padding-inline:16px; }
+  .mizora-cart-sheet .cart-items,.cart-footer { padding-inline:16px; }
+  .mizora-cart-sheet .cart-item { grid-template-columns:58px minmax(0,1fr) auto; gap:10px; }
+  .mizora-cart-sheet .cart-item > img { width:58px; height:72px; border-radius:10px; }
+  .mizora-cart-sheet .cart-item-detail > strong { font-size:12px; }
+  .mizora-cart-sheet .cart-item > b { font-size:16px; }
+  .mizora-cart-sheet .cart-review-entry { grid-template-columns:60px minmax(0,1fr) 16px; gap:9px; }
+  .mizora-cart-sheet .google-brand-mark { width:60px; height:60px; }
+  .review-entry-copy strong { font-size:15px; }
+}
+
+/* Targeted guest polish; shared flag control preserves the Overview header layout. */
+[data-restaurant="mizora"] .phone-screen.explore .quick-tabs { top:calc(31px + env(safe-area-inset-top)); }
+[data-restaurant="mizora"] .phone-screen.explore .compact-guest-header { top:calc(83px + env(safe-area-inset-top)); height:32px; }
+[data-restaurant="mizora"] .phone-screen .language-flag-control { display:grid; place-items:center; min-width:40px; width:40px; height:32px; padding:6px; border:1px solid #e9d9c52e; border-radius:10px; background:#302522b3; }
+.language-flag { display:block; width:24px; height:18px; object-fit:cover; border-radius:3px; box-shadow:0 0 0 1px #f4e7d51a; }
+[data-restaurant="mizora"] .phone-screen.explore .hero-image { top:calc(50% - 22px); }
+[data-restaurant="mizora"] .phone-screen.explore .hero-kicker { font-size:10px; letter-spacing:.1em; color:#ead9c5bd; }
+[data-restaurant="mizora"] .phone-screen.explore .swipe-indicator { font-size:9px; letter-spacing:.025em; opacity:.85; }
+[data-restaurant="mizora"] .phone-screen.explore .hero-content-minimal .hero-summary { color:#ead9c5d1; }
+
+[data-restaurant="mizora"] .guest-stage { --sheet-surface:#211918f7; --sheet-border:#b79a7036; --sheet-ink:#f3e6d4; }
+[data-restaurant="mizora"] .guest-modal-backdrop:has(> .mizora-sheet) { background:rgba(12,8,5,.55); backdrop-filter:blur(8px); }
+[data-restaurant="mizora"] .guest-sheet.mizora-sheet { max-height:91%; padding:0; border:1px solid var(--sheet-border); border-bottom:0; border-radius:22px 22px 0 0; background:var(--sheet-surface); color:var(--sheet-ink); box-shadow:0 -20px 65px #0005; }
+.mizora-sheet .sheet-handle { width:28px; height:3px; margin:10px auto 0; background:#b79a7050; flex-shrink:0; }
+[data-restaurant="mizora"] .mizora-sheet .sheet-head { display:flex; align-items:flex-start; padding:17px 20px 14px; margin:0; }
+[data-restaurant="mizora"] .mizora-sheet .icon-close { width:32px; height:32px; color:#f3e6d4; background:#f3e6d409; border:1px solid #f3e6d41a; }
+.mizora-cart-sheet .cart-footer { background:var(--sheet-surface); }
+.mizora-cart-sheet .cart-table-link { min-height:28px; padding:2px 0; gap:7px; border:0; border-radius:4px; background:none; color:#bda994; font-size:10px; letter-spacing:.02em; }
+.mizora-cart-sheet .cart-table-link strong { color:#eee0cd; font-size:12px; font-weight:500; font-variant-numeric:tabular-nums; }
+.mizora-cart-sheet .cart-table-link .ic { width:10px; height:10px; margin-left:2px; color:#bda994; }
+.mizora-cart-sheet .cart-table-link:hover { color:#f3e6d4; }
+[data-restaurant="mizora"] .language-sheet .language-choices { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; padding:2px 20px max(24px,env(safe-area-inset-bottom)); overflow-y:auto; }
+[data-restaurant="mizora"] .language-sheet .language-choices button { display:flex; flex-direction:column; justify-content:center; align-items:center; gap:12px; width:100%; min-height:101px; padding:18px 8px; border:1px solid #e6d8c729; border-radius:12px; background:#e6d8c708; color:#e6d8c7; font:500 11px/1.3 'Instrument Sans',Arial,sans-serif; }
+.language-sheet .language-choices .language-flag { width:36px; height:27px; }
+.language-sheet .language-code { display:block; font-size:11px; font-weight:500; line-height:1.3; letter-spacing:.08em; }
+[data-restaurant="mizora"] .language-sheet .language-choices button[aria-pressed="true"] { background:#e6d8c7; border-color:#f3e6d4; color:#211918; box-shadow:none; }
+.language-sheet .language-choices button:hover { border-color:#e6d8c777; }
+.guest-information { padding:17px 20px max(20px,env(safe-area-inset-bottom)); border-top:1px solid #f3e6d418; }
+.guest-information > span { display:block; margin-bottom:9px; color:#b6a18f; font-size:9px; }
+.guest-information button { display:flex; align-items:center; justify-content:space-between; gap:14px; width:100%; padding:8px 0; border:0; border-radius:4px; background:none; color:#d9c5ac; text-align:left; font:400 11px/1.4 'Instrument Sans',Arial,sans-serif; }
+.guest-information .ic { width:14px; height:14px; transform:rotate(-40deg); }
+[data-restaurant="mizora"] .mizora-sheet.mizora-table-sheet .sheet-head h2 { margin:0; font:450 24px/1.1 'Instrument Sans',Arial,sans-serif; letter-spacing:-.035em; }
+.mizora-table-sheet .table-preview-note { margin:0 20px 16px; color:#b6a18f; font-size:10px; line-height:1.5; }
+.mizora-table-sheet .table-pick-grid { padding:0 20px; margin:0 0 20px; overflow-y:auto; min-height:0; }
+.mizora-table-sheet .table-pick-grid button { display:flex; justify-content:center; align-items:center; gap:6px; min-height:48px; padding:10px 5px; border:1px solid #e6d8c729; border-radius:10px; background:#e6d8c708; color:#e6d8c7; font-size:10px; }
+.mizora-table-sheet .table-pick-grid button strong { font-size:13px; font-weight:500; font-variant-numeric:tabular-nums; }
+.mizora-table-sheet .table-pick-grid button[aria-pressed="true"] { color:#211918; background:#e6d8c7; border-color:#f3e6d4; }
+.mizora-table-sheet .table-return { display:flex; align-items:center; gap:7px; min-height:36px; padding:6px 0; border:0; border-radius:4px; background:none; color:#cbb6a4; font-size:11px; }
+.table-return .ic { width:13px; height:13px; }
+.guest-information-trigger { display:grid; place-items:center; width:40px; min-width:40px; height:32px; padding:6px; border:1px solid #e9d9c52e; border-radius:10px; background:#302522b3; color:#f3e6d4; }
+.guest-information-trigger .ic { width:18px; height:18px; }
+.restaurant-information-scroll { min-height:0; overflow-y:auto; padding:0 20px max(24px,env(safe-area-inset-bottom)); overscroll-behavior:contain; }
+.restaurant-channels { display:grid; gap:8px; margin:2px 0 25px; }
+.restaurant-channel { display:flex; align-items:center; gap:13px; width:100%; min-height:65px; padding:9px 12px; border:1px solid #e6d8c723; border-radius:12px; color:#e6d8c7; background:#e6d8c707; text-decoration:none; text-align:left; font:500 13px/1.3 'Instrument Sans',Arial,sans-serif; }
+.restaurant-channel > span:not(.instagram-symbol) { flex:1; }
+.restaurant-channel > .ic { width:17px; height:17px; color:#c4a47e; transform:rotate(-40deg); }
+.restaurant-channel .google-brand-mark { width:45px; height:45px; border-radius:10px; }
+.instagram-symbol { display:grid; place-items:center; width:45px; height:45px; flex:none; border-radius:10px; background:#e6d8c710; color:#ddb69d; }
+.instagram-symbol svg { width:23px; height:23px; }
+.restaurant-channel small { display:block; margin-top:5px; font-size:9px; font-weight:400; color:#b19d89; }
+.restaurant-channel:not(.is-unavailable):hover { border-color:#d4b28a70; background:#e6d8c70c; }
+.guest-events h3 { margin:0 0 12px; font:500 15px/1.3 'Instrument Sans',Arial,sans-serif; color:#f3e6d4; }
+.guest-event { padding:16px; margin-top:9px; border:1px solid #e6d8c723; border-radius:12px; background:#e6d8c706; }
+.guest-event time { display:block; color:#d6b68c; font-size:10px; }
+.guest-event h4 { margin:9px 0 0; color:#f2e4d1; font:500 16px/1.35 'Instrument Sans',Arial,sans-serif; overflow-wrap:anywhere; }
+.guest-event p { margin:9px 0 0; color:#c6b49e; font-size:12px; line-height:1.65; white-space:pre-line; overflow-wrap:anywhere; }
+.guest-events-empty { margin:0; padding:18px 0 4px; color:#ac9985; font-size:11px; line-height:1.6; }
+@media(max-width:350px) {
+  [data-restaurant="mizora"] .mizora-sheet .sheet-head { padding-inline:16px; }
+  [data-restaurant="mizora"] .language-sheet .language-choices { padding-inline:16px; }
+  .mizora-table-sheet .table-preview-note { margin-inline:16px; }
+  .mizora-table-sheet .table-pick-grid,.guest-information { padding-inline:16px; }
+}

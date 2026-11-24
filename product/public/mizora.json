@@ -1,0 +1,1416 @@
+{
+  "id": "mizora",
+  "name": "MIZORA",
+  "tagline": "Mediterranean · Japanese",
+  "theme": {
+    "accent": "#b79a70",
+    "surface": "#ede2d0",
+    "button": "pill"
+  },
+  "logo": "assets/mizora/logo-transparent.png",
+  "categories": [
+    {
+      "id": "all",
+      "name": "All",
+      "de": "Alle",
+      "es": "Todos"
+    },
+    {
+      "id": "raw",
+      "name": "Sushi & Raw Bar",
+      "de": "Sushi & Raw Bar",
+      "es": "Sushi y crudos"
+    },
+    {
+      "id": "tapas",
+      "name": "Tapas",
+      "de": "Tapas",
+      "es": "Tapas"
+    },
+    {
+      "id": "salads",
+      "name": "Salads",
+      "de": "Salate",
+      "es": "Ensaladas"
+    },
+    {
+      "id": "signatures",
+      "name": "Signatures",
+      "de": "Signatures",
+      "es": "Especialidades"
+    },
+    {
+      "id": "water",
+      "name": "Water",
+      "de": "Aus dem Meer",
+      "es": "Del mar"
+    },
+    {
+      "id": "earth",
+      "name": "Earth",
+      "de": "Vom Land",
+      "es": "De la tierra"
+    },
+    {
+      "id": "vegetables",
+      "name": "Vegetables",
+      "de": "Gemüse",
+      "es": "Verduras"
+    },
+    {
+      "id": "desserts",
+      "name": "Desserts",
+      "de": "Desserts",
+      "es": "Postres"
+    }
+  ],
+  "dishes": [
+    {
+      "id": "mizora-01",
+      "name": "Sashimi Sampler",
+      "category": "raw",
+      "price": 75,
+      "summary": "Hokkaido & Kyushu fish, fresh wasabi",
+      "components": [
+        "Hokkaido & Kyushu fish",
+        "fresh wasabi"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Fish"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "glutenFree": true,
+        "spice": 0
+      },
+      "nutrition": {
+        "kcal": 310,
+        "protein": 42,
+        "carbs": 8,
+        "fat": 12,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112544_8e31bf65-d613-4cd9-85cc-f096bd0b0487.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-01-explore.jpg",
+        "overview": "assets/mizora/dish-01-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Sashimi Sampler",
+          "summary": "Fisch aus Hokkaido & Kyushu, frischer Wasabi"
+        },
+        "es": {
+          "name": "Sashimi Sampler",
+          "summary": "Pescado de Hokkaido y Kyushu, wasabi fresco"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [
+        "GF"
+      ],
+      "raw": true,
+      "photoMatch": "probable"
+    },
+    {
+      "id": "mizora-03",
+      "name": "Hamachi Crudo",
+      "category": "raw",
+      "price": 32,
+      "summary": "Avocado cream, lime pearls, yuzu",
+      "components": [
+        "Avocado cream",
+        "lime pearls",
+        "yuzu"
+      ],
+      "live": true,
+      "featured": true,
+      "allergens": [
+        "Fish"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "glutenFree": true,
+        "spice": 0
+      },
+      "nutrition": {
+        "kcal": 350,
+        "protein": 26,
+        "carbs": 12,
+        "fat": 22,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112546_37310502-38c7-4ae2-8c14-a4b531f8f2c5.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-03-explore.jpg",
+        "overview": "assets/mizora/dish-03-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Hamachi Crudo",
+          "summary": "Avocadocreme, Limettenperlen, Yuzu"
+        },
+        "es": {
+          "name": "Hamachi Crudo",
+          "summary": "Crema de aguacate, perlas de lima, yuzu"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [
+        "GF"
+      ],
+      "raw": true,
+      "photoMatch": "probable"
+    },
+    {
+      "id": "mizora-04",
+      "name": "Bluefin Toro Tartare",
+      "category": "raw",
+      "price": 63,
+      "summary": "Caviar, kimchi lime, crispy nori chips",
+      "components": [
+        "Caviar",
+        "kimchi lime",
+        "crispy nori chips"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Fish",
+        "Soy",
+        "Sesame"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "glutenFree": true,
+        "spice": 0
+      },
+      "nutrition": {
+        "kcal": 460,
+        "protein": 30,
+        "carbs": 14,
+        "fat": 32,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112546_a09dfc48-133b-49cd-8121-fef40c1ba85a.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-04-explore.jpg",
+        "overview": "assets/mizora/dish-04-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Bluefin Toro Tartare",
+          "summary": "Kaviar, Kimchi-Limette, knusprige Nori-Chips"
+        },
+        "es": {
+          "name": "Bluefin Toro Tartare",
+          "summary": "Caviar, kimchi y lima, chips de nori crujientes"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [
+        "GF"
+      ],
+      "raw": true,
+      "photoMatch": "probable"
+    },
+    {
+      "id": "mizora-06",
+      "name": "Nigiri Sampler",
+      "category": "raw",
+      "price": 52,
+      "summary": "6 pieces, chef's selection of the day",
+      "components": [
+        "6 pieces",
+        "chef's selection of the day"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Fish",
+        "Crustaceans"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "spice": 0
+      },
+      "nutrition": {
+        "kcal": 440,
+        "protein": 24,
+        "carbs": 68,
+        "fat": 8,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112547_0bda0ea4-cd48-400a-8df0-5c42f4056a10.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-06-explore.jpg",
+        "overview": "assets/mizora/dish-06-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Nigiri Sampler",
+          "summary": "6 Stück, Tagesauswahl des Küchenchefs"
+        },
+        "es": {
+          "name": "Nigiri Sampler",
+          "summary": "6 piezas, selección del chef del día"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [],
+      "raw": true,
+      "photoMatch": "probable"
+    },
+    {
+      "id": "mizora-02",
+      "name": "Wagyu Beef Tartare",
+      "category": "tapas",
+      "price": 44,
+      "summary": "Pickled mustard seeds, crispy potato wafers",
+      "components": [
+        "Pickled mustard seeds",
+        "crispy potato wafers"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Mustard"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "glutenFree": true,
+        "spice": 0
+      },
+      "nutrition": {
+        "kcal": 480,
+        "protein": 28,
+        "carbs": 24,
+        "fat": 30,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112545_03de6490-1092-48a2-8a15-ec0485d17847.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-02-explore.jpg",
+        "overview": "assets/mizora/dish-02-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Wagyu Beef Tartare",
+          "summary": "Eingelegte Senfsaat, knusprige Kartoffelchips"
+        },
+        "es": {
+          "name": "Wagyu Beef Tartare",
+          "summary": "Semillas de mostaza encurtidas, láminas crujientes de patata"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [
+        "GF"
+      ],
+      "raw": true,
+      "photoMatch": "probable"
+    },
+    {
+      "id": "mizora-05",
+      "name": "Hamachi Crispy Rice",
+      "category": "tapas",
+      "price": 31,
+      "summary": "Wasabi, yuzu truffle sauce, serrano chili",
+      "components": [
+        "Wasabi",
+        "yuzu truffle sauce",
+        "serrano chili"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Fish",
+        "Soy"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "spice": 1
+      },
+      "nutrition": {
+        "kcal": 500,
+        "protein": 18,
+        "carbs": 58,
+        "fat": 22,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112547_0bc3c88c-7b4e-444f-a4bf-fc140def9ef9.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-05-explore.jpg",
+        "overview": "assets/mizora/dish-05-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Hamachi Crispy Rice",
+          "summary": "Wasabi, Yuzu-Trüffel-Sauce, Serrano-Chili"
+        },
+        "es": {
+          "name": "Hamachi Crispy Rice",
+          "summary": "Wasabi, salsa de yuzu y trufa, chile serrano"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [],
+      "raw": true,
+      "photoMatch": "probable"
+    },
+    {
+      "id": "mizora-11",
+      "name": "Grilled Octopus Skewer",
+      "category": "tapas",
+      "price": 45,
+      "summary": "Romesco, shiso chimichurri, fresno chili",
+      "components": [
+        "Romesco",
+        "shiso chimichurri",
+        "fresno chili"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Molluscs",
+        "Tree nuts"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "spice": 1
+      },
+      "nutrition": {
+        "kcal": 360,
+        "protein": 30,
+        "carbs": 16,
+        "fat": 20,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112700_8a435bef-e221-4f6c-8860-531a21e88a0b.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-11-explore.jpg",
+        "overview": "assets/mizora/dish-11-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Grilled Octopus Skewer",
+          "summary": "Romesco, Shiso-Chimichurri, Fresno-Chili"
+        },
+        "es": {
+          "name": "Grilled Octopus Skewer",
+          "summary": "Romesco, chimichurri de shiso, chile fresno"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [],
+      "raw": false,
+      "photoMatch": "probable",
+      "presentation": {
+        "scale": 1.17,
+        "x": 0,
+        "y": 4,
+        "brightness": 1.12
+      }
+    },
+    {
+      "id": "mizora-08",
+      "name": "House Salad",
+      "category": "salads",
+      "price": 26,
+      "summary": "Watermelon radish, golden beet, avocado, wasabi aioli",
+      "components": [
+        "Watermelon radish",
+        "golden beet",
+        "avocado",
+        "wasabi aioli"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Eggs",
+        "Mustard"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "spice": 0
+      },
+      "nutrition": {
+        "kcal": 320,
+        "protein": 5,
+        "carbs": 22,
+        "fat": 24,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112659_9ae8b1b3-f3a4-4742-8b57-60b289f3928b.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-08-explore.jpg",
+        "overview": "assets/mizora/dish-08-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "House Salad",
+          "summary": "Wassermelonenrettich, gelbe Bete, Avocado, Wasabi-Aioli"
+        },
+        "es": {
+          "name": "House Salad",
+          "summary": "Rábano sandía, remolacha dorada, aguacate, alioli de wasabi"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [],
+      "raw": false,
+      "photoMatch": "probable",
+      "presentation": {
+        "scale": 1.15,
+        "x": -15,
+        "y": -4,
+        "brightness": 1.1
+      }
+    },
+    {
+      "id": "mizora-09",
+      "name": "Snow Crab Salad",
+      "category": "salads",
+      "price": 38,
+      "summary": "Cucumber, avocado, orange, honey ponzu",
+      "components": [
+        "Cucumber",
+        "avocado",
+        "orange",
+        "honey ponzu"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Crustaceans",
+        "Soy",
+        "Gluten"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "spice": 0
+      },
+      "nutrition": {
+        "kcal": 360,
+        "protein": 24,
+        "carbs": 26,
+        "fat": 18,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112659_fc37ffbb-e77d-46fe-be51-e123f7ea4ac4.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-09-explore.jpg",
+        "overview": "assets/mizora/dish-09-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Snow Crab Salad",
+          "summary": "Gurke, Avocado, Orange, Honig-Ponzu"
+        },
+        "es": {
+          "name": "Snow Crab Salad",
+          "summary": "Pepino, aguacate, naranja, ponzu de miel"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [],
+      "raw": false,
+      "photoMatch": "probable"
+    },
+    {
+      "id": "mizora-12",
+      "name": "Beetroot Tartare",
+      "category": "salads",
+      "price": 25,
+      "summary": "Green apple, avocado, sesame ponzu, lotus chips",
+      "components": [
+        "Green apple",
+        "avocado",
+        "sesame ponzu",
+        "lotus chips"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Sesame",
+        "Soy"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "glutenFree": true,
+        "vegan": true,
+        "vegetarian": true,
+        "spice": 0
+      },
+      "nutrition": {
+        "kcal": 360,
+        "protein": 5,
+        "carbs": 36,
+        "fat": 22,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112700_f635c292-ddde-4c7e-8d2d-a17a0a7dc502.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-12-explore.jpg",
+        "overview": "assets/mizora/dish-12-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Beetroot Tartare",
+          "summary": "Grüner Apfel, Avocado, Sesam-Ponzu, Lotus-Chips"
+        },
+        "es": {
+          "name": "Beetroot Tartare",
+          "summary": "Manzana verde, aguacate, ponzu de sésamo, chips de loto"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [
+        "GF",
+        "V"
+      ],
+      "raw": false,
+      "photoMatch": "probable"
+    },
+    {
+      "id": "mizora-07",
+      "name": "Truffle Cream Spaghetti",
+      "category": "signatures",
+      "price": 68,
+      "summary": "Parmesan, chives, shaved black truffle",
+      "components": [
+        "Parmesan",
+        "chives",
+        "shaved black truffle"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Gluten",
+        "Milk"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "spice": 0
+      },
+      "nutrition": {
+        "kcal": 810,
+        "protein": 22,
+        "carbs": 90,
+        "fat": 40,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112659_431b8971-142e-4f5d-9b1c-055df66e67d0.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-07-explore.jpg",
+        "overview": "assets/mizora/dish-07-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Truffle Cream Spaghetti",
+          "summary": "Parmesan, Schnittlauch, gehobelter schwarzer Trüffel"
+        },
+        "es": {
+          "name": "Truffle Cream Spaghetti",
+          "summary": "Parmesano, cebollino, trufa negra laminada"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [],
+      "raw": false,
+      "photoMatch": "probable"
+    },
+    {
+      "id": "mizora-10",
+      "name": "Wagyu Gyoza",
+      "category": "signatures",
+      "price": 40,
+      "summary": "Pan-seared dumplings, shichimi ponzu",
+      "components": [
+        "Pan-seared dumplings",
+        "shichimi ponzu"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Gluten",
+        "Soy",
+        "Sesame"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "spice": 0
+      },
+      "nutrition": {
+        "kcal": 540,
+        "protein": 24,
+        "carbs": 48,
+        "fat": 28,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112700_53874543-39a4-4239-9fa4-34255375ea49.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-10-explore.jpg",
+        "overview": "assets/mizora/dish-10-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Wagyu Gyoza",
+          "summary": "Gebratene Teigtaschen, Shichimi-Ponzu"
+        },
+        "es": {
+          "name": "Wagyu Gyoza",
+          "summary": "Empanadillas doradas, ponzu shichimi"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [],
+      "raw": false,
+      "photoMatch": "probable"
+    },
+    {
+      "id": "mizora-15",
+      "name": "Maine Lobster Tempura",
+      "category": "signatures",
+      "price": 98,
+      "summary": "Smoked jalapeño aioli, butter lettuce wraps",
+      "components": [
+        "Smoked jalapeño aioli",
+        "butter lettuce wraps"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Crustaceans",
+        "Gluten",
+        "Eggs"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "spice": 0
+      },
+      "nutrition": {
+        "kcal": 820,
+        "protein": 42,
+        "carbs": 60,
+        "fat": 46,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112802_b10c5e2a-579d-431b-b3e5-c5307bd8bf6c.png",
+      "menuMatched": true,
+      "matchNote": "Lobster visually matches; tempura preparation and sides should be confirmed.",
+      "media": {
+        "explore": "assets/mizora/dish-15-explore.jpg",
+        "overview": "assets/mizora/dish-15-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Maine Lobster Tempura",
+          "summary": "Geräucherte Jalapeño-Aioli, Buttersalat-Wraps"
+        },
+        "es": {
+          "name": "Maine Lobster Tempura",
+          "summary": "Alioli de jalapeño ahumado, hojas de lechuga mantecosa"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [],
+      "raw": false,
+      "photoMatch": "review"
+    },
+    {
+      "id": "mizora-13",
+      "name": "Grilled Shrimp",
+      "category": "water",
+      "price": 44,
+      "summary": "Spicy miso butter, shiso herb salad",
+      "components": [
+        "Spicy miso butter",
+        "shiso herb salad"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Crustaceans",
+        "Milk",
+        "Soy"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "glutenFree": true,
+        "spice": 1
+      },
+      "nutrition": {
+        "kcal": 410,
+        "protein": 36,
+        "carbs": 8,
+        "fat": 26,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112801_0bd26f1f-db9b-4851-9123-903bfd8faef5.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-13-explore.jpg",
+        "overview": "assets/mizora/dish-13-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Grilled Shrimp",
+          "summary": "Würzige Miso-Butter, Shiso-Kräutersalat"
+        },
+        "es": {
+          "name": "Grilled Shrimp",
+          "summary": "Mantequilla de miso picante, ensalada de hierbas shiso"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [
+        "GF"
+      ],
+      "raw": false,
+      "photoMatch": "probable"
+    },
+    {
+      "id": "mizora-14",
+      "name": "Whole Roasted Branzino (2 lb)",
+      "category": "water",
+      "price": 138,
+      "summary": "Shiso chimichurri, kalamata olives, herb salad",
+      "components": [
+        "Shiso chimichurri",
+        "kalamata olives",
+        "herb salad"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Fish"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "glutenFree": true,
+        "spice": 0
+      },
+      "nutrition": {
+        "kcal": 680,
+        "protein": 80,
+        "carbs": 8,
+        "fat": 36,
+        "serving": "Whole fish · shared dish",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112802_66987992-2b35-4a75-bc4d-272c5fc63b19.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-14-explore.jpg",
+        "overview": "assets/mizora/dish-14-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Whole Roasted Branzino (2 lb)",
+          "summary": "Shiso-Chimichurri, Kalamata-Oliven, Kräutersalat"
+        },
+        "es": {
+          "name": "Whole Roasted Branzino (2 lb)",
+          "summary": "Chimichurri de shiso, aceitunas kalamata, ensalada de hierbas"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [
+        "GF"
+      ],
+      "raw": false,
+      "photoMatch": "probable"
+    },
+    {
+      "id": "mizora-16",
+      "name": "Miso Black Cod",
+      "category": "water",
+      "price": 67,
+      "summary": "Mushroom dashi, bok choy, ginger-sriracha",
+      "components": [
+        "Mushroom dashi",
+        "bok choy",
+        "ginger-sriracha"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Fish",
+        "Soy"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "glutenFree": true,
+        "spice": 1
+      },
+      "nutrition": {
+        "kcal": 520,
+        "protein": 34,
+        "carbs": 20,
+        "fat": 34,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112802_d1a81459-cf3f-4af7-8535-dee5910ee415.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-16-explore.jpg",
+        "overview": "assets/mizora/dish-16-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Miso Black Cod",
+          "summary": "Pilz-Dashi, Pak Choi, Ingwer-Sriracha"
+        },
+        "es": {
+          "name": "Miso Black Cod",
+          "summary": "Dashi de setas, pak choi, jengibre y sriracha"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [
+        "GF"
+      ],
+      "raw": false,
+      "photoMatch": "probable",
+      "presentation": {
+        "scale": 1.04,
+        "x": -3,
+        "y": -4,
+        "brightness": 1.16
+      }
+    },
+    {
+      "id": "mizora-17",
+      "name": "8oz Wagyu Skirt Steak",
+      "category": "earth",
+      "price": 94,
+      "summary": "Mushroom dashi, bok choy, ginger dressing",
+      "components": [
+        "Mushroom dashi",
+        "bok choy",
+        "ginger dressing"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Soy"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "glutenFree": true,
+        "spice": 0
+      },
+      "nutrition": {
+        "kcal": 630,
+        "protein": 48,
+        "carbs": 10,
+        "fat": 44,
+        "serving": "8 oz steak + garnish",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112802_dafe08ad-141e-4361-9ab0-b1cd15808739.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-17-explore.jpg",
+        "overview": "assets/mizora/dish-17-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "8oz Wagyu Skirt Steak",
+          "summary": "Pilz-Dashi, Pak Choi, Ingwer-Dressing"
+        },
+        "es": {
+          "name": "8oz Wagyu Skirt Steak",
+          "summary": "Dashi de setas, pak choi, aderezo de jengibre"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [
+        "GF"
+      ],
+      "raw": false,
+      "photoMatch": "probable"
+    },
+    {
+      "id": "mizora-18",
+      "name": "Spicy Chipotle Lamb Chops",
+      "category": "earth",
+      "price": 49,
+      "summary": "Shiso yogurt, basil, crispy furikake",
+      "components": [
+        "Shiso yogurt",
+        "basil",
+        "crispy furikake"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Milk",
+        "Sesame",
+        "Fish"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "spice": 1
+      },
+      "nutrition": {
+        "kcal": 580,
+        "protein": 40,
+        "carbs": 14,
+        "fat": 40,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112803_1690d90c-7064-42d6-9b4a-9e792ebc9123.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-18-explore.jpg",
+        "overview": "assets/mizora/dish-18-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Spicy Chipotle Lamb Chops",
+          "summary": "Shiso-Joghurt, Basilikum, knuspriges Furikake"
+        },
+        "es": {
+          "name": "Spicy Chipotle Lamb Chops",
+          "summary": "Yogur de shiso, albahaca, furikake crujiente"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [],
+      "raw": false,
+      "photoMatch": "probable",
+      "presentation": {
+        "scale": 1.22,
+        "x": -16,
+        "y": 0,
+        "brightness": 1.16
+      }
+    },
+    {
+      "id": "mizora-23",
+      "name": "14oz Prime Ribeye",
+      "category": "earth",
+      "price": 132,
+      "summary": "Yuzu kosho, rosemary marinade",
+      "components": [
+        "Yuzu kosho",
+        "rosemary marinade"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "glutenFree": true,
+        "spice": 0
+      },
+      "nutrition": {
+        "kcal": 1110,
+        "protein": 76,
+        "carbs": 4,
+        "fat": 88,
+        "serving": "14 oz steak + garnish",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112911_8a4f1234-b525-4c99-a73b-9edfa551248b.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-23-explore.jpg",
+        "overview": "assets/mizora/dish-23-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "14oz Prime Ribeye",
+          "summary": "Yuzu Kosho, Rosmarinmarinade"
+        },
+        "es": {
+          "name": "14oz Prime Ribeye",
+          "summary": "Yuzu kosho, marinada de romero"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [
+        "GF"
+      ],
+      "raw": false,
+      "photoMatch": "probable"
+    },
+    {
+      "id": "mizora-19",
+      "name": "Crispy Brussels Sprouts",
+      "category": "vegetables",
+      "price": 21,
+      "summary": "Honey-soy balsamic glaze",
+      "components": [
+        "Honey-soy balsamic glaze"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Soy"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "glutenFree": true,
+        "spice": 0
+      },
+      "nutrition": {
+        "kcal": 340,
+        "protein": 7,
+        "carbs": 32,
+        "fat": 20,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112910_5b53f0ef-f233-4db5-bdee-ff54b8ade721.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-19-explore.jpg",
+        "overview": "assets/mizora/dish-19-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Crispy Brussels Sprouts",
+          "summary": "Honig-Soja-Balsamico-Glasur"
+        },
+        "es": {
+          "name": "Crispy Brussels Sprouts",
+          "summary": "Glaseado de miel, soja y balsámico"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [
+        "GF"
+      ],
+      "raw": false,
+      "photoMatch": "probable"
+    },
+    {
+      "id": "mizora-24",
+      "name": "Grilled Sweet Corn",
+      "category": "vegetables",
+      "price": 21,
+      "summary": "House spice, spicy feta sauce",
+      "components": [
+        "House spice",
+        "spicy feta sauce"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Milk"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "spice": 1
+      },
+      "nutrition": {
+        "kcal": 390,
+        "protein": 9,
+        "carbs": 48,
+        "fat": 18,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112912_0fec7598-a83b-47fb-8990-7fda071e92cf.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-24-explore.jpg",
+        "overview": "assets/mizora/dish-24-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Grilled Sweet Corn",
+          "summary": "Hausgewürz, würzige Feta-Sauce"
+        },
+        "es": {
+          "name": "Grilled Sweet Corn",
+          "summary": "Especias de la casa, salsa de feta picante"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [],
+      "raw": false,
+      "photoMatch": "probable"
+    },
+    {
+      "id": "mizora-20",
+      "name": "Yuzu Cheesecake",
+      "category": "desserts",
+      "price": 19,
+      "summary": "Black sesame crumble, citrus gel",
+      "components": [
+        "Black sesame crumble",
+        "citrus gel"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Milk",
+        "Eggs",
+        "Gluten",
+        "Sesame"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "spice": 0
+      },
+      "nutrition": {
+        "kcal": 490,
+        "protein": 8,
+        "carbs": 48,
+        "fat": 30,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112911_111decb2-169b-4344-a93b-89911a12217e.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-20-explore.jpg",
+        "overview": "assets/mizora/dish-20-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Yuzu Cheesecake",
+          "summary": "Schwarzer Sesam-Crumble, Zitrusgel"
+        },
+        "es": {
+          "name": "Yuzu Cheesecake",
+          "summary": "Crumble de sésamo negro, gel de cítricos"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [],
+      "raw": false,
+      "photoMatch": "probable"
+    },
+    {
+      "id": "mizora-21",
+      "name": "Matcha Chocolate Fondant",
+      "category": "desserts",
+      "price": 21,
+      "summary": "Warm center, vanilla bean ice cream",
+      "components": [
+        "Warm center",
+        "vanilla bean ice cream"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [
+        "Gluten",
+        "Milk",
+        "Eggs"
+      ],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "spice": 0
+      },
+      "nutrition": {
+        "kcal": 570,
+        "protein": 9,
+        "carbs": 62,
+        "fat": 32,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112911_3f7a787e-cdde-4fbd-8ae3-a1c2690e61a4.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-21-explore.jpg",
+        "overview": "assets/mizora/dish-21-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Matcha Chocolate Fondant",
+          "summary": "Warmer Kern, Vanilleeis"
+        },
+        "es": {
+          "name": "Matcha Chocolate Fondant",
+          "summary": "Centro caliente, helado de vainilla"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [],
+      "raw": false,
+      "photoMatch": "probable"
+    },
+    {
+      "id": "mizora-22",
+      "name": "Mochi Selection",
+      "category": "desserts",
+      "price": 17,
+      "summary": "Three seasonal flavors",
+      "components": [
+        "Three seasonal flavors"
+      ],
+      "live": true,
+      "featured": false,
+      "allergens": [],
+      "allergensVerified": false,
+      "dietaryVerified": false,
+      "dietary": {
+        "glutenFree": true,
+        "spice": 0
+      },
+      "nutrition": {
+        "kcal": 300,
+        "protein": 4,
+        "carbs": 54,
+        "fat": 8,
+        "serving": "1 menu portion",
+        "source": "sample"
+      },
+      "source": "MIZORA supplied photo",
+      "sourceFile": "hf_20261120_112911_78b3d450-332c-438d-a91c-9a1703d902cf.png",
+      "menuMatched": true,
+      "matchNote": "Matched by menu description and visible presentation; identity supplied by demo brief.",
+      "media": {
+        "explore": "assets/mizora/dish-22-explore.jpg",
+        "overview": "assets/mizora/dish-22-overview.jpg"
+      },
+      "translations": {
+        "de": {
+          "name": "Mochi Selection",
+          "summary": "Drei saisonale Sorten"
+        },
+        "es": {
+          "name": "Mochi Selection",
+          "summary": "Tres sabores de temporada"
+        }
+      },
+      "allergenSource": "Possible allergens estimated from menu ingredients; restaurant confirmation required",
+      "menuSource": "Demo Menu – Base for Hugo.docx",
+      "menuTags": [
+        "GF"
+      ],
+      "raw": false,
+      "photoMatch": "probable"
+    }
+  ],
+  "menuRevision": 2,
+  "currency": "USD",
+  "menuSource": "Demo Menu – Base for Hugo.docx"
+}
