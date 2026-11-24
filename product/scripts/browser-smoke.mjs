@@ -159,11 +159,11 @@ console.log('MIZORA layouts and images passed '+width+'px');
 await size(390,844);await goto('/?restaurant=mizora&embed=guest');await run(setup);
 await send('Emulation.setTouchEmulationEnabled',{enabled:true});
 const before=await run(()=>$('.hero-title-row h1').textContent);
-await send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:170,y:480}]});
-await send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:170,y:280}]});
+await send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:280,y:380}]});
+await send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:100,y:380}]});
 await send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
 assert.notEqual(await run(()=>$('.hero-title-row h1').textContent),before,'swipe');
-await run(()=>{document.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowUp'}));check($('.hero-title-row h1').textContent.includes('Hamachi'),'keyboard');tap('mode','overview');});
+await run(()=>{document.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowLeft'}));check($('.hero-title-row h1').textContent.includes('Hamachi'),'keyboard');tap('mode','overview');});
 for(const [id,name] of [['mizora-18','lamb-focus'],['mizora-16','cod-focus'],['mizora-08','salad-focus'],['mizora-11','octopus-focus']]){
 await run(id=>{tap('mode','overview');tap('open',undefined,id);},id);await screenshot(name);
 }

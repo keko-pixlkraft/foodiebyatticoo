@@ -178,7 +178,8 @@ const NUTRITION_I18N = {
   }
 };
 const MIZORA_I18N = {"en":{"sampleNutrition":"Estimated from menu ingredients","nutritionNote":"Demo estimate per menu portion. Portions and recipes are assumed; values may vary substantially.","allergenNotVerified":"Possible allergens estimated from the menu. Other allergens and cross-contact may be present. Please confirm with your server.","demoWarning":"Demo guidance based on menu ingredients and estimated portions. Confirm dietary needs and allergies with your server.","demoMenu":"Prices in USD. * Consuming raw or undercooked fish, shellfish or meat may increase your risk of foodborne illness. Please inform your server of any allergies.","calorieNote":"Approximate kcal per menu portion.","allergyExclude":"Possible allergens to avoid","preferences":"Your preferences","noSpiceLimit":"Any heat"},"de":{"sampleNutrition":"Aus den Menüzutaten geschätzt","nutritionNote":"Demo-Schätzung pro Menüportion. Portionsgrößen und Rezepturen sind angenommen; tatsächliche Werte können deutlich abweichen.","allergenNotVerified":"Mögliche Allergene aus der Menübeschreibung geschätzt. Weitere Allergene und Kreuzkontakt sind möglich. Bitte beim Service bestätigen.","demoWarning":"Demo-Orientierung aus Menüzutaten und geschätzten Portionen. Ernährungswünsche und Allergien beim Service bestätigen.","demoMenu":"Preise in USD. * Roher oder nicht durchgegarter Fisch, Meeresfrüchte und Fleisch können lebensmittelbedingte Erkrankungen verursachen. Bitte informiere den Service über Allergien.","calorieNote":"Ungefähre kcal pro Menüportion.","allergyExclude":"Mögliche Allergene vermeiden","preferences":"Deine Wünsche","noSpiceLimit":"Beliebig"},"es":{"sampleNutrition":"Estimación según los ingredientes","nutritionNote":"Estimación de demo por ración del menú. Porciones y recetas supuestas; los valores reales pueden variar considerablemente.","allergenNotVerified":"Posibles alérgenos estimados según el menú. Puede haber otros alérgenos y contacto cruzado. Confirma con el personal.","demoWarning":"Orientación de demo basada en ingredientes y raciones estimadas. Confirma tus necesidades y alergias con el personal.","demoMenu":"Precios en USD. * El pescado, marisco o carne crudos o poco cocinados pueden aumentar el riesgo de enfermedades alimentarias. Informa al personal de tus alergias.","calorieNote":"Kcal aproximadas por ración.","allergyExclude":"Posibles alérgenos a evitar","preferences":"Tus preferencias","noSpiceLimit":"Cualquiera"}};
-function tr(key){return (restaurantProfile && MIZORA_I18N[ui.lang]?.[key]) || NUTRITION_I18N[ui.lang]?.[key]||UI_I18N[ui.lang]?.[key]||UI_I18N.en[key]||key;}
+const EXPLORE_I18N={en:{swipe:'Swipe left / right',previousDish:'Previous dish',nextDish:'Next dish'},de:{swipe:'Links / rechts wischen',previousDish:'Vorheriges Gericht',nextDish:'Nächstes Gericht'},es:{swipe:'Desliza a los lados',previousDish:'Plato anterior',nextDish:'Siguiente plato'}};
+function tr(key){return EXPLORE_I18N[ui.lang]?.[key] || (restaurantProfile && MIZORA_I18N[ui.lang]?.[key]) || NUTRITION_I18N[ui.lang]?.[key]||UI_I18N[ui.lang]?.[key]||UI_I18N.en[key]||key;}
 function dishText(d,key){return d?.translations?.[ui.lang]?.[key] || DISH_I18N[d?.id]?.[ui.lang]?.[key] || d?.[key] || '';}
 function catLabel(id){const category=CATS.find(c=>c.id===id);return restaurantProfile ? category?.[ui.lang] || category?.name || id : tr(id)||catsName(id);}
 function seedDietary(d){return {vegetarian:false,vegan:false,glutenFree:false,lactoseFree:false,halal:false,spice:0,...(DEMO_DIETARY[d.id]||{}),...(d.dietary||{})};}
@@ -407,7 +408,7 @@ function heroExplore(){
    <div class="hero-shade"></div>
    ${restaurantProfile?'':`<div class="hero-fab-stack"><button class="fab-cart-add" ${ui.table === null ? 'disabled' : ''} data-act="add" data-id="${e(d.id)}" aria-label="${e(tr('add'))} ${e(dishText(d,'name'))}">${icon('cart')}<span class="fab-plus">+</span>${qty?`<b>${qty}</b>`:''}</button></div>`}
    <div class="hero-content hero-content-minimal">
-     <div class="hero-kicker"><span>${e(catLabel(d.category))}</span><span class="swipe-indicator">⌃ ${e(tr('swipe'))}</span></div>
+     <div class="hero-kicker"><span>${e(catLabel(d.category))}</span><div class="explore-navigation"><button type="button" data-act="previous-dish" aria-label="${e(tr('previousDish'))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button><span class="swipe-indicator">${e(tr('swipe'))}</span><button type="button" data-act="next-dish" aria-label="${e(tr('nextDish'))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button></div></div>
      <div class="hero-title-row"><h1>${e(dishText(d,'name'))}${d.raw?'<sup class="raw-mark">*</sup>':''}</h1><span class="hero-price">${fmt(d.price)}</span></div>
      <p class="hero-summary">${e(dishText(d,'summary'))}</p>
      ${restaurantProfile?mizoraDishInformation(d):`<div class="hero-subline"><button class="outline-pill details-pill" data-act="details" aria-label="${e(tr('details'))} ${e(dishText(d,'name'))}">${icon('eye')} ${e(tr('details'))}</button></div>`}
@@ -941,7 +942,7 @@ function renderToastOnly(message) {
   else container.insertAdjacentHTML('beforeend',`<div class="floating-toast" role="status">${e(message)}</div>`);
 }
 function flipSurface(name){window.scrollTo({top:0,behavior:'instant'});ui.surface=name;ui.modal=null;ui.editor=null;if(name==='guest')event('views');render()}
-function turnDish(dir){const l=listed();if(!l.length)return;let i=l.findIndex(x=>x.id===ui.selected);ui.selected=l[((i===-1?0:i)+dir+l.length)%l.length].id;event('opens',ui.selected);render()}
+function turnDish(dir){const l=listed();if(l.length<2)return;let i=l.findIndex(x=>x.id===ui.selected);ui.selected=l[((i===-1?0:i)+dir+l.length)%l.length].id;event('opens',ui.selected);render();if(!matchMedia('(prefers-reduced-motion: reduce)').matches)root.querySelector('.explore-hero')?.animate([{transform:`translate3d(${dir*14}px,0,0)`,opacity:.94},{transform:'translate3d(0,0,0)',opacity:1}],{duration:200,easing:'cubic-bezier(.2,.7,.3,1)'})}
 function showCategory(id){ui.category=id;ui.overviewScroll=0;const first=listed()[0];if(first)ui.selected=first.id;render();const t=document.querySelector(`.quick-tab[data-value="${id}"]`);t?.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'})}
 function downloadJSON(){downloadPayload(db,'Foodie_Atticoo_'+restaurantId+'_LocalDemo.json');}
 function downloadPayload(payload,filename){const a=document.createElement('a');const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
@@ -949,6 +950,7 @@ function copyText(s){if(navigator.clipboard&&window.isSecureContext)return navig
 
 const handleActions=async(act,node)=>{
 const val=node.dataset.value, id=node.dataset.id;
+if(act==='previous-dish'||act==='next-dish'){if(ui.surface==='guest'&&ui.mode==='explore'&&!ui.modal)turnDish(act==='next-dish'?1:-1);return;}
 switch(act){
  case 'surface':flipSurface(val);break;
  case 'guest-back':ui.mode='overview';ui.modal=null;render();break;
@@ -1088,10 +1090,37 @@ root.addEventListener('input',ev=>{if(ev.target.form?.id==='appearance-form'){up
 
 root.addEventListener('submit',ev=>{if(ev.target.id==='appearance-form'){ev.preventDefault();saveAppearance(ev.target);return}if(ev.target.id==='dish-form'){ev.preventDefault();const fd=new FormData(ev.target),name=String(fd.get('name')||'').trim(),summary=String(fd.get('summary')||'').trim(),price=Number(fd.get('price')),components=String(fd.get('components')||'').split(',').map(s=>s.trim()).filter(Boolean);if(!name||!summary||!Number.isFinite(price)||price<0)return;const existing=ui.editor==='new'?null:dish(ui.editor),id=existing?.id||uid();const nutrition=readNutritionForm(ev.target,fd);if(nutrition===undefined)return;const record={...(existing||{}),nutrition,...(restaurantProfile ? {menuMatched:!!existing?.menuMatched && existing.name===name && existing.summary===summary && existing.price===price} : {}),id,name,summary,price,components,category:fd.get('category'),live:fd.has('live'),featured:fd.has('featured'),allergens:fd.getAll('allergen'),allergensVerified:fd.has('verified'),dietaryVerified:fd.has('dietaryVerified'),dietary:{...Object.fromEntries(DIET_KEYS.map(k=>[k,fd.has('diet_'+k)])),...(fd.get('spice')!=='' ? {spice:Number(fd.get('spice')||0)} : {})},translations:Object.fromEntries(['de','es'].map(lang=>[lang,{name:String(fd.get(lang+'_name')||'').trim(),summary:String(fd.get(lang+'_summary')||'').trim()}])),customPhoto:existing?.customPhoto||null,source:existing?.source||'Local menu entry'};if(existing)Object.assign(existing,record);else db.dishes.push(record);ui.selected=id;ui.editor=null;save();render();return}if(ev.target.id==='profile-form'){ev.preventDefault();const fd=new FormData(ev.target);const instagramUrl=String(fd.get('instagramUrl')||'').trim();if(instagramUrl&&!validInstagramUrl(instagramUrl)){ev.target.elements.instagramUrl.setCustomValidity('Enter an HTTPS Instagram profile URL.');ev.target.elements.instagramUrl.reportValidity();return;}const reviewUrl=String(fd.get('reviewUrl')||'').trim();if(reviewUrl&&!validReviewUrl(reviewUrl)){ev.target.elements.reviewUrl.setCustomValidity('Enter an HTTPS Google review link (google.com, g.page or maps.app.goo.gl).');ev.target.elements.reviewUrl.reportValidity();return;}db.instagramUrl=instagramUrl;db.reviewUrl=reviewUrl;db.reviewEnabled=fd.has('reviewEnabled');save();render();renderToastOnly('Feedback settings saved locally')}});
 root.addEventListener('scroll',ev=>{if(ev.target.id==='overview-scroll')ui.overviewScroll=ev.target.scrollTop;if(ev.target.id==='quick-tabs')ui.categoryScroll=ev.target.scrollLeft},true);
-let touchY=null,touchX=null,lastWheel=0;
-root.addEventListener('touchstart',ev=>{if(ui.surface!=='guest'||ui.mode!=='explore'||ui.modal)return;if(ev.target.closest('button'))return;touchY=ev.changedTouches[0].clientY;touchX=ev.changedTouches[0].clientX},{passive:true});
-root.addEventListener('touchend',ev=>{if(touchY===null)return;const dy=touchY-ev.changedTouches[0].clientY,dx=touchX-ev.changedTouches[0].clientX;touchY=touchX=null;if(Math.abs(dy)>55&&Math.abs(dy)>Math.abs(dx)*1.3)turnDish(dy>0?1:-1)},{passive:true});
-root.addEventListener('wheel',ev=>{if(ui.surface!=='guest'||ui.mode!=='explore'||ui.modal||!ev.target.closest('.phone-screen'))return;if(ev.target.closest('button'))return;const now=performance.now();if(Math.abs(ev.deltaY)>12&&now-lastWheel>650){lastWheel=now;turnDish(ev.deltaY>0?1:-1)}},{passive:true});
+let exploreTouch=null,lastWheel=0;
+const isExploreGestureTarget=target=>ui.surface==='guest'&&ui.mode==='explore'&&!ui.modal&&target.closest('.explore-hero')&&!target.closest('button,a,input,select,textarea,[contenteditable]');
+root.addEventListener('touchstart',ev=>{
+  exploreTouch=null;
+  if(ev.touches.length!==1||!isExploreGestureTarget(ev.target))return;
+  const touch=ev.touches[0];
+  // Keep browser back/forward gestures at the physical screen edges.
+  if(touch.clientX<24||touch.clientX>window.innerWidth-24)return;
+  exploreTouch={id:touch.identifier,x:touch.clientX,y:touch.clientY,dish:ui.selected,time:performance.now(),axis:null};
+},{passive:true});
+root.addEventListener('touchmove',ev=>{
+  if(!exploreTouch)return;
+  if(ev.touches.length!==1||!isExploreGestureTarget(ev.target)){exploreTouch=null;return;}
+  const touch=ev.touches[0],dx=Math.abs(touch.clientX-exploreTouch.x),dy=Math.abs(touch.clientY-exploreTouch.y);
+  if(!exploreTouch.axis&&Math.max(dx,dy)>12)exploreTouch.axis=dx>dy*1.3?'x':'y';
+  // Scope Safari's fallback to a single finger on the dish, preserving pinch zoom and inner scrollers.
+  if(ev.cancelable)ev.preventDefault();
+},{passive:false});
+root.addEventListener('touchcancel',()=>{exploreTouch=null;},{passive:true});
+root.addEventListener('touchend',ev=>{
+  const start=exploreTouch;exploreTouch=null;
+  if(!start||ev.touches.length||!isExploreGestureTarget(ev.target)||start.dish!==ui.selected||performance.now()-start.time>1200)return;
+  const touch=[...ev.changedTouches].find(t=>t.identifier===start.id);if(!touch)return;
+  const dx=start.x-touch.clientX,dy=start.y-touch.clientY;
+  if(start.axis!=='y'&&Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.3)turnDish(dx>0?1:-1);
+},{passive:true});
+root.addEventListener('wheel',ev=>{
+  if(ev.ctrlKey||!isExploreGestureTarget(ev.target)||Math.abs(ev.deltaX)<=Math.abs(ev.deltaY))return;
+  if(ev.cancelable)ev.preventDefault();
+  const now=performance.now();if(Math.abs(ev.deltaX)>12&&now-lastWheel>650){lastWheel=now;turnDish(ev.deltaX>0?1:-1);}
+},{passive:false});
 document.addEventListener('keydown',ev=>{
   const dialog=root.querySelector('[role="dialog"]');
   if(dialog && ev.key==='Tab'){
@@ -1102,7 +1131,7 @@ document.addEventListener('keydown',ev=>{
     }
     return;
   }
-  if(ev.key==='Escape'){if(ui.modal){ui.modal=null;render()}else if(ui.editor){ui.editor=null;render()}return}if(ui.surface==='guest'&&ui.mode==='explore'&&!ui.modal&&['ArrowUp','ArrowDown'].includes(ev.key)&&!['INPUT','SELECT','TEXTAREA'].includes(document.activeElement?.tagName)){ev.preventDefault();turnDish(ev.key==='ArrowDown'?1:-1)}});
+  if(ev.key==='Escape'){if(ui.modal){ui.modal=null;render()}else if(ui.editor){ui.editor=null;render()}return}if(ui.surface==='guest'&&ui.mode==='explore'&&!ui.modal&&['ArrowLeft','ArrowRight'].includes(ev.key)&&!document.activeElement?.closest('input,select,textarea,[contenteditable],#quick-tabs')){ev.preventDefault();turnDish(ev.key==='ArrowRight'?1:-1)}});
 if (ui.surface === 'guest') event('views');
 render();
 })();
