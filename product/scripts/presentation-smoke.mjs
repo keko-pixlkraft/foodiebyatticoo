@@ -34,7 +34,7 @@ const run=async(fn,data=null)=>{const r=await send('Runtime.evaluate',{expressio
 await send('Runtime.enable');await send('Page.enable');await send('Network.enable');
 const goto=async(path)=>{
 await send('Page.navigate',{url:base+path});
-for(let i=0;i<80;i++){if(await run(()=>!!document.querySelector('.phone-screen,.owner-main,.experiences')))return;await new Promise(r=>setTimeout(r,100));}throw Error('App boot timeout '+errors);
+for(let i=0;i<80;i++){if(await run(()=>document.readyState==='complete'&&!!document.querySelector('.phone-screen,.owner-main,.experiences')))return;await new Promise(r=>setTimeout(r,100));}throw Error('App boot timeout '+errors);
 };
 const size=async(w,h=900)=>send('Emulation.setDeviceMetricsOverride',{width:w,height:h,deviceScaleFactor:1,mobile:w<500});
 const screenshot=async(name)=>{
@@ -92,4 +92,3 @@ console.log('Presentation passed: root, guest, owner; 320/390/430/1280/1440px; i
   if(ws?.readyState===WebSocket.OPEN){ws.send(JSON.stringify({id:999999,method:'Browser.close'}));await Promise.race([once(chrome,'exit'),new Promise(resolve=>setTimeout(resolve,1500))]);}
   ws?.close();if(chrome.exitCode===null)chrome.kill();server.close();
 }
-

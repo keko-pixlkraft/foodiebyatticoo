@@ -1,0 +1,10 @@
+{
+  "name": "foodiebyattico-presentation",
+  "private": true,
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "build": "npm --prefix product run build"
+  }
+}
