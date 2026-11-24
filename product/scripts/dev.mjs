@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url';
 
 const publicDirectory = new URL('../public/', import.meta.url);
 const entryFiles = new Set(['index.html', 'app.js', 'styles.css', 'owner.css', 'prototype.js', 'mizora.json', 'mizora.css']);
-const mediaPath = /^assets\/(?:(?:explore|overview)\/[a-z0-9-]+\.webp|mizora\/(?:dish-[0-9]{2}-(?:explore|overview)\.jpg|logo(?:-transparent)?\.png|(?:establishment|slate-background)\.png)|qr-mizora\/table-[0-9]{2}\.svg|brands\/google-g\.png|flags\/(?:gb|de|es)\.svg|fonts\/(?:geist|instrument-sans)\.woff2|qr\/table-[0-9]{2}\.(?:png|svg))$/;
+const mediaPath = /^assets\/(?:(?:explore|overview)\/[a-z0-9-]+\.webp|mizora\/(?:dish-[0-9]{2}-(?:explore|overview)\.jpg|logo(?:-transparent)?\.png|(?:establishment|slate-background)\.png)|qr-mizora\/table-[0-9]{2}\.svg|brands\/google-g\.png|flags\/(?:gb|de|es)\.svg|fonts\/(?:(?:geist|instrument-sans)\.woff2|libre-caslon-text\.ttf)|qr\/table-[0-9]{2}\.(?:png|svg))$/;
 const contentTypes = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
@@ -16,11 +16,11 @@ const contentTypes = {
   '.svg': 'image/svg+xml',
   '.jpg': 'image/jpeg',
   '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
   '.json': 'application/json; charset=utf-8',
 };
 
 export function createPreviewServer({ built = false } = {}) {
-  let prototype;
   return createServer(async (request, response) => {
     if (request.method !== 'GET' && request.method !== 'HEAD') {
       response.writeHead(405, { Allow: 'GET, HEAD' }).end();
@@ -37,8 +37,8 @@ export function createPreviewServer({ built = false } = {}) {
 
     try {
       const contents = path === 'prototype.js' && !built
-        ? await (prototype ??= readFile(new URL('../src/prototype.ts', import.meta.url), 'utf8')
-          .then((source) => Buffer.from(stripTypeScriptTypes(source))))
+        ? await readFile(new URL('../src/prototype.ts', import.meta.url), 'utf8')
+          .then((source) => Buffer.from(stripTypeScriptTypes(source)))
         : await readFile(new URL(path, built ? new URL('../dist/', import.meta.url) : publicDirectory));
       response.writeHead(200, {
         'Content-Type': contentTypes[extname(path)],

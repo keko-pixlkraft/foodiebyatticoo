@@ -11,20 +11,21 @@
   <title>MIZORA · Foodie by Attico</title>
 </head>
 <body>
+  <a class="skip-link" href="#experiences">Choose your experience</a>
   <header class="masthead"><a class="wordmark" href="/" aria-label="Foodie by Attico home">Foodie<span>.</span><small>by Attico</small></a><span class="edition">The MIZORA experience</span></header>
   <main>
-    <div class="intro"><img src="assets/mizora/logo-transparent.png" alt="MIZORA" width="240" height="82"><p>Two perspectives.<br>One restaurant.</p></div>
-    <nav class="experiences" aria-label="Choose your experience">
-      <a class="experience guest" href="/guest?restaurant=mizora">
-        <div class="visual guest-visual"><img src="assets/mizora/dish-03-overview.jpg" alt="MIZORA Hamachi Crudo" width="800" height="600"><span class="visual-label">Made to explore</span></div>
-        <div class="card-copy"><span class="number">01 / At the table</span><div class="card-heading"><h1>Guest View</h1><span class="arrow" aria-hidden="true">↗</span></div><p>Explore the menu, discover each dish<br class="desktop-break"> and make your selection.</p></div>
+    <section class="intro" aria-label="MIZORA presentation"><img src="assets/mizora/logo-transparent.png" alt="MIZORA" width="240" height="82"><div class="intro-copy"><p class="eyebrow">At the table. Behind the scenes.</p><h1>One restaurant.<br>Two perspectives.</h1></div></section>
+    <nav class="experiences" id="experiences" aria-label="Choose your experience">
+      <a class="experience guest" href="/guest?restaurant=mizora" aria-labelledby="guest-title guest-cta">
+        <div class="visual guest-visual"><img src="assets/mizora/dish-03-overview.jpg" alt="MIZORA Hamachi Crudo" width="800" height="600"><span class="visual-label">The guest experience</span></div>
+        <div class="card-copy"><span class="number">01 / At the table</span><div class="card-heading"><h2 id="guest-title">Guest View</h2><span class="arrow" aria-hidden="true">↗</span></div><p>Explore MIZORA’s menu, discover each dish<br class="desktop-break"> and make your selection.</p><div class="card-footer"><span class="card-meta">Explore · Overview · EN / DE / ES</span><span class="entry-cta" id="guest-cta">Open guest menu <span aria-hidden="true">↗</span></span></div></div>
       </a>
-      <a class="experience owner" href="/owner?restaurant=mizora">
-        <div class="visual owner-visual"><img src="assets/demo/owner-preview.png" alt="MIZORA Owner Control menu editor" width="1440" height="900"><span class="visual-label">Behind the experience</span></div>
-        <div class="card-copy"><span class="number">02 / Behind the scenes</span><div class="card-heading"><h2>Owner Control</h2><span class="arrow" aria-hidden="true">↗</span></div><p>Manage dishes, media, tables and events.<br class="desktop-break"> See how your menu performs.</p></div>
+      <a class="experience owner" href="/owner?restaurant=mizora" aria-labelledby="owner-title owner-cta">
+        <div class="visual owner-visual"><img src="assets/demo/owner-preview.png" alt="MIZORA Owner Control 2026 menu editor" width="1586" height="992"><span class="visual-label">The restaurant workspace</span></div>
+        <div class="card-copy"><span class="number">02 / Behind the scenes</span><div class="card-heading"><h2 id="owner-title">Owner Control</h2><span class="arrow" aria-hidden="true">↗</span></div><p>Manage your menu, media requests and events.<br class="desktop-break"> Review tables and local menu activity.</p><div class="card-footer"><span class="card-meta">Menu · Media · Events · Analytics</span><span class="entry-cta" id="owner-cta">Open Owner Control <span aria-hidden="true">↗</span></span></div></div>
       </a>
     </nav>
   </main>
-  <footer><span>Foodie by Attico · MIZORA</span><p>Interactive presentation. Changes are saved in this browser only. No live orders.</p></footer>
+  <footer><span>Foodie by Attico <i aria-hidden="true">/</i> MIZORA</span><p>Interactive preview · Saved in this browser · No live orders</p></footer>
 </body>
 </html>

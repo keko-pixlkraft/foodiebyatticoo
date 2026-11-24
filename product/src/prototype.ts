@@ -80,3 +80,29 @@ export function viewCartRate(views: number, viewsWithAdd: number): number | null
   if (!Number.isFinite(views) || !Number.isFinite(viewsWithAdd) || views <= 0 || viewsWithAdd < 0 || viewsWithAdd > views) return null;
   return viewsWithAdd / views * 100;
 }
+export const mediaChangeTypes = ['lighting', 'crop', 'background', 'presentation', 'color', 'retouching', 'motion'] as const;
+type MediaChange = typeof mediaChangeTypes[number];
+export type LocalMediaRequest = {
+  restaurantId: string; dishId: string; mediaId: string; requestedChanges: MediaChange[];
+  note: string; priority: 'normal' | 'high'; createdAt: string; status: 'requested';
+};
+export function createMediaRequest(input: {
+  restaurantId: string; dishId: string; mediaId: string; requestedChanges: string[];
+  note: string; priority: string; createdAt: string;
+}): LocalMediaRequest {
+  if (!input.restaurantId || !input.dishId || !input.mediaId || !input.requestedChanges.length ||
+      input.requestedChanges.some(value => !mediaChangeTypes.includes(value as MediaChange)) ||
+      input.note.trim().length > 600 || !['normal', 'high'].includes(input.priority) ||
+      !Number.isFinite(Date.parse(input.createdAt))) throw new RangeError('Invalid media request');
+  return {restaurantId: input.restaurantId, dishId: input.dishId, mediaId: input.mediaId,
+    requestedChanges: [...new Set(input.requestedChanges)] as MediaChange[], note: input.note.trim(),
+    priority: input.priority as 'normal' | 'high', createdAt: input.createdAt, status: 'requested'};
+}
+
+export function eventPhase(date: string, today: string): 'upcoming' | 'today' | 'past' {
+  const parsed = new Date(date + 'T12:00:00');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(parsed.getTime()) ||
+      `${parsed.getFullYear()}-${String(parsed.getMonth()+1).padStart(2,'0')}-${String(parsed.getDate()).padStart(2,'0')}` !== date) throw new RangeError('Invalid date');
+  return date === today ? 'today' : date > today ? 'upcoming' : 'past';
+}
+

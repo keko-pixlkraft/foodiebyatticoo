@@ -8,6 +8,14 @@ Interactive restaurant presentation with a mobile guest menu, responsive Owner C
 - Guest View: https://foodiebyattico.vercel.app/guest?restaurant=mizora
 - Owner Control: https://foodiebyattico.vercel.app/owner?restaurant=mizora
 
+## Owner Control 2026
+
+The current presentation includes the shared espresso/ivory/copper design system, bundled serif typography and refreshed entry page. All six Owner Control areas are interactive: Menu Editing, Media Requests, Events, QR & Tables, Analytics and Settings. Guest View retains its approved photography and interactions.
+
+Media requests are structured local records, event timing and publication are distinct, and analytics exports identify local or illustrative traffic. QR destinations remain clearly labeled placeholders. No backend or real orders are enabled.
+
+Focused owner workflow checks: npm.cmd --prefix product run test:owner-2026.
+
 ## Development
 
 Node.js 24, no dependencies or environment secrets required.

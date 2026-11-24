@@ -51,10 +51,13 @@ window.tap=(a,v,id)=>{const s='[data-act="'+a+'"]'+(v===undefined?'':'[data-valu
 window.closeDialog=()=>document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));
 };
 
-for(const width of [320,390,430,1280,1440]) {
+for(const width of [320,390,430,1280,1440,1586,1920]) {
   await size(width);await goto('/');await run(setup);
   await run(()=>{
     check($('.experiences'),'entry choice');
+    check(document.querySelectorAll('h1').length===1,'one editorial page heading');
+    check($('.owner-visual img').alt.includes('2026'),'current owner preview');
+    check(getComputedStyle($('h1')).fontFamily.includes('Libre Caslon'),'shared serif heading');
     check($('a.guest').getAttribute('href')==='/guest?restaurant=mizora','guest route');
     check($('a.owner').getAttribute('href')==='/owner?restaurant=mizora','owner route');
     check(document.documentElement.scrollWidth<=innerWidth,'entry overflow');
@@ -87,7 +90,7 @@ for(const width of [320,390,430,1280,1440]) {
 await goto('/guest?restaurant=aurel-house');await run(setup);
 await run(()=>check(document.title.includes('Aurel'),'Aurel House preserved'));
 assert.deepEqual(errors,[],'browser exceptions');assert.deepEqual(network,[],'failed requests');
-console.log('Presentation passed: root, guest, owner; 320/390/430/1280/1440px; images, cart, filters, language, analytics, Aurel House; no console exceptions or failed requests.');
+console.log('Presentation passed: root, guest, owner; 320/390/430/1280/1440/1586/1920px; images, cart, filters, language, analytics, Aurel House; no console exceptions or failed requests.');
  } finally {
   if(ws?.readyState===WebSocket.OPEN){ws.send(JSON.stringify({id:999999,method:'Browser.close'}));await Promise.race([once(chrome,'exit'),new Promise(resolve=>setTimeout(resolve,1500))]);}
   ws?.close();if(chrome.exitCode===null)chrome.kill();server.close();

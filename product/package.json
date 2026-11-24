@@ -10,12 +10,13 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "dev": "node scripts/dev.mjs",
-    "check": "node --check public/app.js && node --check src/prototype.ts && node --check scripts/dev.mjs && node --check scripts/generate-owner-qr.mjs && node --check scripts/owner-smoke.mjs",
+    "check": "node --check public/app.js && node --check src/prototype.ts && node --check scripts/dev.mjs && node --check scripts/generate-owner-qr.mjs && node --check scripts/owner-smoke.mjs && node --check scripts/owner-2026-smoke.mjs && node --check scripts/build.mjs",
     "test": "node --test",
     "test:browser": "node scripts/browser-smoke.mjs",
     "test:owner": "node scripts/owner-smoke.mjs",
     "test:information": "node scripts/information-smoke.mjs",
     "test:presentation": "node scripts/presentation-smoke.mjs",
-    "qr:generate": "node scripts/generate-owner-qr.mjs"
+    "qr:generate": "node scripts/generate-owner-qr.mjs",
+    "test:owner-2026": "node scripts/owner-2026-smoke.mjs"
   }
 }

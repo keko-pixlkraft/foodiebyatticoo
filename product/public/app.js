@@ -1,7 +1,7 @@
 /* Foodie by Attico — self-contained local UX prototype.
    No network APIs, no real orders, no shared table state, no AI processing.
    All menus/prices/content are fictional and illustrative. */
-import { defaultTheme as aurelTheme, matchesCalorieLimit, mediaStatus, nextMediaStatus, normalizeTheme, nutritionFields, parseNutrition, readableInk, themePresets as sharedPresets, viewCartRate } from './prototype.js';
+import { createMediaRequest, eventPhase, defaultTheme as aurelTheme, matchesCalorieLimit, mediaStatus, nextMediaStatus, normalizeTheme, nutritionFields, parseNutrition, readableInk, themePresets as sharedPresets, viewCartRate } from './prototype.js';
 
 const restaurantId = new URLSearchParams(location.search).get('restaurant') === 'aurel-house' ? 'aurel-house' : 'mizora';
 const restaurantProfile = restaurantId === 'mizora' ? await fetch('./mizora.json').then(response => {
@@ -206,7 +206,7 @@ const DEFAULT_DB = {
   dishes: SEED.map(d => ({ ...d, nutrition: d.nutrition || SAMPLE_NUTRITION[d.id] || null })),
   menuRevision: restaurantProfile?.menuRevision || 0,
   tables: Array.from({ length: 12 }, (_, i) => ({ number: i + 1, active: true })),
-  carts: {}, mediaRequests: {}, guestLang: 'en', reviewUrl: '', reviewEnabled: true, instagramUrl:'', restaurantEvents:[],
+  carts: {}, mediaRequests: {}, mediaRequestLog: [], guestLang: 'en', reviewUrl: '', reviewEnabled: true, instagramUrl:'', restaurantEvents:[],
   events: { byLanguage:{}, byDay:{}, views: 0, opens: 0, adds: 0, cartViews: 0, qrPreviews: 0, byDish: {}, byTable: {}, measuredViews: 0, viewsWithAdd: 0, dishViews: {} },
 };
 function loadDB() {
@@ -230,6 +230,7 @@ function loadDB() {
       ...baseline, ...content,
       theme: normalizeTheme(stored.theme),
       restaurantEvents:Array.isArray(stored.restaurantEvents)?stored.restaurantEvents:[],
+      mediaRequestLog:Array.isArray(stored.mediaRequestLog)?stored.mediaRequestLog:[],
       events: { ...baseline.events, ...stored.events },
       dishes: Array.isArray(stored.dishes) ? stored.dishes : baseline.dishes,
       tables: Array.isArray(stored.tables) ? stored.tables : baseline.tables,
@@ -289,6 +290,15 @@ function setToast(s){ui.toast=s;clearTimeout(toastTimer);toastTimer=setTimeout((
 function addToCart(id,n){if(ui.table===null || !dish(id))return;const k=pad(ui.table);const c=db.carts[k]||(db.carts[k]={});c[id]=Math.max(0,(Number(c[id])||0)+n);if(c[id]===0)delete c[id];if(n>0)event('adds',id);else save();setToast(n>0?tr('add'):tr('selection'));render()}
 
 function icon(name){const paths={
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3M4 4l2 2M18 18l2 2M4 20l2-2M18 6l2-2"/>',
+ crop:'<path d="M6 2v16h16M2 6h16v16"/>',send:'<path d="m3 10 18-7-7 18-4-7-7-4Zm7 4L21 3"/>',
+ drop:'<path d="M12 2S5 10 5 15a7 7 0 0 0 14 0c0-5-7-13-7-13Z"/>',
+ cake:'<path d="M3 10h18v11H3zM3 15c3-4 5 4 9 0s6 0 9 0M6 10V6h12v4M12 2v4"/>',
+ dish:'<path d="M2 19h20M4 16a8 8 0 0 1 16 0H4ZM12 4v4M10 4h4"/>',
+ calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 11h18"/>',
+ globe:'<circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="4" ry="10"/><path d="M2 12h20M4 6h16M4 18h16"/>',
+ pause:'<circle cx="12" cy="12" r="9"/><path d="M9 8v8M15 8v8"/>',percent:'<path d="m5 19 14-14"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/>',
+
  menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
  layers:'<path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/>',qr:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM21 15h-2v4M15 21h3M21 21h-1"/>',
  chart:'<path d="M4 20V11M10 20V7M16 20V13M22 20V3"/>',settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a2 2 0 0 0 .4 2.2l-2 2a2 2 0 0 0-2.2-.4 2 2 0 0 0-1.6 2H11a2 2 0 0 0-1.6-2 2 2 0 0 0-2.2.4l-2-2A2 2 0 0 0 5.6 15 2 2 0 0 0 3.6 13v-2a2 2 0 0 0 2-1.6 2 2 0 0 0-.4-2.2l2-2A2 2 0 0 0 9.4 5 2 2 0 0 0 11 3h3a2 2 0 0 0 1.6 2 2 2 0 0 0 2.2.4l2 2a2 2 0 0 0-.4 2.2A2 2 0 0 0 21.4 11v2A2 2 0 0 0 19.4 15Z"/>',
@@ -528,12 +538,19 @@ function mizoraInformation() {
     </div></section></div>`;
 }
 
+function localToday(){const now=new Date();return [now.getFullYear(),pad(now.getMonth()+1),pad(now.getDate())].join('-');}
+function eventTiming(item){try{return eventPhase(item.date,localToday());}catch{return 'review';}}
 function ownerEvents() {
-  const current=db.restaurantEvents.find(item=>item.id===ui.eventEditor)||{title:'',date:'',time:'',description:'',published:true};
-  return `${ownerToolbar('Events','Announcements that appear in your guest menu.')}
-    <div class="owner-events-layout"><section class="panel"><div class="panel-top"><h2>Restaurant events</h2><button class="secondary-btn" data-act="new-event">${icon('plus')} New event</button></div>
-      ${db.restaurantEvents.length?db.restaurantEvents.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(item=>`<article class="owner-event-row"><button data-act="edit-event" data-id="${e(item.id)}"><small>${e(item.date)}${item.time?' · '+e(item.time):''}</small><strong>${e(item.title)}</strong><span>${item.published?'Published':'Draft'}</span></button><button class="availability-switch" role="switch" aria-checked="${item.published}" aria-label="Publish · ${e(item.title)}" data-act="toggle-event" data-id="${e(item.id)}"><span></span></button><button class="icon-close" data-act="delete-event" data-id="${e(item.id)}" aria-label="Delete ${e(item.title)}">${icon('close')}</button></article>`).join(''):'<p class="owner-empty">No events yet. Create an announcement for the guest menu.</p>'}</section>
-    <form class="panel owner-event-form" id="event-form"><h2>${current.id?'Edit event':'New event'}</h2><label class="form-field">Event title<input name="title" required maxlength="80" value="${e(current.title)}"></label><div class="editor-two"><label class="form-field">Date<input type="date" name="date" required value="${e(current.date)}"></label><label class="form-field">Time (optional)<input type="time" name="time" value="${e(current.time)}"></label></div><label class="form-field">Description<textarea name="description" maxlength="600" rows="4">${e(current.description)}</textarea></label><label class="review-enabled"><input name="published" type="checkbox" ${current.published?'checked':''}> Show in guest menu</label><div class="event-form-actions"><button class="primary-btn" type="submit">${icon('check')} Save event</button><button class="secondary-btn" type="button" data-act="new-event">Clear</button></div><p class="settings-hint">Saved locally for this restaurant. Nothing is published externally.</p></form></div>`;
+  const current=ui.eventDraft||db.restaurantEvents.find(item=>item.id===ui.eventEditor)||{title:'',date:'',time:'',description:'',published:true};
+  const filter=ui.eventFilter||'all';
+  const items=db.restaurantEvents.slice().sort((a,b)=>a.date.localeCompare(b.date)).filter(item=>filter==='all'||eventTiming(item)===filter);
+  const preview=db.restaurantEvents.find(item=>item.id===ui.eventEditor);
+  return `${ownerToolbar('Events','Create and manage special events and announcements in your guest menu.')}
+    <div class="owner-events-layout"><section class="panel events-library"><div class="panel-top"><h2>Restaurant events <small class="data-tag">${db.restaurantEvents.length} events</small></h2><button class="primary-btn copper-btn" data-act="new-event">${icon('plus')} New event</button></div>
+    <nav class="status-tabs event-filters" aria-label="Event timing">${[['all','All'],['upcoming','Upcoming'],['today','Today'],['past','Past']].map(([key,label])=>`<button data-act="event-filter" data-value="${key}" aria-pressed="${filter===key}">${label}</button>`).join('')}</nav>
+    <div class="event-list">${items.length?items.map(item=>`<article class="owner-event-row ${ui.eventEditor===item.id?'is-selected':''}"><button class="event-open" data-act="edit-event" data-id="${e(item.id)}"><time class="event-date-tile" datetime="${e(item.date)}"><b>${e(item.date.slice(8))}</b><span>${e(new Date(item.date+'T12:00:00').toLocaleDateString('en',{month:'short'}))}</span></time><span class="event-row-copy"><strong>${e(item.title)}</strong><small>${icon('calendar')} ${e(eventDateLabel(item))}</small><span class="event-publication">${item.published?'Visible in guest menu':'Hidden from guest menu'}</span></span></button><span class="event-timing ${eventTiming(item)}">${({upcoming:'Upcoming',today:'Today',past:'Past',review:'Check date'})[eventTiming(item)]}</span><button class="availability-switch" role="switch" aria-checked="${item.published}" aria-label="Publish · ${e(item.title)}" data-act="toggle-event" data-id="${e(item.id)}"><span></span></button><button class="icon-close" data-act="delete-event" data-id="${e(item.id)}" aria-label="Delete ${e(item.title)}">${icon('close')}</button></article>`).join(''):`<div class="events-empty">${icon('calendar')}<h3>${db.restaurantEvents.length?'No events in this view':'Your next occasion starts here'}</h3><p>${db.restaurantEvents.length?'Choose another timing filter to see your saved events.':'Create an event, add the details and choose when it appears in your guest menu.'}</p><small>No events have been added to this view.</small></div>`}</div></section>
+    <form class="panel owner-event-form" id="event-form"><h2>${current.id?'Edit event':'New event'}</h2><p class="form-intro">An invitation, thoughtfully presented.</p><label class="form-field">Event title<input name="title" required maxlength="80" placeholder="Name your event" value="${e(current.title)}"></label><div class="editor-two"><label class="form-field">Date<input type="date" name="date" required min="1900-01-01" max="9999-12-31" value="${e(current.date)}"></label><label class="form-field">Time (optional)<input type="time" name="time" value="${e(current.time)}"></label></div><label class="form-field">Description<textarea name="description" maxlength="600" rows="5" placeholder="Tell guests what to expect…">${e(current.description)}</textarea></label><label class="review-enabled"><input name="published" type="checkbox" ${current.published?'checked':''}> Show in guest menu</label><p class="settings-hint">Visibility is separate from event timing. Upcoming events can be visible before their date.</p><div class="event-form-actions"><button class="primary-btn" type="submit">${icon('check')} Save event</button><button class="secondary-btn" type="button" data-act="new-event">Cancel</button></div><p class="settings-hint">Saved locally for this restaurant. Nothing is published externally.</p>
+    <section class="event-guest-preview" aria-label="Saved guest preview"><div class="panel-top"><h3>Guest preview</h3><span class="data-tag">Saved content</span></div>${preview?`<article class="guest-event"><time datetime="${e(preview.date)}">${e(eventDateLabel(preview))}</time><h4>${e(preview.title)}</h4>${preview.description?`<p>${e(preview.description)}</p>`:''}</article><small>${preview.published?'This event appears in your local guest menu.':'Hidden from guests. Enable visibility and save to show it.'}</small>`:'<p>Save your event to preview the exact title, date and description shown to guests.</p>'}</section></form></div>`;
 }
 
 function mizoraLanguage() {
@@ -608,8 +625,8 @@ function guestThemeAttributes(theme) {
 function guest(){return `<main class="guest-stage" lang="${ui.lang}"><div class="device-frame"><div class="phone-screen ${ui.mode}" ${guestThemeAttributes(db.theme)}>${ui.mode==='explore'?heroExplore():''}${headerGuest()}${ui.mode==='overview'?guestOverview():''}${guestCartBar()}${guestModal()}${ui.toast?`<div class="floating-toast">${e(ui.toast)}</div>`:''}</div></div></main>`}
 
 const ownerNav = [
-  ['menu','Menu editing','menu','Menu'],
-  ['media','Media requests','image','Media'], ['events','Events','clock','Events'], ['qr','QR & tables','qr','Tables'],
+  ['menu','Menu editing','layers','Menu'],
+  ['media','Media requests','image','Media'], ['events','Events','calendar','Events'], ['qr','QR & tables','qr','Tables'],
   ['analytics','Analytics','chart','Insights'], ['settings','Settings','settings','Settings'],
 ];
 
@@ -637,10 +654,7 @@ function ownerToolbar(name, description, actions = '') {
 }
 
 function ownerDishTiles(dishes) {
-  return `<div class="menu-table-wrap"><table class="owner-menu-table"><thead><tr><th>Dish</th><th>Category</th><th>Price</th><th>Available</th></tr></thead><tbody>${dishes.map(d=>{
-    const tags=DIET_KEYS.filter(key=>d.dietary?.[key]).map(key=>UI_I18N.en[key]);
-    return `<tr><td><button class="dish-row-name" data-act="edit" data-id="${e(d.id)}">${dishPhoto(d,'overview',{lazy:true})}<span><strong>${e(d.name)}</strong><small>${e(tags.slice(0,2).join(' · ')||d.summary)}</small></span></button></td><td class="dish-row-category">${e(CATS.find(c=>c.id===d.category)?.name||d.category)}</td><td class="dish-row-price">${fmt(d.price)}</td><td><button class="availability-switch" type="button" role="switch" aria-checked="${d.live}" aria-label="Available · ${e(d.name)}" data-act="toggle-dish" data-id="${e(d.id)}"><span></span></button></td></tr>`;
-  }).join('')}</tbody></table></div>`;
+  return `<div class="menu-table-wrap"><table class="owner-menu-table"><thead><tr><th>Dish</th><th>Category</th><th>Price</th><th>Status</th><th><span class="sr-only">Edit</span></th></tr></thead><tbody>${dishes.map(d=>`<tr><td><button class="dish-row-name" data-act="edit" data-id="${e(d.id)}">${dishPhoto(d,'overview',{lazy:true})}<span><strong>${e(d.name)}</strong><small>${e(d.summary)}</small></span></button></td><td class="dish-row-category"><select class="row-category" data-dish-category="${e(d.id)}" aria-label="Category · ${e(d.name)}">${CATS.slice(1).map(c=>`<option value="${c.id}" ${c.id===d.category?'selected':''}>${e(c.name)}</option>`).join('')}</select></td><td class="dish-row-price"><label><span aria-hidden="true">${restaurantProfile?.currency==='USD'?'$':'€'}</span><input type="number" min="0" max="999" step=".01" required value="${d.price}" data-dish-price="${e(d.id)}" aria-label="Price · ${e(d.name)}"></label></td><td><button class="availability-switch" type="button" role="switch" aria-checked="${d.live}" aria-label="Available · ${e(d.name)}" data-act="toggle-dish" data-id="${e(d.id)}"><span></span></button></td><td><button class="row-edit" data-act="edit" data-id="${e(d.id)}" aria-label="Edit ${e(d.name)}">${icon('pencil')}</button></td></tr>`).join('')}</tbody></table></div>`;
 }
 
 function guestPreview(profile) {
@@ -654,19 +668,15 @@ function guestPreview(profile) {
   </div>`;
 }
 
+function ownerMetric(label,value,symbol){return `<div class="owner-metric">${icon(symbol)}<span>${e(label)}</span><b>${value}</b></div>`;}
+function categorySymbol(id){return icon(({all:'grid',raw:'fish',tapas:'spark',salads:'leaf',signatures:'star',water:'drop',earth:'leaf',vegetables:'leaf',desserts:'cake'})[id]||'grid');}
 function ownerMenu() {
-  const filtered = db.dishes.filter(d => (ui.filter === 'all' || d.category === ui.filter) &&
-    (!ui.search || `${d.name} ${d.summary}`.toLowerCase().includes(ui.search.toLowerCase())));
-  const foods = filtered.filter(d => d.category !== 'drinks'), drinks = filtered.filter(d => d.category === 'drinks');
-  const published = db.dishes.filter(d => d.live).length;
-  return `${ownerToolbar('Menu editing','Your menu, down to the last detail.',`<button class="primary-btn" data-act="new-dish">${icon('plus')} Add dish</button>`)}
-    <div class="menu-summary" aria-label="Menu summary"><div><span>Menu items</span><b>${db.dishes.length}</b></div><div><span>Published</span><b>${published}</b></div><div><span>Drafts</span><b>${db.dishes.length-published}</b></div><div><span>Categories</span><b>${CATS.length-1}</b></div></div>
-    <div class="menu-layout"><section class="menu-main panel"><div class="panel-top"><h2>Dishes & drinks</h2>
-      <div class="search-wrap">${icon('search')}<input id="owner-search" type="search" placeholder="Find a dish" value="${e(ui.search)}" aria-label="Search dishes"></div></div>
-      <div class="owner-filter-tabs" aria-label="Menu category">${CATS.map(c => `<button class="${ui.filter === c.id ? 'active' : ''}" aria-pressed="${ui.filter === c.id}" data-act="filter" data-value="${c.id}">${e(c.name)}</button>`).join('')}</div>
-      ${foods.length ? ownerDishTiles(foods) : ''}
-      ${drinks.length ? `<div class="drink-section-title"><h3>Drinks</h3><span>${drinks.length} items</span></div>${ownerDishTiles(drinks)}` : ''}
-      ${!filtered.length ? '<p class="owner-empty">No items match this search.</p>' : ''}</section></div>`;
+  const filtered=db.dishes.filter(d=>(ui.filter==='all'||d.category===ui.filter)&&(!ui.search||`${d.name} ${d.summary}`.toLowerCase().includes(ui.search.toLowerCase())));
+  const published=db.dishes.filter(d=>d.live).length;
+  return `${ownerToolbar('Menu Editing','Manage your menu, categories and dish details.',`<button class="primary-btn" data-act="new-dish">${icon('plus')} Add dish</button>`)}
+    <div class="menu-summary" aria-label="Menu summary">${ownerMetric('Menu items',db.dishes.length,'dish')}${ownerMetric('Published',published,'check')}${ownerMetric('Drafts',db.dishes.length-published,'pencil')}${ownerMetric('Categories',CATS.length-1,'layers')}</div>
+    <div class="menu-layout"><aside class="menu-structure"><div class="panel-top"><h2>Menu structure</h2></div><nav class="owner-filter-tabs" aria-label="Menu category">${CATS.map(c=>`<button class="${ui.filter===c.id?'active':''}" aria-pressed="${ui.filter===c.id}" data-act="filter" data-value="${c.id}">${categorySymbol(c.id)}<span>${c.id==='all'?'All dishes':e(c.name)}</span><small>${c.id==='all'?db.dishes.length:db.dishes.filter(d=>d.category===c.id).length}</small></button>`).join('')}</nav></aside>
+    <section class="menu-main"><div class="panel-top"><h2>Dishes & drinks <span>(${filtered.length})</span></h2><div class="search-wrap">${icon('search')}<input id="owner-search" type="search" placeholder="Search dishes…" value="${e(ui.search)}" aria-label="Search dishes"></div></div>${filtered.length?ownerDishTiles(filtered):'<p class="owner-empty">No dishes match this search.</p>'}</section></div>`;
 }
 
 function appearanceDraft() {
@@ -701,18 +711,20 @@ function appearance() {
 const mediaLabels = {ready:'Ready',requested:'Update requested',production:'In production',approved:'Approved'};
 const mediaActions = {ready:'Request an update',requested:'Simulate start of production',production:'Simulate approval',approved:'Request another update'};
 
+const mediaChangeOptions=[['lighting','Lighting','Improve light, contrast and depth','sun'],['crop','Crop & framing','Refine composition and focus','crop'],['background','Background & styling','Adjust the surface or table setting','image'],['presentation','Garnish & presentation','Keep the served dish and ingredients accurate','leaf'],['color','Color grading','Balance colors and the overall look','settings'],['retouching','Retouching','Remove distractions and minor imperfections','spark'],['motion','Motion / video','Request a professionally produced clip','video']];
 function mediaRequests() {
-  const current = dish(ui.mediaDish) || dish(restaurantProfile ? 'mizora-03' : 'roasted-salmon') || db.dishes[0];
-  return `${ownerToolbar('Media requests','Work with the Foodie by Attico team on professional dish photography and video.')}
-    ${current ? `<div class="media-layout"><section class="panel media-library"><h2>Dish photography</h2>
-      <ul class="media-list">${db.dishes.map(d => `<li><button data-act="media-dish" data-id="${e(d.id)}" aria-pressed="${d.id === current.id}">
-        ${dishPhoto(d,'overview',{lazy:true})}<span><b>${e(d.name)}</b><small>${mediaLabels[mediaStatus(db.mediaRequests[d.id])]}</small></span>${icon('chevron')}</button></li>`).join('')}</ul></section>
-      <section class="panel media-detail">${dishPhoto(current,'overview',{className:'media-cover',alt:current.name})}
-        <div class="media-copy"><div class="panel-top"><h2>${e(current.name)}</h2><span class="media-state" role="status">${mediaLabels[mediaStatus(db.mediaRequests[current.id])]}</span></div>
-          <p>Media production is managed by Attico. This demo saves the request and its status in this browser only.</p>
-          <button class="primary-btn" data-act="media-advance" data-id="${e(current.id)}">${mediaActions[mediaStatus(db.mediaRequests[current.id])]}</button>
-        </div></section></div>` : '<p class="owner-empty">Add a menu item to start a media request.</p>'}`;
+  const current=dish(ui.mediaDish)||dish(restaurantProfile?'mizora-03':'roasted-salmon')||db.dishes[0];
+  const log=db.mediaRequestLog||[];
+  const mode=ui.mediaFilter||'all';
+  const requests=log.filter(r=>mode==='all'||(mode==='open'?r.status==='requested':mode==='production'?r.status==='production':r.status==='approved'));
+  const draft=ui.mediaDraft||{requestedChanges:[],note:'',priority:'normal'};
+  return `${ownerToolbar('Media requests','Request professional edits, new photos or motion clips — managed by the Attico media team.')}
+    <div class="owner-section-tools"><nav class="status-tabs" aria-label="Media request status">${[['all','Overview',log.length],['open','Open requests',log.filter(r=>r.status==='requested').length],['production','In production',log.filter(r=>r.status==='production').length],['approved','Completed',log.filter(r=>r.status==='approved').length]].map(([key,label,count])=>`<button data-act="media-filter" data-value="${key}" aria-pressed="${mode===key}">${icon(key==='all'?'layers':key==='approved'?'check':'clock')}${label}<small>${count}</small></button>`).join('')}</nav><button class="primary-btn" data-act="new-media-request">${icon('plus')} New media request</button></div>
+    ${current?`<div class="media-layout"><section class="panel media-detail"><div class="media-image-wrap">${dishPhoto(current,'overview',{className:'media-cover',alt:current.name})}<span class="image-caption">${icon('image')} Current image</span><label class="media-dish-picker"><span class="sr-only">Choose a dish</span><select id="media-dish-select" aria-label="Dish photograph">${db.dishes.map(d=>`<option value="${e(d.id)}" ${d.id===current.id?'selected':''}>${e(d.name)}</option>`).join('')}</select></label></div><div class="media-copy"><div class="panel-top"><h2>${e(current.name)}</h2><span class="media-state" role="status">${mediaLabels[mediaStatus(db.mediaRequests[current.id])]}</span></div><p>${e(CATS.find(c=>c.id===current.category)?.name||'')} · ${fmt(current.price)}</p><p>${e(current.summary)}</p><div class="media-thumbnails" aria-label="Other dishes">${db.dishes.slice(0,4).map(d=>`<button data-act="media-dish" data-id="${e(d.id)}" aria-pressed="${d.id===current.id}" aria-label="Select ${e(d.name)}">${dishPhoto(d,'overview')}<span>${e(d.name)}</span></button>`).join('')}</div></div></section>
+    <form class="panel media-request-form" id="media-request-form" data-dish="${e(current.id)}"><div class="request-form-heading">${icon('spark')}<div><h2>Request media update</h2><p>Select what should be improved for this dish.</p></div></div><fieldset class="media-change-options"><legend class="sr-only">Requested changes</legend>${mediaChangeOptions.map(([key,title,copy,symbol])=>`<label>${icon(symbol)}<span><b>${title}</b><small>${copy}</small></span><input name="change" type="checkbox" value="${key}" ${draft.requestedChanges.includes(key)?'checked':''}></label>`).join('')}</fieldset><div class="request-priority"><label for="request-priority">Priority</label><select id="request-priority" name="priority"><option value="normal">Normal</option><option value="high" ${draft.priority==='high'?'selected':''}>High</option></select></div><label class="form-field">Notes for the media team (optional)<textarea name="note" maxlength="600" rows="3" placeholder="Describe the change. Keep the actual dish and ingredients accurate.">${e(draft.note)}</textarea></label><p class="form-error" role="alert" id="media-request-error" ${ui.mediaError?'':'hidden'}>${e(ui.mediaError||'')}</p><div class="media-submit"><button class="primary-btn copper-btn" type="submit">${icon('send')} Request an Update</button><p>Saved in this browser only.<br>No request is sent to Attico.</p></div></form></div>
+    <section class="panel request-history"><div class="panel-top"><h2>Local request history</h2><span class="data-tag">${requests.length} requests</span></div>${requests.length?requests.map(r=>`<article class="media-request-row"><div><b>${e(dish(r.dishId)?.name||'Removed dish')}</b><small>${e(r.requestedChanges.map(c=>mediaChangeOptions.find(o=>o[0]===c)?.[1]||c).join(' · '))} · ${e(new Date(r.createdAt).toLocaleDateString('en-GB'))}</small>${r.note?`<p>${e(r.note)}</p>`:''}</div><span class="data-tag">${mediaLabels[r.status]}</span>${r.status!=='approved'?`<button class="secondary-btn" data-act="media-progress" data-id="${e(r.id)}">${r.status==='requested'?'Simulate production':'Simulate approval'}</button>`:''}</article>`).join(''):'<p class="owner-empty">No saved requests in this view. Select a dish and describe the update you need.</p>'}</section>`:'<p class="owner-empty">Add a menu item to start a media request.</p>'}`;
 }
+
 function tableQrAsset(number) {
   return restaurantProfile ? 'assets/qr-mizora/table-'+pad(number)+'.svg' : 'assets/qr/table-'+pad(number)+'.png';
 }
@@ -726,38 +738,38 @@ async function downloadQr(number) {
   } catch {renderToastOnly('Unable to download this QR image');}
 }
 function qrPage() {
-  return ownerToolbar('Table QR codes','A considered first impression, at every table.','<button class="primary-btn" data-act="new-table">'+icon('plus')+' Add table</button>')+
-    '<div class="qr-intro panel"><div><h2>'+db.tables.length+' tables · '+e(db.restaurant)+'</h2><p>Local previews · QR destinations are placeholders. These are not live restaurant links.</p></div>'+icon('qr')+'</div><div class="qr-grid">'+db.tables.map(t=>{
-      const cart=db.carts[pad(t.number)]||{},count=Object.values(cart).reduce((sum,quantity)=>sum+quantity,0);
-      return '<article class="table-qr panel"><div class="table-qr-head"><span class="table-number">Table '+pad(t.number)+'</span><span class="status-pill '+(t.active?'':'paused')+'"><i></i>'+(t.active?'Active':'Paused')+'</span></div><img class="qr-image" src="'+tableQrAsset(t.number)+'" alt="'+e(db.restaurant)+' · Table '+pad(t.number)+' · placeholder QR"><div class="qr-stats"><span>Local items <b>'+count+'</b></span><span>Subtotal <b>'+fmt(cartAmount(cart))+'</b></span></div><div class="qr-actions"><button class="tiny-action" data-act="test-table" data-value="'+t.number+'" '+(t.active?'':'disabled')+'>'+icon('eye')+' Preview</button><button class="tiny-action" data-act="download-qr" data-value="'+t.number+'" aria-label="Download table '+pad(t.number)+' QR as PNG">'+icon('download')+' PNG</button><a class="tiny-action" href="'+tableQrAsset(t.number)+'" download="'+restaurantId+'_Table_'+pad(t.number)+'_DEMO.'+(restaurantProfile?'svg':'png')+'" aria-label="Download original table QR">'+(restaurantProfile?'SVG':'File')+'</a><button class="tiny-action" data-act="copy-qr" data-value="'+t.number+'" aria-label="Copy placeholder destination">'+icon('copy')+'</button><button class="qr-pause" data-act="toggle-table" data-value="'+t.number+'">'+(t.active?'Pause table':'Activate table')+'</button></div></article>';
-    }).join('')+'</div>';
+  const active=db.tables.filter(t=>t.active).length,filter=ui.qrFilter||'all';
+  const tables=db.tables.filter(t=>(filter==='all'||(filter==='active'?t.active:!t.active))&&(!ui.qrSearch||('table '+pad(t.number)).includes(ui.qrSearch.toLowerCase())));
+  return `${ownerToolbar('Table QR codes','Unique table codes for a considered guest menu experience.',`<button class="primary-btn" data-act="new-table" ${db.tables.length>=24?'disabled':''}>${icon('plus')} Add table</button>`)}
+    <div class="qr-intro panel"><div class="qr-intro-title">${icon('qr')}<div><h2>${db.tables.length} tables · ${e(db.restaurant)}</h2><p>Local previews · QR destinations are placeholders, not live restaurant links.</p></div></div><div class="qr-summary">${ownerMetric('Total tables',db.tables.length,'layers')}${ownerMetric('Active',active,'check')}${ownerMetric('Paused',db.tables.length-active,'pause')}</div></div>
+    <div class="owner-section-tools qr-tools"><nav class="status-tabs" aria-label="Table status">${[['all','All tables',db.tables.length],['active','Active',active],['paused','Paused',db.tables.length-active]].map(([key,label,count])=>`<button data-act="qr-filter" data-value="${key}" aria-pressed="${filter===key}">${label}<small>${count}</small></button>`).join('')}</nav><div class="qr-search-tools"><div class="search-wrap">${icon('search')}<input id="table-search" type="search" placeholder="Search tables…" aria-label="Search tables" value="${e(ui.qrSearch||'')}"></div><div class="layout-switch" aria-label="Table layout"><button data-act="qr-layout" data-value="grid" aria-pressed="${ui.qrLayout!=='list'}" aria-label="Table grid">${icon('grid')}</button><button data-act="qr-layout" data-value="list" aria-pressed="${ui.qrLayout==='list'}" aria-label="Table list">${icon('menu')}</button></div></div></div>
+    <div class="qr-grid ${ui.qrLayout==='list'?'qr-list-layout':''}">${tables.map(t=>{const cart=db.carts[pad(t.number)]||{},count=Object.values(cart).reduce((sum,quantity)=>sum+quantity,0);return `<article class="table-qr panel"><div class="table-qr-head"><span class="table-number">Table ${pad(t.number)}</span><span class="status-pill ${t.active?'':'paused'}"><i></i>${t.active?'Active':'Paused'}</span></div><img class="qr-image" src="${tableQrAsset(t.number)}" alt="${e(db.restaurant)} · Table ${pad(t.number)} · placeholder QR"><div class="qr-stats"><span>${icon('layers')}<span>Local items <b>${count}</b></span></span><span>${icon('table')}<span>Subtotal <b>${fmt(cartAmount(cart))}</b></span></span></div><div class="qr-actions"><button class="tiny-action" data-act="test-table" data-value="${t.number}" ${t.active?'':'disabled'}>${icon('eye')} Preview</button><button class="tiny-action" data-act="download-qr" data-value="${t.number}" aria-label="Download table ${pad(t.number)} QR as PNG">${icon('download')} PNG</button><a class="tiny-action" href="${tableQrAsset(t.number)}" download="${restaurantId}_Table_${pad(t.number)}_DEMO.${restaurantProfile?'svg':'png'}" aria-label="Download original table QR">${icon('download')} ${restaurantProfile?'SVG':'File'}</a><button class="tiny-action" data-act="copy-qr" data-value="${t.number}" aria-label="Copy placeholder destination">${icon('copy')} Copy</button><button class="qr-pause" data-act="toggle-table" data-value="${t.number}">${icon('pause')} ${t.active?'Pause table':'Activate table'}</button></div></article>`;}).join('')}</div>${!tables.length?'<p class="owner-empty">No tables match your selection.</p>':''}`;
 }
-
 const sampleDays = [130,160,154,190,214,180,250,235,280,305,290,342,370,401];
 const sampleDishViews = {'roasted-salmon':642,'margherita-pizza':521,'aurel-steak':416,'yuzu-spritz':328,'espresso-martini':296,'lychee-highball':284};
 
-function rankList(title, items) {
-  const ranked = items.map(d => ({d,count:db.events.dishViews[d.id] || 0})).filter(x => x.count)
-    .sort((a,b) => b.count - a.count).slice(0,5);
-  const max=Math.max(1,...ranked.map(item=>item.count));
-  return `<section class="panel"><div class="panel-top"><h2>${title}</h2><span class="data-tag">Local views</span></div>${ranked.map(({d,count},index)=>
-    `<div class="rank-item"><span class="rank-index">${index+1}</span>${dishPhoto(d,'overview')}<span class="rank-copy"><b>${e(d.name)}</b><span class="rank-track"><i style="width:${count/max*100}%"></i></span></span><strong>${count}</strong></div>`).join('') ||
-    '<div class="analytics-empty">'+icon('chart')+'<p>No dish interactions yet.</p><small>Activity appears as guests explore the local menu.</small></div>'}</section>`;
+
+function rankList(title,items) {
+ const all=items.map(d=>({d,count:db.events.dishViews[d.id]||0})).filter(x=>x.count).sort((a,b)=>b.count-a.count);
+ const total=all.reduce((sum,x)=>sum+x.count,0);
+ return `<section class="panel popular-panel"><div class="panel-top"><div><h2>${title}</h2><p>Recorded dish interactions in this browser.</p></div><span class="data-tag">Local views</span></div>${all.slice(0,5).map(({d,count})=>`<div class="rank-item">${dishPhoto(d,'overview')}<div class="rank-copy"><b>${e(d.name)}</b><small>${e(d.summary)}</small></div><div class="rank-count"><span>${count} interactions <b>${Math.round(count/total*100)}%</b></span><span class="rank-track" role="img" aria-label="${Math.round(count/total*100)} percent of recorded dish interactions"><i style="width:${count/total*100}%"></i></span></div></div>`).join('')||'<div class="analytics-empty">'+icon('chart')+'<p>No dish interactions yet.</p><small>Activity appears as guests explore the local menu.</small></div>'}</section>`;
+}
+function trafficDataset() {
+ const sample=ui.analyticsMode==='sample';
+ const days=Array.from({length:14},(_,index)=>{const date=new Date();date.setDate(date.getDate()-13+index);return [date.getFullYear(),pad(date.getMonth()+1),pad(date.getDate())].join('-');});
+ const values=sample?sampleDays:days.map(day=>Number(db.events.byDay?.[day])||0);
+ const previous=values.slice(0,7).reduce((a,b)=>a+b,0),current=values.slice(7).reduce((a,b)=>a+b,0);
+ return {restaurantId,source:sample?'illustrative sample':'local browser activity',metric:'menu opens',daily:days.map((date,index)=>({date,value:values[index]})),total:values.reduce((a,b)=>a+b,0),previousWeek:previous,currentWeek:current,changePercent:previous?(current/previous-1)*100:null};
 }
 
 function trafficChart() {
-  const sample=ui.analyticsMode!=='local';
-  const days=Array.from({length:14},(_,index)=>{const date=new Date();date.setDate(date.getDate()-13+index);return [date.getFullYear(),pad(date.getMonth()+1),pad(date.getDate())].join('-');});
-  const values=sample?sampleDays:days.map(day=>Number(db.events.byDay?.[day])||0);
-  const max=Math.max(1,...values),points=values.map((value,index)=>[12+index*616/13,170-value/max*142]);
-  const line=points.map(([x,y],index)=>(index?'L':'M')+x.toFixed(2)+' '+y.toFixed(2)).join(' ');
-  const total=values.reduce((sum,value)=>sum+value,0);
-  const previous=values.slice(0,7).reduce((sum,value)=>sum+value,0),current=values.slice(7).reduce((sum,value)=>sum+value,0);
-  const change=previous?new Intl.NumberFormat('en',{style:'percent',maximumFractionDigits:1,signDisplay:'always'}).format(current/previous-1)+' '+(sample?'illustrative ':'')+'week over week':'Weekly comparison unavailable';
-  return `<section class="panel traffic-panel"><div class="panel-top"><div><h2>Menu traffic</h2><p>${sample?'Illustrative data · 14 days':'Recorded menu opens · last 14 days'}</p></div><div class="analytics-view-switch" aria-label="Traffic data source">${[['local','Local'],['sample','Example']].map(([key,label])=>`<button data-act="analytics-view" data-value="${key}" aria-pressed="${(sample?'sample':'local')===key}">${label}</button>`).join('')}</div></div>
-    <div class="traffic-summary"><strong>${new Intl.NumberFormat('en').format(total)}</strong><span>${sample?'example menu opens':'local menu opens'}${sample?' · illustrative':''}</span></div>
-    <svg class="traffic-chart" viewBox="0 0 640 190" role="img" aria-label="${sample?'Illustrative':'Local'} menu opens by day: ${values.join(', ')}"><defs><linearGradient id="traffic-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f56531" stop-opacity=".23"/><stop offset="100%" stop-color="#f56531" stop-opacity="0"/></linearGradient></defs>${[28,99,170].map(y=>`<path d="M12 ${y}H628" stroke="#eee4d714" stroke-dasharray="4 6"/>`).join('')}<path d="${line}L628 180H12Z" fill="url(#traffic-fill)"/><path d="${line}" fill="none" stroke="#f56531" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <div class="analytics-chart-footer"><span>${sample?'Day 1':days[0].slice(5)}</span><span>${sample?'Day 7':days[6].slice(5)}</span><span>${sample?'Day 14':days[13].slice(5)}</span></div><p class="traffic-change">${e(change)}</p></section>`;
+ const data=trafficDataset(),sample=ui.analyticsMode==='sample';
+ const values=data.daily.map(d=>d.value),maximum=Math.max(4,...values),step=10**Math.floor(Math.log10(maximum)),max=Math.ceil(maximum/step)*step;
+ const points=values.map((value,index)=>[48+index*566/13,170-value/max*144]);
+ const line=points.map(([x,y],index)=>(index?'L':'M')+x.toFixed(2)+' '+y.toFixed(2)).join(' ');
+ const delta=data.changePercent===null?'No previous-week comparison':new Intl.NumberFormat('en',{style:'percent',maximumFractionDigits:1,signDisplay:'always'}).format(data.changePercent/100)+' over previous 7 days';
+ return `<section class="panel traffic-panel"><div class="panel-top"><div><h2>Menu traffic</h2><p>${sample?'Illustrative data · 14 days':'Recorded menu opens · last 14 days'}</p></div><div class="analytics-view-switch" aria-label="Traffic data source">${[['local','Local'],['sample','Example']].map(([key,label])=>`<button data-act="analytics-view" data-value="${key}" aria-pressed="${(sample?'sample':'local')===key}">${label}</button>`).join('')}</div></div><div class="traffic-summary"><strong>${new Intl.NumberFormat('en').format(data.total)}</strong><span>${sample?'example menu opens · illustrative':'local menu opens'}</span><small class="sample-delta">${e(delta)}</small></div>
+ <svg class="traffic-chart" viewBox="0 0 640 205" preserveAspectRatio="none" role="group" aria-label="${sample?'Illustrative':'Local'} menu opens by day"><defs><linearGradient id="traffic-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef9861" stop-opacity=".3"/><stop offset="100%" stop-color="#ef9861" stop-opacity="0"/></linearGradient></defs>${[0,1,2,3,4].map(t=>`<path d="M48 ${170-t*36}H614" stroke="#dfb78d28" stroke-dasharray="4 6"/><text x="37" y="${174-t*36}" text-anchor="end" class="chart-axis">${new Intl.NumberFormat('en',{maximumFractionDigits:0}).format(max*t/4)}</text>`).join('')}<path d="${line}L614 170H48Z" fill="url(#traffic-fill)"/><path d="${line}" fill="none" stroke="#ef9861" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${points.map(([x,y],index)=>`<g class="chart-point" tabindex="0" role="img" aria-label="${e(data.daily[index].date)}: ${values[index]} menu opens"><line class="chart-cross" x1="${x}" y1="24" x2="${x}" y2="170"/><circle cx="${x}" cy="${y}" r="8" fill="transparent"/><circle class="chart-dot" cx="${x}" cy="${y}" r="3"/><g class="chart-callout" transform="translate(${Math.min(518,Math.max(48,x-44))},${Math.max(5,y-55)})"><rect width="98" height="44" rx="8"/><text x="10" y="17">${sample?'Day '+(index+1):data.daily[index].date.slice(5)}</text><text x="10" y="33">${values[index]} opens</text></g></g>`).join('')}${[0,6,13].map(index=>`<text x="${48+index*566/13}" y="198" text-anchor="${index===0?'start':index===13?'end':'middle'}" class="chart-axis">${sample?'Day '+(index+1):data.daily[index].date.slice(5)}</text>`).join('')}</svg></section>`;
 }
 
 function languageAnalytics() {
@@ -773,23 +785,26 @@ function analytics() {
   const rate = viewCartRate(db.events.measuredViews,db.events.viewsWithAdd);
   const cartValue = Object.values(db.carts).reduce((sum,cart) => sum + Math.round(cartAmount(cart)*100),0) / 100;
   const metrics = [
-    ['Menu views',db.events.views], ['Dish interactions',db.events.opens], ['Cart additions',db.events.adds],
-    ['Add-to-cart rate',rate === null ? '—' : new Intl.NumberFormat('en',{maximumFractionDigits:1}).format(rate) + '%'],
-    ['Estimated cart value',fmt(cartValue)],
+    ['Menu views',db.events.views,'eye'], ['Dish interactions',db.events.opens,'spark'], ['Cart additions',db.events.adds,'cart'],
+    ['Add-to-cart rate',rate === null ? '—' : new Intl.NumberFormat('en',{maximumFractionDigits:1}).format(rate) + '%','percent'],
+    ['Estimated cart value',fmt(cartValue),'layers'],
   ];
-  return `${ownerToolbar('Analytics','A clear view of how guests explore your menu.',`<button class="secondary-btn" data-act="export">${icon('download')} Export data</button>`)}
+  return `${ownerToolbar('Analytics','A clear view of how guests explore your menu.',`<button class="secondary-btn" data-act="analytics-export">${icon('download')} Export data</button>`)}
     <section aria-label="Local activity"><div class="section-heading"><h2>Local activity</h2><span>This browser only</span></div>
-      <div class="analytics-metrics">${metrics.map(([label,value]) => `<div><span>${label}</span><b>${value}</b></div>`).join('')}</div>
+      <div class="analytics-metrics">${metrics.map(([label,value,symbol]) => ownerMetric(label,value,symbol)).join('')}</div>
       <p class="analytics-footnote">${db.events.viewsWithAdd} of ${db.events.measuredViews} measured menu opens included a cart addition. Cart value reflects local selections, not orders or revenue.</p>
     </section>
     <div class="analytics-grid">${trafficChart()}${languageAnalytics()}
       ${rankList('Popular dishes',db.dishes.filter(d => d.category !== 'drinks'))}
-      <section class="panel"><div class="panel-top"><h2>Table activity</h2><span class="data-tag">${db.events.qrPreviews} QR previews</span></div><div class="table-activity">${db.tables.map(t => `<div><span>Table ${pad(t.number)}</span><b>${db.events.byTable[pad(t.number)] || 0}</b><small>${t.active?'Active':'Paused'}</small></div>`).join('')}</div><p class="analytics-footnote">Local menu opens and interactions attributed to each table.</p></section>
+      <section class="panel"><div class="panel-top"><h2>Table activity</h2><span class="data-tag">${db.events.qrPreviews} QR previews</span></div><div class="table-activity">${db.tables.map(t => `<div class="${db.events.byTable[pad(t.number)]?'has-activity':''}"><span>Table ${pad(t.number)}</span><b>${db.events.byTable[pad(t.number)] || 0}</b><small>${t.active?'Active':'Paused'}</small></div>`).join('')}</div><p class="analytics-footnote">Local menu opens and interactions attributed to each table.</p></section>
       ${db.dishes.some(d=>d.category==='drinks')?rankList('Popular drinks',db.dishes.filter(d=>d.category==='drinks')):''}
     </div>`;
 }
-function settings(){return `${ownerToolbar('Settings','Manage reviews, guest languages and local demo data.') }<div class="settings-layout"><div class="panel"><div class="panel-top"><div><h2>Google Reviews</h2></div></div><form id="profile-form"><label class="form-field">Instagram profile<input name="instagramUrl" type="url" placeholder="https://www.instagram.com/.../" value="${e(db.instagramUrl||'')}"></label><label class="form-field">Google review link <small>Paste the official link from Google Business Profile; HTTPS Google links only</small><input name="reviewUrl" type="url" placeholder="https://g.page/r/.../review" value="${e(db.reviewUrl||'')}"></label><label class="review-enabled"><input type="checkbox" name="reviewEnabled" ${db.reviewEnabled!==false?'checked':''}> Show optional review link in guest information</label><p class="settings-hint">Review requests are voluntary: no pop-up on QR scan, no reward for reviews and no ratings gating. No Google connection exists in this demo.</p><button class="primary-btn" type="submit">${icon('check')} Save settings</button></form></div><div class="panel"><div class="panel-top"><div><h2>Guest languages & demo data</h2></div></div><p class="helper-copy">English, Deutsch and Español are bundled offline. The language button changes the guest interface, categories and the available menu descriptions. Dish translations can also be edited in Menu Library.</p><div class="language-summary"><span>EN</span><span>DE</span><span>ES</span></div><p class="helper-copy">Dietary claims are examples only until individually confirmed by the restaurant owner. Cross-contact risk cannot be checked by this prototype.</p><div class="settings-actions"><button class="secondary-btn" data-act="export">${icon('download')} Export local data</button><button class="secondary-btn" data-act="reset">Reset to sample menu</button></div><p class="helper-copy">All data is stored in this browser. QR images are placeholders and must be regenerated for production.</p></div></div>`}
-
+function settings(){return `${ownerToolbar('Settings','Manage reviews, guest languages, local data and restaurant preferences.')}<div class="settings-layout">
+ <section class="panel feedback-settings"><div class="settings-card-heading">${icon('star')}<div><h2>Guest feedback & review links</h2><p>Optional ways for guests to connect with your restaurant.</p></div></div><form id="profile-form"><label class="form-field">Instagram profile<input name="instagramUrl" type="url" placeholder="https://www.instagram.com/…/" value="${e(db.instagramUrl||'')}"></label><label class="form-field">Google review link<input name="reviewUrl" type="url" placeholder="Paste your official Google review URL" value="${e(db.reviewUrl||'')}" aria-describedby="review-link-hint"></label><label class="review-enabled"><input type="checkbox" name="reviewEnabled" ${db.reviewEnabled!==false?'checked':''}> Show review link in guest menu</label><p class="settings-hint" id="review-link-hint">HTTPS Google links only. Reviews are voluntary, with no incentives, ratings gate or automatic pop-up.</p><button class="primary-btn" type="submit">${icon('check')} Save feedback settings</button></form></section>
+ <section class="panel language-settings"><div class="settings-card-heading">${icon('globe')}<div><h2>Guest languages</h2><p>Three languages, included in your guest menu.</p></div></div><div class="language-summary" aria-label="Included guest languages">${GUEST_LANGUAGES.map(l=>`<span>${languageFlag(l.id)}${l.id.toUpperCase()}</span>`).join('')}</div><p class="helper-copy">English, Deutsch and Español are bundled offline. The guest language button changes the interface, categories and available menu descriptions.</p><div class="translation-entry"><div>${icon('globe')}<span><b>Dish translations in Menu Editing</b><small>Edit names and descriptions for each language.</small></span></div><button class="secondary-btn" data-act="owner-translations">${icon('pencil')} Open translations</button></div></section>
+ <section class="panel data-settings"><div class="settings-card-heading">${icon('layers')}<div><h2>Local workspace data</h2><p>Your browser workspace for ${e(db.restaurant)}.</p></div></div><div class="settings-action-row">${icon('layers')}<span><b>Selected restaurant</b><small>${e(db.restaurant)} · ${db.dishes.length} dishes · ${db.tables.length} tables</small></span><span class="data-tag">Browser only</span></div><div class="settings-action-row">${icon('clock')}<span><b>Reset to sample menu</b><small>Restore this restaurant’s original prototype content.</small></span><button class="secondary-btn" data-act="reset">Reset demo</button></div><div class="settings-action-row">${icon('download')}<span><b>Export local data</b><small>Download menu, tables, events, requests and settings.</small></span><button class="secondary-btn" data-act="export">${icon('download')} Export</button></div><p class="workspace-note">Changes affect this browser only. No live orders or shared restaurant data are connected.</p></section>
+ <section class="panel preferences-settings"><div class="settings-card-heading">${icon('settings')}<div><h2>Restaurant preferences</h2><p>The current configuration of your guest experience.</p></div></div><dl class="preferences-list"><div><dt>${icon('dish')} Menu profile</dt><dd>${e(db.restaurant)}</dd></div><div><dt>${icon('image')} Photography</dt><dd>9:16 Explore · 4:3 Overview</dd></div><div><dt>${icon('qr')} QR destinations</dt><dd>Demo placeholders</dd></div><div><dt>${icon('leaf')} Dietary information</dt><dd>${db.dishes.every(d=>d.dietaryVerified)?'Restaurant checked':'Confirmation required'}</dd></div></dl><p class="settings-hint">Dietary and allergen estimates require restaurant confirmation. Cross-contact cannot be checked here.</p>${ownerGuestPreview('Open guest menu')}</section></div>`;}
 
 function nutritionEditor(d) {
   const values = d.nutrition;
@@ -861,7 +876,7 @@ function editor(){if(!ui.editor)return '';const d=ui.editor==='new'?{id:'',name:
 function owner() {
   const sections = {menu:ownerMenu, media:mediaRequests, events:ownerEvents, qr:qrPage, analytics, settings};
   if(!sections[ui.ownerTab])ui.ownerTab='menu';
-  return `<div class="owner-shell">${ownerSide()}<main class="owner-main"><div class="owner-mobile-brand"><span>Foodie<i>.</i><small>by Attico</small></span>${restaurantProfile?'<img src="assets/mizora/logo-transparent.png" alt="MIZORA">':`<b>${e(db.restaurant)}</b>`}</div>${sections[ui.ownerTab]()}</main>${ownerNavigation(true)}${editor()}</div>`;
+  return `<div class="owner-shell">${ownerSide()}<main class="owner-main" data-owner-page="${ui.ownerTab}"><div class="owner-mobile-brand"><span>Foodie<i>.</i><small>by Attico</small></span>${restaurantProfile?'<img src="assets/mizora/logo-transparent.png" alt="MIZORA">':`<b>${e(db.restaurant)}</b>`}</div>${sections[ui.ownerTab]()}</main>${ownerNavigation(true)}${editor()}</div>`;
 }
 
 let dialogTrigger = null;
@@ -928,7 +943,8 @@ function renderToastOnly(message) {
 function flipSurface(name){window.scrollTo({top:0,behavior:'instant'});ui.surface=name;ui.modal=null;ui.editor=null;if(name==='guest')event('views');render()}
 function turnDish(dir){const l=listed();if(!l.length)return;let i=l.findIndex(x=>x.id===ui.selected);ui.selected=l[((i===-1?0:i)+dir+l.length)%l.length].id;event('opens',ui.selected);render()}
 function showCategory(id){ui.category=id;ui.overviewScroll=0;const first=listed()[0];if(first)ui.selected=first.id;render();const t=document.querySelector(`.quick-tab[data-value="${id}"]`);t?.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'})}
-function downloadJSON(){const a=document.createElement('a');const url=URL.createObjectURL(new Blob([JSON.stringify(db,null,2)],{type:'application/json'}));a.href=url;a.download='Foodie_Attico_'+restaurantId+'_LocalDemo.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function downloadJSON(){downloadPayload(db,'Foodie_Attico_'+restaurantId+'_LocalDemo.json');}
+function downloadPayload(payload,filename){const a=document.createElement('a');const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function copyText(s){if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(s);const input=document.createElement('textarea');input.value=s;input.style.position='fixed';input.style.opacity=0;document.body.appendChild(input);input.select();const ok=document.execCommand('copy');input.remove();return Promise.resolve(ok)}
 
 const handleActions=async(act,node)=>{
@@ -937,10 +953,13 @@ switch(act){
  case 'surface':flipSurface(val);break;
  case 'guest-back':ui.mode='overview';ui.modal=null;render();break;
  case 'guest-information':db=loadDB();ui.modal='guest-information';render();break;
- case 'new-event':ui.eventEditor=null;render();break;
- case 'edit-event':ui.eventEditor=id;render();break;
+ case 'new-event':ui.eventEditor=null;ui.eventDraft=null;render();document.querySelector('#event-form input')?.focus();break;
+ case 'event-filter':ui.eventFilter=val;render();break;
+ case 'qr-filter':ui.qrFilter=val;render();break;
+ case 'qr-layout':ui.qrLayout=val==='list'?'list':'grid';render();break;
+ case 'edit-event':ui.eventEditor=id;ui.eventDraft=null;render();break;
  case 'toggle-event':{const item=db.restaurantEvents.find(item=>item.id===id);if(item){item.published=!item.published;save();render();}break;}
- case 'delete-event':if(confirm('Delete this event?')){db.restaurantEvents=db.restaurantEvents.filter(item=>item.id!==id);if(ui.eventEditor===id)ui.eventEditor=null;save();render();}break;
+ case 'delete-event':if(confirm('Delete this event?')){db.restaurantEvents=db.restaurantEvents.filter(item=>item.id!==id);if(ui.eventEditor===id){ui.eventEditor=null;ui.eventDraft=null;}save();render();}break;
  case 'language':ui.modal='language';render();break;
  case 'set-language':ui.lang=['en','de','es'].includes(val)?val:'en';db.guestLang=ui.lang;ui.modal=null;event('language');render();break;
 
@@ -988,7 +1007,10 @@ switch(act){
  case 'theme-reset':
   ui.appearanceDraft={restaurant:DEFAULT_DB.restaurant,tagline:DEFAULT_DB.tagline,theme:normalizeTheme(defaultTheme)};
   ui.appearanceStatus='Defaults restored in the preview. Save to apply them.';render();break;
- case 'media-dish':ui.mediaDish=id;render();break;
+ case 'media-dish':ui.mediaDish=id;ui.mediaDraft=null;ui.mediaError='';render();break;
+ case 'media-filter':ui.mediaFilter=val;render();break;
+ case 'new-media-request':ui.mediaDraft=null;ui.mediaError='';render();document.getElementById('media-dish-select')?.focus();break;
+ case 'media-progress':{const request=db.mediaRequestLog.find(r=>r.id===id);if(request){request.status=nextMediaStatus(request.status);db.mediaRequests[request.dishId]=request.status;save();render();}break;}
  case 'media-advance':
   if (dish(id)) {
     db.mediaRequests[id]=nextMediaStatus(mediaStatus(db.mediaRequests[id]));
@@ -1020,10 +1042,32 @@ switch(act){
  }
  case 'test-table':{const table=db.tables.find(t=>t.number===Number(val));if(!table?.active){alert('This table is paused. Activate it to open the guest preview.');break;}ui.table=Number(val);ui.modal=null;db.events.qrPreviews++;save();flipSurface('guest');break}
  case 'copy-qr':{const link=`https://example.com/${restaurantId}?table=${pad(val)}`;try{const copied=await copyText(link);renderToastOnly(copied===false?'Unable to copy the placeholder link':'Copied placeholder link');}catch{renderToastOnly('Unable to copy the placeholder link');}break}
+ case 'analytics-export':downloadPayload(trafficDataset(),'Foodie_Attico_'+restaurantId+'_'+(ui.analyticsMode==='sample'?'Example':'Local')+'_Traffic.json');break;
+ case 'owner-translations':ui.editor=db.dishes[0]?.id||'new';render();root.querySelector('.editor-language-group')?.scrollIntoView({block:'start'});break;
  case 'export':downloadJSON();break;
- case 'reset':if(confirm('Reset every local menu edit, cart and demo interaction?')){db=clone(DEFAULT_DB);ui.category='all';ui.selected=restaurantProfile ? 'mizora-03' : 'roasted-salmon';ui.table=7;ui.filter='all';ui.search='';ui.guestFilters=emptyFilters();ui.appearanceDraft=null;ui.appearanceStatus='';ui.mediaDish=null;ui.viewAdded=false;ui.lang='en';save();render()}break;
+ case 'reset':if(confirm('Reset all saved menu edits, carts, events, requests and interactions for '+db.restaurant+' in this browser? Other restaurant profiles will remain unchanged.')){db=clone(DEFAULT_DB);ui.category='all';ui.selected=restaurantProfile ? 'mizora-03' : 'roasted-salmon';ui.table=7;ui.filter='all';ui.search='';ui.guestFilters=emptyFilters();ui.appearanceDraft=null;ui.appearanceStatus='';ui.mediaDish=null;ui.mediaDraft=null;ui.mediaError='';ui.mediaFilter='all';ui.eventEditor=null;ui.eventDraft=null;ui.eventFilter='all';ui.qrFilter='all';ui.qrSearch='';ui.viewAdded=false;ui.lang='en';save();render()}break;
  default:break;
 }}
+root.addEventListener('change',ev=>{
+  const input=ev.target;
+  if(input.id==='media-dish-select'){ui.mediaDish=input.value;ui.mediaDraft=null;ui.mediaError='';render();return;}
+  if(input.dataset.dishCategory){const item=dish(input.dataset.dishCategory);if(item&&CATS.slice(1).some(c=>c.id===input.value)){item.category=input.value;save();render();}return;}
+  if(input.dataset.dishPrice){const item=dish(input.dataset.dishPrice),price=Number(input.value);if(item&&input.value!==''&&input.checkValidity()&&Number.isFinite(price)&&price>=0&&price<=999){item.price=price;if(restaurantProfile)item.menuMatched=false;save();render();}else input.reportValidity();}
+});
+root.addEventListener('input',ev=>{
+  if(ev.target.form?.id==='event-form'){const data=new FormData(ev.target.form);ui.eventDraft={id:ui.eventEditor,title:String(data.get('title')||''),date:String(data.get('date')||''),time:String(data.get('time')||''),description:String(data.get('description')||''),published:data.has('published')};}
+  if(ev.target.form?.id==='media-request-form'){const data=new FormData(ev.target.form);ui.mediaDraft={requestedChanges:data.getAll('change'),note:String(data.get('note')||''),priority:String(data.get('priority')||'normal')};}
+});
+root.addEventListener('submit',ev=>{
+  if(ev.target.id!=='media-request-form')return;
+  ev.preventDefault();const form=ev.target,data=new FormData(form),item=dish(form.dataset.dish);
+  if(!item)return;
+  const mediaId=item.customPhoto||item.media?.overview||(SEED.some(d=>d.id===item.id)?'assets/overview/'+item.id+'.webp':'');
+  if(!mediaId){ui.mediaError='This dish needs a photograph before requesting an update.';render();return;}
+  try{const request=createMediaRequest({restaurantId,dishId:item.id,mediaId,requestedChanges:data.getAll('change'),note:String(data.get('note')||''),priority:String(data.get('priority')||'normal'),createdAt:new Date().toISOString()});
+    db.mediaRequestLog.push({...request,id:uid()});db.mediaRequests[item.id]='requested';ui.mediaDraft=null;ui.mediaError='';ui.mediaFilter='all';save();render();root.querySelector('#media-request-form .primary-btn')?.focus({preventScroll:true});renderToastOnly('Update request saved locally');
+  }catch{ui.mediaError='Select at least one change for this photograph.';render();document.getElementById('media-request-error')?.scrollIntoView({block:'nearest'});}
+});
 root.addEventListener('submit',ev=>{
   if(ev.target.id!=='event-form')return;
   ev.preventDefault();const form=ev.target,data=new FormData(form);
@@ -1036,13 +1080,13 @@ root.addEventListener('submit',ev=>{
   const current=db.restaurantEvents.find(item=>item.id===ui.eventEditor);
   const item={id:current?.id||uid(),title,date,time,description,published:data.has('published')};
   if(current)Object.assign(current,item);else db.restaurantEvents.push(item);
-  ui.eventEditor=item.id;save();render();
+  ui.eventEditor=item.id;ui.eventDraft=null;save();render();root.querySelector('#event-form .primary-btn')?.focus({preventScroll:true});
 });
 root.addEventListener('input',ev=>{if(['event-form','profile-form'].includes(ev.target.form?.id))ev.target.setCustomValidity('');});
 root.addEventListener('click',async ev=>{const node=ev.target.closest('[data-act]');if(!node)return;const act=node.dataset.act;if(['close-modal','close-editor'].includes(act)&&ev.target!==node && (node.classList.contains('guest-modal-backdrop')||node.classList.contains('editor-backdrop')))return;ev.preventDefault();if(!root.querySelector('[role="dialog"]'))dialogTrigger=describeAction(node);await handleActions(act,node)});
-root.addEventListener('input',ev=>{if(ev.target.form?.id==='appearance-form'){updateAppearancePreview(ev.target);return}if(ev.target.getAttribute('aria-invalid')){ev.target.removeAttribute('aria-invalid');ev.target.removeAttribute('aria-describedby');document.getElementById('nutrition-error').hidden=true}if(ev.target.id==='owner-search'){const input=ev.target;const a=input.selectionStart,b=input.selectionEnd;ui.search=input.value;render();const next=document.getElementById('owner-search');next?.focus();try{next?.setSelectionRange(a,b)}catch{}}});
+root.addEventListener('input',ev=>{if(ev.target.form?.id==='appearance-form'){updateAppearancePreview(ev.target);return}if(ev.target.getAttribute('aria-invalid')){ev.target.removeAttribute('aria-invalid');ev.target.removeAttribute('aria-describedby');document.getElementById('nutrition-error').hidden=true}if(ev.target.id==='table-search'){const input=ev.target,a=input.selectionStart,b=input.selectionEnd;ui.qrSearch=input.value;render();const next=document.getElementById('table-search');next?.focus();try{next?.setSelectionRange(a,b)}catch{}}if(ev.target.id==='owner-search'){const input=ev.target;const a=input.selectionStart,b=input.selectionEnd;ui.search=input.value;render();const next=document.getElementById('owner-search');next?.focus();try{next?.setSelectionRange(a,b)}catch{}}});
 
-root.addEventListener('submit',ev=>{if(ev.target.id==='appearance-form'){ev.preventDefault();saveAppearance(ev.target);return}if(ev.target.id==='dish-form'){ev.preventDefault();const fd=new FormData(ev.target),name=String(fd.get('name')||'').trim(),summary=String(fd.get('summary')||'').trim(),price=Number(fd.get('price')),components=String(fd.get('components')||'').split(',').map(s=>s.trim()).filter(Boolean);if(!name||!summary||!Number.isFinite(price)||price<0)return;const existing=ui.editor==='new'?null:dish(ui.editor),id=existing?.id||uid();const nutrition=readNutritionForm(ev.target,fd);if(nutrition===undefined)return;const record={...(existing||{}),nutrition,...(restaurantProfile ? {menuMatched:!!existing?.menuMatched && existing.name===name && existing.summary===summary && existing.price===price} : {}),id,name,summary,price,components,category:fd.get('category'),live:fd.has('live'),featured:fd.has('featured'),allergens:fd.getAll('allergen'),allergensVerified:fd.has('verified'),dietaryVerified:fd.has('dietaryVerified'),dietary:{...Object.fromEntries(DIET_KEYS.map(k=>[k,fd.has('diet_'+k)])),...(fd.get('spice')!=='' ? {spice:Number(fd.get('spice')||0)} : {})},translations:Object.fromEntries(['de','es'].map(lang=>[lang,{name:String(fd.get(lang+'_name')||'').trim(),summary:String(fd.get(lang+'_summary')||'').trim()}])),customPhoto:existing?.customPhoto||null,source:existing?.source||'Local menu entry'};if(existing)Object.assign(existing,record);else db.dishes.push(record);ui.selected=id;ui.editor=null;save();render();return}if(ev.target.id==='profile-form'){ev.preventDefault();const fd=new FormData(ev.target);const instagramUrl=String(fd.get('instagramUrl')||'').trim();if(instagramUrl&&!validInstagramUrl(instagramUrl)){ev.target.elements.instagramUrl.setCustomValidity('Enter an HTTPS Instagram profile URL.');ev.target.elements.instagramUrl.reportValidity();return;}const reviewUrl=String(fd.get('reviewUrl')||'').trim();if(reviewUrl&&!validReviewUrl(reviewUrl)){alert('Please paste a valid HTTPS review link from Google Business Profile (google.com, g.page or maps.app.goo.gl).');return;}db.instagramUrl=instagramUrl;db.reviewUrl=reviewUrl;db.reviewEnabled=fd.has('reviewEnabled');save();render()}});
+root.addEventListener('submit',ev=>{if(ev.target.id==='appearance-form'){ev.preventDefault();saveAppearance(ev.target);return}if(ev.target.id==='dish-form'){ev.preventDefault();const fd=new FormData(ev.target),name=String(fd.get('name')||'').trim(),summary=String(fd.get('summary')||'').trim(),price=Number(fd.get('price')),components=String(fd.get('components')||'').split(',').map(s=>s.trim()).filter(Boolean);if(!name||!summary||!Number.isFinite(price)||price<0)return;const existing=ui.editor==='new'?null:dish(ui.editor),id=existing?.id||uid();const nutrition=readNutritionForm(ev.target,fd);if(nutrition===undefined)return;const record={...(existing||{}),nutrition,...(restaurantProfile ? {menuMatched:!!existing?.menuMatched && existing.name===name && existing.summary===summary && existing.price===price} : {}),id,name,summary,price,components,category:fd.get('category'),live:fd.has('live'),featured:fd.has('featured'),allergens:fd.getAll('allergen'),allergensVerified:fd.has('verified'),dietaryVerified:fd.has('dietaryVerified'),dietary:{...Object.fromEntries(DIET_KEYS.map(k=>[k,fd.has('diet_'+k)])),...(fd.get('spice')!=='' ? {spice:Number(fd.get('spice')||0)} : {})},translations:Object.fromEntries(['de','es'].map(lang=>[lang,{name:String(fd.get(lang+'_name')||'').trim(),summary:String(fd.get(lang+'_summary')||'').trim()}])),customPhoto:existing?.customPhoto||null,source:existing?.source||'Local menu entry'};if(existing)Object.assign(existing,record);else db.dishes.push(record);ui.selected=id;ui.editor=null;save();render();return}if(ev.target.id==='profile-form'){ev.preventDefault();const fd=new FormData(ev.target);const instagramUrl=String(fd.get('instagramUrl')||'').trim();if(instagramUrl&&!validInstagramUrl(instagramUrl)){ev.target.elements.instagramUrl.setCustomValidity('Enter an HTTPS Instagram profile URL.');ev.target.elements.instagramUrl.reportValidity();return;}const reviewUrl=String(fd.get('reviewUrl')||'').trim();if(reviewUrl&&!validReviewUrl(reviewUrl)){ev.target.elements.reviewUrl.setCustomValidity('Enter an HTTPS Google review link (google.com, g.page or maps.app.goo.gl).');ev.target.elements.reviewUrl.reportValidity();return;}db.instagramUrl=instagramUrl;db.reviewUrl=reviewUrl;db.reviewEnabled=fd.has('reviewEnabled');save();render();renderToastOnly('Feedback settings saved locally')}});
 root.addEventListener('scroll',ev=>{if(ev.target.id==='overview-scroll')ui.overviewScroll=ev.target.scrollTop;if(ev.target.id==='quick-tabs')ui.categoryScroll=ev.target.scrollLeft},true);
 let touchY=null,touchX=null,lastWheel=0;
 root.addEventListener('touchstart',ev=>{if(ui.surface!=='guest'||ui.mode!=='explore'||ui.modal)return;if(ev.target.closest('button'))return;touchY=ev.changedTouches[0].clientY;touchX=ev.changedTouches[0].clientX},{passive:true});

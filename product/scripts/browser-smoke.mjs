@@ -115,7 +115,7 @@ tap('add',undefined,'mizora-03');check($('.sheet-total').textContent.includes('6
 tap('decrease',undefined,'mizora-03');check($('.sheet-total').textContent.includes('32'),'cart decrease total');
 closeDialog();tap('cart');tap('tables');tap('set-table','8');tap('cart');check($('.empty-cart'),'table isolation');closeDialog();
 for(const lang of ['de','es','en']){tap('language');tap('set-language',lang);check($('.guest-stage').lang===lang,'language '+lang);}
-tap('surface','owner');tap('owner-tab','media');tap('media-advance',undefined,'mizora-03');check($('.media-state').textContent==='Update requested','request');
+tap('surface','owner');tap('owner-tab','media');const request=$('#media-request-form');request.querySelector('[value=lighting]').checked=true;request.requestSubmit();check($('.media-state').textContent==='Update requested','request');
 tap('owner-tab','analytics');check($('.analytics-metrics'),'analytics');tap('owner-tab','qr');check($$('.table-qr').length===12,'QR');
 });
 for(const width of [320,390,430,1280,1440]){
