@@ -9,17 +9,18 @@ const reference = new URL(
   import.meta.url,
 );
 
-test('the local preview uses Foodie by Attico branding and its own storage key', async () => {
+test('the local preview uses Foodie by Atticoo branding and its own storage key', async () => {
   const html = await readFile(publicFile('index.html'), 'utf8');
   const app = await readFile(publicFile('app.js'), 'utf8');
 
-  assert.match(html, /<title>Foodie by Attico<\/title>/);
-  assert.match(html, /<meta name="description" content="Foodie by Attico/);
+  assert.match(html, /<title>Foodie by Atticoo<\/title>/);
+  assert.match(html, /<meta name="description" content="Foodie by Atticoo/);
   assert.match(app, /class="topbar-brand">Foodie/);
   assert.match(app, /class="owner-logo"><span>Foodie/);
   assert.match(app, /restaurantProfile\?\.name \|\| 'Aurel House'/);
   assert.match(app, /foodie:attico:mizora:demo:v1/);
   assert.doesNotMatch(html + app, /dishfolio/i);
+  assert.doesNotMatch(html + app, /Attico(?!o)/);
 });
 
 test('the original dish crops and demo QR files are shipped byte-for-byte', async () => {
@@ -51,7 +52,7 @@ test('the local server serves the demo and restricts requests to public files', 
 
   const home = await fetch(base + '/?embed=guest&table=07');
   assert.equal(home.status, 200);
-  assert.match(await home.text(), /<title>Foodie by Attico/);
+  assert.match(await home.text(), /<title>Foodie by Atticoo/);
 
   const rules = await fetch(base + '/prototype.js');
   assert.equal(rules.status, 200);

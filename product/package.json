@@ -1,9 +1,9 @@
 {
-  "name": "foodie-by-attico",
+  "name": "foodie-by-atticoo",
   "version": "0.8.0",
   "type": "module",
   "private": true,
-  "description": "Foodie by Attico local restaurant demo",
+  "description": "Foodie by Atticoo local restaurant demo",
   "engines": {
     "node": ">=24"
   },

@@ -57,8 +57,8 @@ if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.m
   const port = 3000;
   const server = createPreviewServer();
   server.on('error', (error) => {
-    console.error(`Unable to start Foodie by Attico on port ${port}. ${error.message}`);
+    console.error(`Unable to start Foodie by Atticoo on port ${port}. ${error.message}`);
     process.exitCode = 1;
   });
-  server.listen(port, host, () => console.log(`Foodie by Attico at http://${host}:${port}/?restaurant=mizora`));
+  server.listen(port, host, () => console.log(`Foodie by Atticoo at http://${host}:${port}/?restaurant=mizora`));
 }

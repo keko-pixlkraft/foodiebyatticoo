@@ -1,12 +1,12 @@
-# Foodie by Attico · MIZORA
+# Foodie by Atticoo · MIZORA
 
 Interactive restaurant presentation with a mobile guest menu, responsive Owner Control and a selection page. Includes the approved MIZORA photographs and branding; Aurel House remains a separate restaurant profile.
 
 ## Open the presentation
 
-- Entry: https://foodiebyattico.vercel.app
-- Guest View: https://foodiebyattico.vercel.app/guest?restaurant=mizora
-- Owner Control: https://foodiebyattico.vercel.app/owner?restaurant=mizora
+- Entry: https://foodiebyatticoo.vercel.app
+- Guest View: https://foodiebyatticoo.vercel.app/guest?restaurant=mizora
+- Owner Control: https://foodiebyatticoo.vercel.app/owner?restaurant=mizora
 
 ## Owner Control 2026
 

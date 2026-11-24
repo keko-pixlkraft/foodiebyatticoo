@@ -73,7 +73,7 @@ tap('clear-filters');check($$('.dish-card:not(.is-muted)').length===24,'clear ca
 tap('filters');tap('toggle-diet','vegan');tap('toggle-diet','glutenFree');tap('set-calorie','500');tap('toggle-allergen','Milk');tap('apply-filters');
 check($$('.dish-card').length===24 && $$('.dish-card:not(.is-muted)').length===1 && $('.dish-card:not(.is-muted)').textContent.includes('Beetroot Tartare'),'stable overview with combined filters');check($('.is-muted button').disabled,'nonmatches disabled');
 tap('filters');tap('clear-filters');tap('apply-filters');tap('open',undefined,'mizora-03');
-tap('surface','owner');check($('.owner-logo').textContent.includes('Attico'),'brand');
+tap('surface','owner');check($('.owner-logo').textContent.includes('Atticoo'),'brand');
 });
 await size(390,844);
 await run(()=>{tap('surface','guest');tap('mode','overview');tap('filters');tap('toggle-diet','vegetarian');tap('apply-filters');});

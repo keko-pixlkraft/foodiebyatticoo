@@ -13,4 +13,4 @@ await cp(new URL('index.html', source), new URL('app.html', output));
 await cp(new URL('demo.html', source), new URL('index.html', output));
 const rules = await readFile(new URL('../src/prototype.ts', import.meta.url), 'utf8');
 await writeFile(new URL('prototype.js', output), stripTypeScriptTypes(rules));
-console.log('Built Foodie by Attico → product/dist (static, no backend).');
+console.log('Built Foodie by Atticoo → product/dist (static, no backend).');
