@@ -62,7 +62,7 @@ await run(()=>{
  check($$('.is-muted').length===21,'nonmatches remain visible and muted');
  check(order().slice(3).join(',')===originalOrder.filter(id=>!['mizora-20','mizora-21','mizora-22'].includes(id)).join(','),'nonmatches preserve relative order');
  $('#overview-scroll').scrollTop=180;const top=$('#overview-scroll').scrollTop;
- tap('add',undefined,'mizora-20');check($('#overview-scroll').scrollTop===top,'cart addition preserves scroll');
+ tap('wishlist-toggle',undefined,'mizora-20');check($('#overview-scroll').scrollTop===top,'cart addition preserves scroll');
  tap('language');tap('set-language','de');check($('#overview-scroll').scrollTop===top,'language change preserves scroll');
  tap('category','all');check(order().join(',')===originalOrder.join(','),'All restores original menu order');
  $('#overview-scroll').scrollTop=450;tap('filters');tap('toggle-diet','vegan');tap('toggle-diet','glutenFree');tap('set-calorie','500');tap('toggle-allergen','Milk');tap('apply-filters');
@@ -78,7 +78,7 @@ await run(async()=>{
  for(const d of db.dishes)for(const lang of ['de','es'])d.translations[lang].name=d.name;
  db.dishes.find(d=>d.id==='mizora-03').translations.de.name='Hamachi nach Art des Hauses';
  db.dishes.find(d=>d.id==='mizora-09').price=44;
- db.carts['07']={'mizora-09':2};
+ db.carts['07']={'mizora-09':2};delete db.wishlist;
  localStorage.setItem(key,JSON.stringify(db));
 });
 await goto('/?restaurant=mizora&embed=guest');await run(setup);
@@ -87,7 +87,7 @@ for(const [lang,name] of [['de','Schneekrabbensalat'],['es','Ensalada de cangrej
  tap('language');tap('set-language',lang);tap('mode','overview');
  const card=$('[data-act=open][data-id=mizora-09]');check(card.textContent.includes(name),'translated Overview name '+lang);
  card.click();check($('.hero-title-row h1').textContent.includes(name),'translated Explore name '+lang);
- tap('cart');check($('.cart-items').textContent.includes(name)&&$('.sheet-total').textContent.includes('88'),'translated cart name and retained price/cart '+lang);closeDialog();
+ tap('wishlist');check($('.wishlist-items').textContent.includes(name)&&$('.wishlist-items').textContent.includes('44'),'translated wishlist name and retained price '+lang);closeDialog();
  },{lang,name});
  if(process.env.FOODIE_SCREENSHOTS&&lang==='es')await screenshot('snow-crab-es');
 }

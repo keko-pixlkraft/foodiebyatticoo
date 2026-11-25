@@ -47,12 +47,6 @@ body[data-embed="owner"] .owner-shell{min-height:100dvh}
 .explore-hero{touch-action:pinch-zoom}
 .hero-image{-webkit-user-drag:none;user-select:none}
 .quick-tabs{touch-action:pan-x pinch-zoom;overscroll-behavior-x:contain}
-.explore-navigation{display:flex;align-items:center;gap:4px;flex:none;letter-spacing:0}
-.explore-navigation button{display:grid;place-items:center;width:32px;height:32px;padding:7px;border:1px solid #ead9c52b;border-radius:50%;background:#2119184d;color:#ead9c5;touch-action:manipulation}
-.explore-navigation button:hover{background:#ead9c51a;border-color:#ead9c566}
-.explore-navigation button:focus-visible{outline:2px solid #ead9c5;outline-offset:2px}
-.explore-navigation svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.explore-navigation .swipe-indicator{max-width:90px;text-align:center;text-transform:none;line-height:1.4}
 @media(max-width:780px){
   html:has(body[data-surface="guest"]),body[data-surface="guest"]{height:100%;overflow:hidden;overscroll-behavior-y:none}
   body[data-surface="guest"] .guest-stage{height:calc(100dvh - 54px);min-height:0}

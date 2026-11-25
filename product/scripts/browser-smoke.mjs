@@ -50,7 +50,7 @@ window.check=(ok,msg)=>{if(!ok)throw Error(msg);};
 window.tap=(a,v,id)=>{const s='[data-act="'+a+'"]'+(v===undefined?'':'[data-value="'+v+'"]')+(id===undefined?'':'[data-id="'+id+'"]');const el=$$(s).find(e=>e.getClientRects().length);check(el,s);el.click();};
 window.closeDialog=()=>document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));
 };
-await size(1440);await goto('/?restaurant=mizora');await run(setup);
+await size(1440);await goto('/?restaurant=mizora&dish=mizora-03');await run(setup);
 await run(async()=>{
 check(document.title.includes('MIZORA'),'MIZORA title');
 check(!$('.explore .mizora-logo')&&!$('.explore .guest-toggle')&&!$('[data-act=guest-back]'),'compact Explore header');
@@ -111,12 +111,10 @@ const form=$('#dish-form');form.elements.nutrition_kcal.value='275';form.element
 tap('surface','guest');tap('mode','explore');tap('nutrition');check($('.hero-price').textContent.includes('32'),'menu price');check($('.nutrition-total').textContent.includes('275 kcal'),'nutrition');closeDialog();
 tap('filters');tap('set-calorie','300');tap('apply-filters');tap('mode','overview');check($$('.dish-card:not(.is-muted)').length===1 && $$('.dish-card').length===24,'calorie dims nonmatches');
 tap('filters');tap('clear-filters');tap('apply-filters');
-tap('add',undefined,'mizora-03');tap('cart');check($('.sheet-total').textContent.includes('32'),'cart price');
-check(!$('.mizora-cart-sheet .sheet-disclaimer')&&!/demo|browser|no order|configured/i.test($('.mizora-cart-sheet').textContent),'no internal cart copy');
-check(!$('.mizora-cart-sheet [data-act=review]')&&!/Google/.test($('.mizora-cart-sheet').textContent),'cart contains no review promotion');
-tap('add',undefined,'mizora-03');check($('.sheet-total').textContent.includes('64'),'cart quantity total');
-tap('decrease',undefined,'mizora-03');check($('.sheet-total').textContent.includes('32'),'cart decrease total');
-closeDialog();tap('cart');tap('tables');tap('set-table','8');tap('cart');check($('.empty-cart'),'table isolation');closeDialog();
+tap('wishlist-toggle',undefined,'mizora-03');tap('wishlist');check($('.wishlist-item').textContent.includes('32'),'wishlist price');
+check(!$('.mizora-cart-sheet .sheet-disclaimer')&&!/demo|browser|no order|configured/i.test($('.mizora-cart-sheet').textContent),'no internal wishlist copy');
+check(!$('.mizora-cart-sheet [data-act=review]')&&!/Google/.test($('.mizora-cart-sheet').textContent),'wishlist contains no review promotion');
+tap('wishlist-remove',undefined,'mizora-03');check($('.empty-wishlist'),'wishlist removal');closeDialog();
 for(const lang of ['de','es','en']){tap('language');tap('set-language',lang);check($('.guest-stage').lang===lang,'language '+lang);}
 tap('surface','owner');tap('owner-tab','media');const request=$('#media-request-form');request.querySelector('[value=lighting]').checked=true;request.requestSubmit();check($('.media-state').textContent==='Update requested','request');
 tap('owner-tab','analytics');check($('.analytics-metrics'),'analytics');tap('owner-tab','qr');check($$('.table-qr').length===12,'QR');
@@ -150,36 +148,36 @@ tap('mode','overview');await checkImages('Overview');
 check(parseFloat(getComputedStyle($('.quick-tab')).borderRadius)>=10,'Overview category tiles');
 tap('filters');check($('[role=dialog]').getBoundingClientRect().top>=phone.top,'filters fit height');closeDialog();
 tap('open',undefined,'mizora-03');tap('nutrition');check($('[role=dialog]').getBoundingClientRect().left>=phone.left,'nutrition fits width');closeDialog();
-tap('cart');await checkImages('Cart');
+tap('wishlist');await checkImages('Wishlist');
 check($('.mizora-cart-sheet').getBoundingClientRect().top>=phone.top,'cart fits height');
 check(!$('.mizora-cart-sheet [data-act=review]'),'no review invitation in cart');
-tap('tables');check($('.table-preview-note'),'local preview table context');await checkImages('Tables');closeDialog();
+
 tap('surface','owner');
 for(const tab of ['menu','media','events','analytics','qr','settings']){tap('owner-tab',tab);await checkImages(tab);}
 },width);
 console.log('MIZORA layouts and images passed '+width+'px');
 }
-await size(390,844);await goto('/?restaurant=mizora&embed=guest');await run(setup);
+await size(390,844);await goto('/?restaurant=mizora&embed=guest&dish=mizora-03');await run(setup);
 await send('Emulation.setTouchEmulationEnabled',{enabled:true});
 const before=await run(()=>$('.hero-title-row h1').textContent);
-await send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:280,y:380}]});
-await send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:100,y:380}]});
+await send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:190,y:480}]});
+await send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:190,y:260}]});
 await send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
 assert.notEqual(await run(()=>$('.hero-title-row h1').textContent),before,'swipe');
-await run(()=>{document.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowLeft'}));check($('.hero-title-row h1').textContent.includes('Hamachi'),'keyboard');tap('mode','overview');});
+await run(()=>{document.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowUp'}));check($('.hero-title-row h1').textContent.includes('Hamachi'),'keyboard');tap('mode','overview');});
 for(const [id,name] of [['mizora-18','lamb-focus'],['mizora-16','cod-focus'],['mizora-08','salad-focus'],['mizora-11','octopus-focus']]){
 await run(id=>{tap('mode','overview');tap('open',undefined,id);},id);await screenshot(name);
 }
 await goto('/?restaurant=aurel-house');await run(setup);
 await run(()=>{check($('.rest-brand strong').textContent==='Aurel House','Aurel branding');tap('mode','overview');check($$('.dish-card').length===17,'Aurel count');check(!$('.dish-card').textContent.includes('Hamachi'),'Aurel menu isolation');});
-await goto('/?restaurant=mizora');await run(setup);
+await goto('/?restaurant=mizora&dish=mizora-03');await run(setup);
 await run(()=>{tap('nutrition');check($('.nutrition-total').textContent.includes('275 kcal'),'MIZORA persistence');closeDialog();tap('surface','owner');tap('owner-tab','media');check($('.media-state').textContent==='Update requested','media persistence');});
 await run(()=>{
 const key='foodie:attico:mizora:demo:v1';
 const state=JSON.parse(localStorage.getItem(key));state.menuRevision=1;state.dishes.find(d=>d.id==='mizora-03').name='Old name';
 localStorage.setItem(key,JSON.stringify(state));
 });
-await goto('/?restaurant=mizora');await run(setup);
+await goto('/?restaurant=mizora&dish=mizora-03');await run(setup);
 await run(()=>{
 check($('.hero-title-row h1').textContent.includes('Hamachi Crudo'),'menu revision migration');
 const backup=JSON.parse(localStorage.getItem('foodie:attico:mizora:demo:v1:before-menu-revision-2'));
@@ -187,7 +185,7 @@ check(backup.dishes.some(d=>d.name==='Old name'),'migration backup');
 });
 for(const language of ['de','es','en']) {
   await run(language=>{tap('language');tap('set-language',language);},language);
-  await goto('/?restaurant=mizora');await run(setup);
+  await goto('/?restaurant=mizora&dish=mizora-03');await run(setup);
   await run(language=>{
     check($('.guest-stage').lang===language,'language persists after reload');
     check($('.language-flag-control img').src.endsWith('/'+(language==='en'?'gb':language)+'.svg'),'flag follows language');
@@ -202,7 +200,7 @@ await run(()=>{
   closeDialog();check(document.activeElement.dataset.act==='language','language focus restored');
   tap('surface','owner');tap('owner-tab','settings');
   const form=$('#profile-form');form.elements.reviewUrl.value='https://g.page/r/test-fixture/review';form.requestSubmit();
-  tap('surface','guest');tap('cart');check(!$('[role=dialog] [data-act=review]'),'configured review stays out of cart');
+  tap('surface','guest');tap('wishlist');check(!$('[role=dialog] [data-act=review]'),'configured review stays out of cart');
   closeDialog();tap('mode','overview');tap('guest-information');check($('.restaurant-channels [data-act=review]'),'review in restaurant menu');tap('review');
   const originalOpen=window.open;let opened;
   window.open=(...args)=>{opened=args;return null;};
@@ -213,7 +211,7 @@ await run(()=>{
   const reset=$('#profile-form');reset.elements.reviewUrl.value='';reset.requestSubmit();
 });
 assert.deepEqual(errors,[]);assert.deepEqual(network,[]);
-console.log('Profile isolation, persistence, nutrition, categories, languages, cart, media and analytics passed.');
+console.log('Profile isolation, persistence, nutrition, categories, languages, wishlist, media and analytics passed.');
  } finally {
   if(ws?.readyState===WebSocket.OPEN){ws.send(JSON.stringify({id:999999,method:'Browser.close'}));await Promise.race([once(chrome,'exit'),new Promise(resolve=>setTimeout(resolve,1500))]);}
   ws?.close();if(chrome.exitCode===null)chrome.kill();server.close();

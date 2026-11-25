@@ -52,7 +52,7 @@ window.closeDialog=()=>document.dispatchEvent(new KeyboardEvent('keydown',{key:'
 };
 await size(390,844);
 await send('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:2});
-await goto('/?restaurant=mizora&embed=guest');await run(setup);
+await goto('/?restaurant=mizora&embed=guest&dish=mizora-03');await run(setup);
 const selected=()=>run(()=>document.querySelector('.hero-title-row h1').textContent);
 const swipe=async(x,y,endX,endY)=>{
  await send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});
@@ -60,21 +60,21 @@ const swipe=async(x,y,endX,endY)=>{
  await send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
 };
 const first=await selected();
-await swipe(280,360,100,365);
-assert.notEqual(await selected(),first,'left swipe must advance the dish');
-await swipe(100,360,280,365);
-assert.equal(await selected(),first,'right swipe must restore the previous dish');
+await swipe(190,480,190,260);
+assert.notEqual(await selected(),first,'up swipe must advance the dish');
+await swipe(190,260,190,480);
+assert.equal(await selected(),first,'down swipe must restore the previous dish');
 await run(()=>{
  const dock=$('.mizora-dock').getBoundingClientRect();
- check(dock.bottom<=innerHeight+1&&dock.top>0,'dock visible after horizontal swipes');
+ check(dock.bottom<=innerHeight+1&&dock.top>0,'dock visible after vertical swipes');
 });
-if(process.env.FOODIE_SCREENSHOTS)await screenshot('horizontal-explore-390');
-await swipe(190,450,190,220);
-assert.equal(await selected(),first,'vertical swipe must not switch dishes');
-await swipe(190,220,190,450);
-assert.equal(await selected(),first,'pull-down must not switch dishes');
+if(process.env.FOODIE_SCREENSHOTS)await screenshot('vertical-explore-390');
+await swipe(280,360,100,360);
+assert.equal(await selected(),first,'horizontal swipe must not switch dishes');
+await swipe(100,360,280,360);
+assert.equal(await selected(),first,'horizontal return must not switch dishes');
 await run(()=>check(window.scrollY===0&&document.documentElement.scrollHeight<=innerHeight,'guest document stays within viewport'));
-await swipe(180,360,120,450);
+await swipe(180,360,100,440);
 assert.equal(await selected(),first,'diagonal swipe must not switch dishes');
 await swipe(5,360,180,360);
 assert.equal(await selected(),first,'screen-edge swipe is not dish navigation');
@@ -83,28 +83,30 @@ await run(()=>{
  const emit=(type,points)=>hero.dispatchEvent(new TouchEvent(type,{bubbles:true,cancelable:true,touches:points,changedTouches:points}));
  const a=new Touch({identifier:1,target:hero,clientX:280,clientY:360});
  emit('touchstart',[a]);emit('touchcancel',[a]);
- emit('touchend',[new Touch({identifier:1,target:hero,clientX:100,clientY:360})]);
+ emit('touchend',[new Touch({identifier:1,target:hero,clientX:280,clientY:120})]);
 });
 assert.equal(await selected(),first,'cancelled gesture must not switch dishes');
 await run(()=>{
  const hero=$('.hero-image');
  const points=[1,2].map((identifier,i)=>new Touch({identifier,target:hero,clientX:280+i*10,clientY:360}));
  hero.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,touches:points,changedTouches:points}));
- hero.dispatchEvent(new TouchEvent('touchend',{bubbles:true,touches:[],changedTouches:[new Touch({identifier:1,target:hero,clientX:80,clientY:360})]}));
+ hero.dispatchEvent(new TouchEvent('touchend',{bubbles:true,touches:[],changedTouches:[new Touch({identifier:1,target:hero,clientX:280,clientY:120})]}));
 });
 assert.equal(await selected(),first,'pinch gesture must not switch dishes');
-await run(()=>tap('next-dish'));
-assert.notEqual(await selected(),first,'next button');
-await run(()=>tap('previous-dish'));
-assert.equal(await selected(),first,'previous button');
-await send('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowRight',code:'ArrowRight'});
-assert.notEqual(await selected(),first,'right arrow key');
-await send('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowLeft',code:'ArrowLeft'});
-assert.equal(await selected(),first,'left arrow key');
+await send('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowDown',code:'ArrowDown'});
+assert.notEqual(await selected(),first,'down arrow key');
+await send('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowUp',code:'ArrowUp'});
+assert.equal(await selected(),first,'up arrow key');
 await run(()=>tap('nutrition'));
 await swipe(280,360,100,365);
 assert.equal(await selected(),first,'modal blocks dish swipe');
 await run(()=>closeDialog());
+await run(()=>{tap('menu-return');tap('open',undefined,'mizora-01');});
+await swipe(190,260,190,480);
+assert.ok((await selected()).includes('Mochi'),'down from first dish wraps without page navigation');
+await swipe(190,480,190,260);
+assert.ok((await selected()).includes('Sashimi'),'up from last dish wraps without page navigation');
+await run(()=>{tap('menu-return');tap('open',undefined,'mizora-03');});
 const tabs=await run(()=>{const r=$('#quick-tabs').getBoundingClientRect();return {y:r.y+r.height/2,x:$('#quick-tabs').scrollLeft};});
 await swipe(280,tabs.y,100,tabs.y);
 assert.equal(await selected(),first,'category strip must not switch dishes');
@@ -125,7 +127,7 @@ for(const width of [320,390,430]){
  },width);
 }
 assert.deepEqual(errors,[],'browser exceptions');assert.deepEqual(network,[],'failed requests');
-console.log('Explore gestures passed: real Chrome touch input left/right, vertical/diagonal/edge rejection, cancel/pinch, buttons, keyboard, modal/category isolation, Overview scrolling, 320/390/430px viewport containment. iPhone Safari requires physical-device verification.');
+console.log('Explore gestures passed: real Chrome touch input up/down, horizontal/diagonal/edge rejection, cancel/pinch, keyboard, modal/category isolation, Overview scrolling, 320/390/430px viewport containment. iPhone Safari requires physical-device verification.');
  } finally {
   if(ws?.readyState===WebSocket.OPEN){ws.send(JSON.stringify({id:999999,method:'Browser.close'}));await Promise.race([once(chrome,'exit'),new Promise(resolve=>setTimeout(resolve,1500))]);}
   ws?.close();if(chrome.exitCode===null)chrome.kill();server.close();

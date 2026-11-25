@@ -71,9 +71,9 @@ for(const width of [320,390,430,1280,1440,1586,1920]) {
     check(document.documentElement.scrollWidth<=innerWidth,'guest overflow');
     tap('mode','overview');check($$('.dish-card').length===24,'all 24 dishes');
     tap('category','tapas');check($$('.dish-card:not(.is-muted)').length===3,'category filter');
-    tap('clear-filters');tap('add',undefined,'mizora-03');tap('cart');
-    check($('.sheet-total').textContent.includes('32'),'cart');closeDialog();
-    tap('cart');tap('decrease',undefined,'mizora-03');closeDialog();
+    tap('clear-filters');tap('wishlist-toggle',undefined,'mizora-03');tap('wishlist');
+    check($('.wishlist-item').textContent.includes('32'),'wishlist');closeDialog();
+    tap('wishlist');tap('wishlist-remove',undefined,'mizora-03');closeDialog();
     tap('language');tap('set-language','de');check($('.guest-stage').lang==='de','language');
     tap('language');tap('set-language','en');
   });

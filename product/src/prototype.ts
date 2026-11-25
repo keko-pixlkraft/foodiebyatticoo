@@ -5,6 +5,25 @@ export const nutritionFields = [
   { key: 'fat', label: 'Fat', unit: 'g', max: 1000, step: 0.1 },
 ] as const;
 
+export const publicGuestOrigin = 'https://foodiebyatticoo.vercel.app';
+export function guestLink(origin: string, restaurant: string, options: {table?: number; dish?: string; lang?: string} = {}): string {
+  const url = new URL('/guest', origin);
+  url.searchParams.set('restaurant', restaurant);
+  if (options.dish) {
+    url.searchParams.set('dish', options.dish);
+    if (options.lang && ['en', 'de', 'es'].includes(options.lang)) url.searchParams.set('lang', options.lang);
+  } else if (Number.isInteger(options.table) && options.table! > 0) {
+    url.searchParams.set('table', String(options.table));
+  }
+  return url.href;
+}
+
+export function normalizeWishlist(saved: unknown, carts: Record<string, Record<string, number>>, dishes: readonly {id: string}[]): string[] {
+  const known = new Set(dishes.map(dish => dish.id));
+  const candidates = Array.isArray(saved) ? saved : Object.values(carts ?? {}).flatMap(cart => Object.entries(cart).filter(([, quantity]) => quantity > 0).map(([id]) => id));
+  return [...new Set(candidates.filter((id): id is string => typeof id === 'string' && known.has(id)))];
+}
+
 type TranslatableDish = {
   id: string;
   name: string;

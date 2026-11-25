@@ -265,6 +265,31 @@
 .dish-information .dish-add { position:relative; margin-left:auto; flex:none; display:grid; place-items:center; width:44px; height:42px; padding:0; border-radius:12px; border:1px solid #ffc39480; background:var(--foodie-orange); color:#2b1c14; box-shadow:inset 0 1px #ffe5cf66; }
 .dish-add .ic { width:21px; height:21px; margin-right:3px; }
 .dish-add-plus { position:absolute; right:6px; top:3px; font-size:13px; font-weight:600; }
+.wishlist-plus { position:absolute; right:3px; bottom:2px; display:grid; place-items:center; width:14px; height:14px; border-radius:50%; background:#2b1c14; color:#ffe1bf; font:600 11px/1 Arial,sans-serif; }
+.wishlist-toggle[aria-pressed="true"] .ic,.wishlist-remove .ic { fill:currentColor; }
+.wishlist-toggle .ic { margin:0; }
+.card-quick-add.wishlist-toggle { width:30px; height:30px; top:calc(75cqw - 35px); }
+.card-quick-add.wishlist-toggle .ic { width:16px; height:16px; }
+.card-quick-add .wishlist-plus { right:-2px; bottom:-2px; width:12px; height:12px; font-size:10px; }
+[data-restaurant="mizora"] .phone-screen.explore .compact-guest-header { justify-content:space-between; }
+.guest-menu-return,.dish-share { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:36px; border:1px solid #ead9c533; border-radius:10px; background:#302522b3; color:#f3e6d4; font:450 11px/1 'Instrument Sans',Arial,sans-serif; }
+.guest-menu-return { min-height:32px; height:32px; padding:7px 11px; }
+.guest-menu-return .ic { width:13px; height:13px; }
+.dish-share { width:36px; padding:8px; background:#21191870; }
+.dish-share .ic { width:17px; height:17px; }
+.guest-menu-return:hover,.dish-share:hover { border-color:#ead9c580; background:#302522; }
+.wishlist-eyebrow { display:block; color:#c9b39c; font-size:9px; letter-spacing:.12em; margin-bottom:8px; }
+.wishlist-items { list-style:none; margin:0; }
+.wishlist-item-open { display:flex; align-items:center; flex:1; min-width:0; gap:13px; padding:0; border:0; background:none; color:inherit; text-align:left; }
+.wishlist-item-open .cart-item-detail { min-width:0; }
+.mizora-cart-sheet.wishlist-sheet .wishlist-item { display:flex; gap:12px; }
+.wishlist-sheet .wishlist-item-open .cart-item-detail { flex:1; }
+.wishlist-sheet .wishlist-item-open img { flex:none; width:68px; height:68px; border-radius:11px; object-fit:cover; }
+.wishlist-item-open .cart-item-detail > span { display:block; color:#c8af97; font-size:12px; margin-top:6px; }
+.wishlist-remove { display:grid; place-items:center; width:40px; height:40px; flex:none; padding:10px; border:1px solid #ead9c529; border-radius:50%; background:#ead9c508; color:#ed9656; }
+.wishlist-remove .ic { width:18px; height:18px; }
+.empty-wishlist > .ic { width:32px; height:32px; color:#c3a17f; margin-bottom:15px; }
+.wishlist-sheet .cart-footer { margin-top:auto; }
 .dish-add b { position:absolute; top:-6px; right:-5px; min-width:17px; height:17px; display:grid; place-items:center; padding:0 3px; border-radius:8px; border:1px solid #ed9656; background:#2b1c14; color:#ffe1bf; font-size:9px; }
 [data-restaurant="mizora"] .nutrition-backdrop { align-items:flex-end; justify-content:center; padding:20px 20px calc(158px + env(safe-area-inset-bottom)); background:#140e0b45; backdrop-filter:blur(3px); }
 .nutrition-card { width:290px; max-width:100%; padding:15px 16px 12px; border:1px solid #e9d9c533; border-radius:16px; background:#2b2522; color:#faf1e7; box-shadow:0 12px 40px #0005; font-family:'Instrument Sans',Arial,sans-serif; }

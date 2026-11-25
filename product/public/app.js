@@ -1,7 +1,7 @@
 /* Foodie by Atticoo — self-contained local UX prototype.
    No network APIs, no real orders, no shared table state, no AI processing.
    All menus/prices/content are fictional and illustrative. */
-import { createMediaRequest, eventPhase, defaultTheme as aurelTheme, matchesCalorieLimit, mediaStatus, nextMediaStatus, normalizeTheme, nutritionFields, parseNutrition, readableInk, refreshDefaultDishNames, themePresets as sharedPresets, viewCartRate } from './prototype.js';
+import { createMediaRequest, eventPhase, defaultTheme as aurelTheme, matchesCalorieLimit, mediaStatus, nextMediaStatus, normalizeTheme, nutritionFields, parseNutrition, readableInk, guestLink, normalizeWishlist, publicGuestOrigin, refreshDefaultDishNames, themePresets as sharedPresets, viewCartRate } from './prototype.js';
 
 const restaurantId = new URLSearchParams(location.search).get('restaurant') === 'aurel-house' ? 'aurel-house' : 'mizora';
 const restaurantProfile = restaurantId === 'mizora' ? await fetch('./mizora.json').then(response => {
@@ -178,8 +178,13 @@ const NUTRITION_I18N = {
   }
 };
 const MIZORA_I18N = {"en":{"sampleNutrition":"Estimated from menu ingredients","nutritionNote":"Demo estimate per menu portion. Portions and recipes are assumed; values may vary substantially.","allergenNotVerified":"Possible allergens estimated from the menu. Other allergens and cross-contact may be present. Please confirm with your server.","demoWarning":"Demo guidance based on menu ingredients and estimated portions. Confirm dietary needs and allergies with your server.","demoMenu":"Prices in USD. * Consuming raw or undercooked fish, shellfish or meat may increase your risk of foodborne illness. Please inform your server of any allergies.","calorieNote":"Approximate kcal per menu portion.","allergyExclude":"Possible allergens to avoid","preferences":"Your preferences","noSpiceLimit":"Any heat"},"de":{"sampleNutrition":"Aus den Menüzutaten geschätzt","nutritionNote":"Demo-Schätzung pro Menüportion. Portionsgrößen und Rezepturen sind angenommen; tatsächliche Werte können deutlich abweichen.","allergenNotVerified":"Mögliche Allergene aus der Menübeschreibung geschätzt. Weitere Allergene und Kreuzkontakt sind möglich. Bitte beim Service bestätigen.","demoWarning":"Demo-Orientierung aus Menüzutaten und geschätzten Portionen. Ernährungswünsche und Allergien beim Service bestätigen.","demoMenu":"Preise in USD. * Roher oder nicht durchgegarter Fisch, Meeresfrüchte und Fleisch können lebensmittelbedingte Erkrankungen verursachen. Bitte informiere den Service über Allergien.","calorieNote":"Ungefähre kcal pro Menüportion.","allergyExclude":"Mögliche Allergene vermeiden","preferences":"Deine Wünsche","noSpiceLimit":"Beliebig"},"es":{"sampleNutrition":"Estimación según los ingredientes","nutritionNote":"Estimación de demo por ración del menú. Porciones y recetas supuestas; los valores reales pueden variar considerablemente.","allergenNotVerified":"Posibles alérgenos estimados según el menú. Puede haber otros alérgenos y contacto cruzado. Confirma con el personal.","demoWarning":"Orientación de demo basada en ingredientes y raciones estimadas. Confirma tus necesidades y alergias con el personal.","demoMenu":"Precios en USD. * El pescado, marisco o carne crudos o poco cocinados pueden aumentar el riesgo de enfermedades alimentarias. Informa al personal de tus alergias.","calorieNote":"Kcal aproximadas por ración.","allergyExclude":"Posibles alérgenos a evitar","preferences":"Tus preferencias","noSpiceLimit":"Cualquiera"}};
-const EXPLORE_I18N={en:{swipe:'Swipe left / right',previousDish:'Previous dish',nextDish:'Next dish'},de:{swipe:'Links / rechts wischen',previousDish:'Vorheriges Gericht',nextDish:'Nächstes Gericht'},es:{swipe:'Desliza a los lados',previousDish:'Plato anterior',nextDish:'Siguiente plato'}};
-function tr(key){return EXPLORE_I18N[ui.lang]?.[key] || (restaurantProfile && MIZORA_I18N[ui.lang]?.[key]) || NUTRITION_I18N[ui.lang]?.[key]||UI_I18N[ui.lang]?.[key]||UI_I18N.en[key]||key;}
+const WISHLIST_I18N={
+ en:{wishlist:'Wishlist',saveDish:'Add to wishlist',removeDish:'Remove from wishlist',savedDish:'Saved to wishlist',removedDish:'Removed from wishlist',wishlistEmpty:'Your next favourites',wishlistHint:'Save the dishes you would love to try.',menuReturn:'Menu',shareDish:'Share dish',linkCopied:'Link copied',shareFailed:'Unable to share or copy this link',unavailable:'Currently unavailable'},
+ de:{wishlist:'Merkliste',saveDish:'Auf die Merkliste',removeDish:'Von der Merkliste entfernen',savedDish:'Auf der Merkliste gespeichert',removedDish:'Von der Merkliste entfernt',wishlistEmpty:'Deine nächsten Lieblingsgerichte',wishlistHint:'Merke dir die Gerichte, die du probieren möchtest.',menuReturn:'Menü',shareDish:'Gericht teilen',linkCopied:'Link kopiert',shareFailed:'Link konnte nicht geteilt oder kopiert werden',unavailable:'Zurzeit nicht verfügbar'},
+ es:{wishlist:'Favoritos',saveDish:'Guardar en favoritos',removeDish:'Quitar de favoritos',savedDish:'Guardado en favoritos',removedDish:'Eliminado de favoritos',wishlistEmpty:'Tus próximos favoritos',wishlistHint:'Guarda los platos que te gustaría probar.',menuReturn:'Menú',shareDish:'Compartir plato',linkCopied:'Enlace copiado',shareFailed:'No se pudo compartir ni copiar el enlace',unavailable:'No disponible actualmente'}
+};
+const EXPLORE_I18N={en:{swipe:'Swipe up / down',previousDish:'Previous dish',nextDish:'Next dish'},de:{swipe:'Nach oben / unten wischen',previousDish:'Vorheriges Gericht',nextDish:'Nächstes Gericht'},es:{swipe:'Desliza arriba / abajo',previousDish:'Plato anterior',nextDish:'Siguiente plato'}};
+function tr(key){return WISHLIST_I18N[ui.lang]?.[key] || EXPLORE_I18N[ui.lang]?.[key] || (restaurantProfile && MIZORA_I18N[ui.lang]?.[key]) || NUTRITION_I18N[ui.lang]?.[key]||UI_I18N[ui.lang]?.[key]||UI_I18N.en[key]||key;}
 function dishText(d,key){return d?.translations?.[ui.lang]?.[key] || DISH_I18N[d?.id]?.[ui.lang]?.[key] || d?.[key] || '';}
 function catLabel(id){const category=CATS.find(c=>c.id===id);return restaurantProfile ? category?.[ui.lang] || category?.name || id : tr(id)||catsName(id);}
 function seedDietary(d){return {vegetarian:false,vegan:false,glutenFree:false,lactoseFree:false,halal:false,spice:0,...(DEMO_DIETARY[d.id]||{}),...(d.dietary||{})};}
@@ -233,20 +238,25 @@ function loadDB() {
       restaurantEvents:Array.isArray(stored.restaurantEvents)?stored.restaurantEvents:[],
       mediaRequestLog:Array.isArray(stored.mediaRequestLog)?stored.mediaRequestLog:[],
       events: { ...baseline.events, ...stored.events },
+      ...(restaurantProfile ? {wishlist:normalizeWishlist(stored.wishlist,stored.carts,Array.isArray(stored.dishes)?stored.dishes:baseline.dishes)} : {}),
       dishes: Array.isArray(stored.dishes) ? (restaurantProfile ? refreshDefaultDishNames(stored.dishes,baseline.dishes) : stored.dishes) : baseline.dishes,
       tables: Array.isArray(stored.tables) ? stored.tables : baseline.tables,
     };
   } catch { return baseline; }
 }
 let db=loadDB();
+if(restaurantProfile)db.wishlist=normalizeWishlist(db.wishlist,db.carts,db.dishes);
+const entryParams=new URLSearchParams(location.search);
+const entryDish=restaurantProfile&&db.dishes.find(d=>d.id===entryParams.get('dish')&&d.live);
+const entryLanguage=['en','de','es'].includes(entryParams.get('lang'))?entryParams.get('lang'):null;
 const queryTable=(()=>{try{return new URLSearchParams(location.search).get('table')}catch{return null}})();
 const embedMode=(()=>{try{const x=new URLSearchParams(location.search).get('embed');return x==='guest'||x==='owner'?x:location.pathname==='/guest'?'guest':location.pathname==='/owner'?'owner':''}catch{return ''}})();
 document.body.dataset.embed=embedMode;
 document.body.dataset.restaurant=restaurantId;
 document.title='Foodie by Atticoo · '+(restaurantProfile?.name || 'Aurel House');
 let ui = {
-  lang: ['en','de','es'].includes(db.guestLang) ? db.guestLang : 'en', guestFilters: emptyFilters(),
-  surface: 'guest', mode: 'explore', category: 'all', selected: restaurantProfile ? 'mizora-03' : 'roasted-salmon', table: Number(queryTable) || 7,
+  lang: entryLanguage || (['en','de','es'].includes(db.guestLang) ? db.guestLang : 'en'), guestFilters: emptyFilters(),
+  surface: 'guest', mode: restaurantProfile&&!entryDish?'overview':'explore', category: 'all', selected: entryDish?.id || (restaurantProfile ? 'mizora-03' : 'roasted-salmon'), table: Number(queryTable) || 7,
   ownerTab: 'menu', filter: 'all', search: '', editor: null, modal: null,
   overviewScroll: 0, categoryScroll: 0, toast: '', filterScroll: 0,
   appearanceDraft: null, appearanceStatus: '', mediaDish: null, detailTab: 'allergens', viewAdded: false,
@@ -288,9 +298,28 @@ function event(key,dishId) {
   save();
 }
 function setToast(s){ui.toast=s;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{ui.toast='';document.querySelector('.floating-toast')?.remove()},2800)}
+function isSaved(id){return db.wishlist?.includes(id)||false;}
+function toggleWishlist(id){
+ if(!dish(id))return;
+ const saved=isSaved(id);db.wishlist=saved?db.wishlist.filter(item=>item!==id):[...db.wishlist,id];
+ if(saved)save();else event('wishlistAdds',id);
+ renderToastOnly(tr(saved?'removedDish':'savedDish'));render();
+}
+function wishlistButton(d,className){const saved=isSaved(d.id);return `<button type="button" class="${className} wishlist-toggle" data-act="wishlist-toggle" data-id="${e(d.id)}" aria-pressed="${saved}" aria-label="${e(tr(saved?'removeDish':'saveDish')+' · '+dishText(d,'name'))}">${icon('heart')}${saved?'':'<span class="wishlist-plus" aria-hidden="true">+</span>'}</button>`;}
+async function shareDish(){
+ if(ui.sharePending||!chosen())return;
+ const d=chosen(),data={title:db.restaurant,text:dishText(d,'name'),url:guestLink(location.origin,restaurantId,{dish:d.id,lang:ui.lang})};
+ ui.sharePending=true;render();
+ try{
+  if(navigator.share){try{await navigator.share(data);return;}catch(error){if(error.name==='AbortError')return;}}
+  const copied=await copyText(data.url);renderToastOnly(tr(copied===false?'shareFailed':'linkCopied'));
+ }catch{renderToastOnly(tr('shareFailed'));}finally{ui.sharePending=false;render();}
+}
 function addToCart(id,n){if(ui.table===null || !dish(id))return;const k=pad(ui.table);const c=db.carts[k]||(db.carts[k]={});c[id]=Math.max(0,(Number(c[id])||0)+n);if(c[id]===0)delete c[id];if(n>0)event('adds',id);else save();setToast(n>0?tr('add'):tr('selection'));render()}
 
 function icon(name){const paths={
+ heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',
+ share:'<path d="M12 15V2m-4 4 4-4 4 4M5 10H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-1"/>',
  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3M4 4l2 2M18 18l2 2M4 20l2-2M18 6l2-2"/>',
  crop:'<path d="M6 2v16h16M2 6h16v16"/>',send:'<path d="m3 10 18-7-7 18-4-7-7-4Zm7 4L21 3"/>',
  drop:'<path d="M12 2S5 10 5 15a7 7 0 0 0 14 0c0-5-7-13-7-13Z"/>',
@@ -367,7 +396,7 @@ function mizoraHeader() {
   const explore=ui.mode==='explore';
   const language=GUEST_LANGUAGES.find(item=>item.id===ui.lang);
   const header=`<header class="restaurant-header compact-guest-header">
-    ${!explore?'<div class="mizora-logo"><img src="assets/mizora/logo-transparent.png" alt="MIZORA"></div>':''}
+    ${!explore?'<div class="mizora-logo"><img src="assets/mizora/logo-transparent.png" alt="MIZORA"></div>':`<button class="guest-menu-return" data-act="menu-return">${icon('back')}${e(tr('menuReturn'))}</button>`}
     <div class="guest-header-tools">${!explore?`<button class="guest-information-trigger" data-act="guest-information" aria-label="${e(ui.lang==='de'?'Restaurantmenü':ui.lang==='es'?'Menú del restaurante':'Restaurant menu')}" aria-haspopup="dialog" aria-expanded="${ui.modal==='guest-information'}">${icon('menu')}</button>`:''}<button class="lang-pill language-flag-control" data-act="language" aria-label="${e(tr('language')+' · '+language.name)}" aria-haspopup="dialog" aria-expanded="${ui.modal==='language'}">${languageFlag(ui.lang)}</button></div>
   </header>`;
   const categories=`<nav class="quick-tabs" id="quick-tabs" aria-label="${e(tr('category'))}">${CATS.map(c=>`<button class="quick-tab ${ui.category===c.id?'is-active':''}" data-act="category" data-value="${c.id}" aria-pressed="${ui.category===c.id}">${e(catLabel(c.id))}</button>`).join('')}</nav>`;
@@ -375,12 +404,12 @@ function mizoraHeader() {
 }
 
 function mizoraDock() {
-  const cartLabel={en:'Cart',de:'Warenkorb',es:'Cesta'}[ui.lang];
+  const cartLabel=tr('wishlist');
   return `<nav class="guest-cartbar mizora-dock" aria-label="${e(tr('selection'))}">
-    ${[['explore',tr('explore'),'mode'],['overview',tr('overview'),'mode'],['filters',tr('filters'),'filters'],['cart',cartLabel,'cart']].map(([id,label,action])=>{
+    ${[['explore',tr('explore'),'mode'],['overview',tr('overview'),'mode'],['filters',tr('filters'),'filters'],['wishlist',cartLabel,'wishlist']].map(([id,label,action])=>{
       const selected=ui.modal ? ui.modal===id : ui.mode===id;
-      const badge=id==='cart'?cartCount():id==='filters'?activeFilterCount():0;
-      return `<button data-act="${action}" ${action==='mode'?`data-value="${id}"`:''} class="${selected?'is-active':''}" aria-label="${e(label)}${badge?' ('+badge+')':''}" aria-pressed="${selected}"><span class="dock-icon">${id==='filters'?icon('filter'):foodIcon(id)}${badge?`<b class="dock-badge">${badge}</b>`:''}</span><span>${e(label)}</span></button>`;
+      const badge=id==='wishlist'?db.wishlist.length:id==='filters'?activeFilterCount():0;
+      return `<button data-act="${action}" ${action==='mode'?`data-value="${id}"`:''} class="${selected?'is-active':''}" aria-label="${e(label)}${badge?' ('+badge+')':''}" aria-pressed="${selected}"><span class="dock-icon">${id==='filters'?icon('filter'):id==='wishlist'?icon('heart'):foodIcon(id)}${badge?`<b class="dock-badge">${badge}</b>`:''}</span><span>${e(label)}</span></button>`;
     }).join('')}</nav>`;
 }
 
@@ -392,7 +421,7 @@ function mizoraDishInformation(d) {
     <span class="allergen-peek" role="img" aria-label="${e(tr('allergens')+': '+(allergens.map(allergenName).join(', ') || tr('allergenNotVerified')))}" title="${e(allergens.map(allergenName).join(', ') || tr('allergenNotVerified'))}">
       ${allergens.length?allergens.slice(0,4).map(a=>`<span data-value="${e(a)}" title="${e(allergenName(a))}">${foodIcon(a)}</span>`).join(''):foodIcon('unknown')}
       ${allergens.length===1?`<span>${e(allergenName(allergens[0]))}</span>`:''}${allergens.length>4?`<span>+${allergens.length-4}</span>`:''}
-    </span><button class="dish-add" ${ui.table===null?'disabled':''} data-act="add" data-id="${e(d.id)}" aria-label="${e(tr('add')+' '+dishText(d,'name'))}">${icon('cart')}<span class="dish-add-plus">+</span>${currentCart()[d.id]?`<b>${currentCart()[d.id]}</b>`:''}</button></div>`;
+    </span>${wishlistButton(d,'dish-add')}</div>`;
 }
 
 function headerGuest(){if(restaurantProfile)return mizoraHeader();return `<div class="guest-status"><span>9:41</span><div class="island"></div><span>▥  ◕  ▰</span></div><div class="restaurant-header"><button class="glass-icon" data-act="guest-back" title="${e(tr('overview'))}" aria-label="${e(tr('overview'))}">${icon('menu')}</button><div class="rest-brand">${restaurantProfile ? '<div class="mizora-logo"><img src="assets/mizora/logo-transparent.png" alt="MIZORA · Mediterranean · Japanese"></div>' : '<span class="rest-symbol">∿</span><strong>'+e(db.restaurant)+'</strong><small>'+e(db.tagline)+'</small>'}</div><div class="guest-header-tools">${db.reviewEnabled!==false?`<button class="glass-icon review-top-icon" data-act="review" title="${e(tr('reviewEntry'))}" aria-label="${e(tr('reviewEntry'))}">${icon('star')}</button>`:''}<button class="lang-pill" data-act="language" aria-label="${e(tr('language'))}">${ui.lang.toUpperCase()} ⌄</button></div></div><div class="quick-tabs" id="quick-tabs" aria-label="${e(tr('category'))}">${CATS.map(c=>`<button class="quick-tab ${ui.category===c.id?'is-active':''}" data-act="category" data-value="${c.id}">${e(catLabel(c.id))}</button>`).join('')}</div><div class="guest-toggle"><button class="${ui.mode==='explore'?'active':''}" data-act="mode" data-value="explore">${icon('spark')} ${e(tr('explore'))}</button><button class="${ui.mode==='overview'?'active':''}" data-act="mode" data-value="overview">${icon('menu')} ${e(tr('overview'))}</button><button class="filter-launch ${activeFilterCount()?'filter-on':''}" data-act="filters" aria-label="${e(tr('filters'))}">${icon('filter')}<span>${e(tr('filters'))}</span>${activeFilterCount()?`<b>${activeFilterCount()}</b>`:''}</button></div>`}
@@ -408,7 +437,7 @@ function heroExplore(){
    <div class="hero-shade"></div>
    ${restaurantProfile?'':`<div class="hero-fab-stack"><button class="fab-cart-add" ${ui.table === null ? 'disabled' : ''} data-act="add" data-id="${e(d.id)}" aria-label="${e(tr('add'))} ${e(dishText(d,'name'))}">${icon('cart')}<span class="fab-plus">+</span>${qty?`<b>${qty}</b>`:''}</button></div>`}
    <div class="hero-content hero-content-minimal">
-     <div class="hero-kicker"><span>${e(catLabel(d.category))}</span><div class="explore-navigation"><button type="button" data-act="previous-dish" aria-label="${e(tr('previousDish'))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button><span class="swipe-indicator">${e(tr('swipe'))}</span><button type="button" data-act="next-dish" aria-label="${e(tr('nextDish'))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button></div></div>
+     <div class="hero-kicker"><span>${e(catLabel(d.category))}</span>${restaurantProfile?`<button class="dish-share" data-act="share-dish" aria-label="${e(tr('shareDish'))}" ${ui.sharePending?'disabled':''}>${icon('share')}</button>`:`<span class="swipe-indicator">↕ ${e(tr('swipe'))}</span>`}</div>
      <div class="hero-title-row"><h1>${e(dishText(d,'name'))}${d.raw?'<sup class="raw-mark">*</sup>':''}</h1><span class="hero-price">${fmt(d.price)}</span></div>
      <p class="hero-summary">${e(dishText(d,'summary'))}</p>
      ${restaurantProfile?mizoraDishInformation(d):`<div class="hero-subline"><button class="outline-pill details-pill" data-act="details" aria-label="${e(tr('details'))} ${e(dishText(d,'name'))}">${icon('eye')} ${e(tr('details'))}</button></div>`}
@@ -419,15 +448,14 @@ function dishCard(d){const qty=currentCart()[d.id]||0;return `<article class="di
 
 
 function mizoraCard(d) {
-  const quantity=currentCart()[d.id] || 0;
   const matches=(ui.category==='all'||d.category===ui.category)&&canShow(d);
   const disabled=matches?'':'disabled';
   const kcal=d.nutrition?.kcal;
   return `<article class="dish-card menu-photo-card ${matches?'':'is-muted'}" ${matches?'':'aria-describedby="muted-dish-note"'}>
     <button class="dish-card-main" data-act="open" data-id="${e(d.id)}" ${disabled} aria-label="${e(tr('explore')+' '+dishText(d,'name'))}">
-      <span class="menu-card-photo">${dishPhoto(d,'overview',{lazy:true})}<em>${fmt(d.price)}</em>${quantity?`<b class="card-quantity">${quantity}</b>`:''}</span>
+      <span class="menu-card-photo">${dishPhoto(d,'overview',{lazy:true})}<em>${fmt(d.price)}</em></span>
       <span class="dish-card-copy"><strong>${e(dishText(d,'name'))}${d.raw?'<sup class="raw-mark">*</sup>':''}</strong>${Number.isFinite(kcal)?`<small>≈ ${e(kcal)} kcal</small>`:''}</span>
-    </button><button class="card-quick-add" ${!matches||ui.table===null?'disabled':''} aria-label="${e(tr('add')+' '+dishText(d,'name'))}" data-act="add" data-id="${e(d.id)}">${icon('plus')}</button>
+    </button>${matches?wishlistButton(d,'card-quick-add'):`<button class="card-quick-add" disabled aria-label="${e(tr('saveDish')+' · '+dishText(d,'name'))}">${icon('heart')}</button>`}
   </article>`;
 }
 
@@ -573,16 +601,10 @@ function mizoraTables() {
   </section></div>`;
 }
 
-function mizoraCart() {
-  const copy=MIZORA_CART_COPY[ui.lang];
-  const items=Object.entries(currentCart()).filter(([id,quantity])=>quantity>0&&dish(id));
-  const count=cartCount();
-  return `<div class="guest-modal-backdrop cart-backdrop" data-act="close-modal"><section class="guest-sheet mizora-sheet mizora-cart-sheet" role="dialog" aria-modal="true" aria-label="${e(tr('selection'))}">
-    <div class="sheet-handle"></div><header class="sheet-head"><div><button class="cart-table-link" data-act="tables" aria-haspopup="dialog" aria-label="${e(tr('changeTableTitle'))}${ui.table===null?'':' · '+pad(ui.table)}"><span>${e(tr('changeTable'))}</span><strong>${ui.table===null?'—':pad(ui.table)}</strong>${icon('chevron')}</button><h2>${e(tr('selection'))}</h2><p class="cart-item-count">${count} ${e(count===1?copy.item:copy.items)}</p></div><button class="icon-close" data-act="close-modal" aria-label="${e(tr('dismiss'))}">${icon('close')}</button></header>
-    <div class="cart-items">${items.length?items.map(([id,quantity])=>{const d=dish(id);const name=dishText(d,'name');return `<article class="cart-item">${dishPhoto(d,'overview',{alt:name})}<div class="cart-item-detail"><strong>${e(name)}</strong><span>${fmt(d.price)} ${e(tr('each'))}</span><div class="quantity" role="group" aria-label="${e(name)}"><button data-act="decrease" data-id="${e(id)}" aria-label="${e(copy.remove+' · '+name)}">${icon('minus')}</button><b>${quantity}</b><button data-act="add" data-id="${e(id)}" aria-label="${e(tr('add')+' · '+name)}">${icon('plus')}</button></div></div><b>${fmt(quantity*d.price)}</b></article>`;}).join(''):`<div class="empty-cart">${foodIcon('cart')}<h3>${e(copy.empty)}</h3><p>${e(tr('emptyCart'))}</p></div>`}</div>
-    <footer class="cart-footer"><div class="sheet-total"><span>${e(copy.subtotal)}</span><strong>${fmt(cartTotal())}</strong></div><button class="cart-continue" data-act="close-modal">${e(tr('continue'))}${icon('arrow')}</button>
-    </footer>
-  </section></div>`;
+function mizoraWishlist(){
+ const items=db.wishlist.map(dish).filter(Boolean);
+ return `<div class="guest-modal-backdrop cart-backdrop" data-act="close-modal"><section class="guest-sheet mizora-sheet mizora-cart-sheet wishlist-sheet" role="dialog" aria-modal="true" aria-label="${e(tr('wishlist'))}"><div class="sheet-handle"></div><header class="sheet-head"><div><span class="wishlist-eyebrow">${e(db.restaurant)}</span><h2>${e(tr('wishlist'))}</h2></div><button class="icon-close" data-act="close-modal" aria-label="${e(tr('dismiss'))}">${icon('close')}</button></header>
+ <ul class="cart-items wishlist-items">${items.length?items.map(d=>`<li class="cart-item wishlist-item"><button class="wishlist-item-open" data-act="open" data-id="${e(d.id)}" ${d.live?'':'disabled'}>${dishPhoto(d,'overview',{alt:''})}<span class="cart-item-detail"><strong>${e(dishText(d,'name'))}</strong><span>${d.live?fmt(d.price):e(tr('unavailable'))}</span></span></button><button class="wishlist-remove" data-act="wishlist-remove" data-id="${e(d.id)}" aria-label="${e(tr('removeDish')+' · '+dishText(d,'name'))}">${icon('heart')}</button></li>`).join(''):`<li class="empty-cart empty-wishlist">${icon('heart')}<h3>${e(tr('wishlistEmpty'))}</h3><p>${e(tr('wishlistHint'))}</p></li>`}</ul><footer class="cart-footer"><button class="cart-continue" data-act="close-modal">${e(tr('continue'))}${icon('arrow')}</button></footer></section></div>`;
 }
 
 function mizoraReview() {
@@ -595,7 +617,7 @@ function mizoraReview() {
   </section></div>`;
 }
 
-function guestModal(){if(!ui.modal)return '';if(restaurantProfile && ui.modal==='guest-information')return mizoraInformation();if(restaurantProfile && ui.modal==='filters')return mizoraFilters();if(restaurantProfile && ui.modal==='details' && ui.detailTab==='nutrition')return chosen()?mizoraNutrition(chosen()):'';if(restaurantProfile && ui.modal==='cart')return mizoraCart();if(restaurantProfile && ui.modal==='review')return mizoraReview();if(restaurantProfile && ui.modal==='language')return mizoraLanguage();if(restaurantProfile && ui.modal==='tables')return mizoraTables();
+function guestModal(){if(!ui.modal)return '';if(restaurantProfile && ui.modal==='guest-information')return mizoraInformation();if(restaurantProfile && ui.modal==='filters')return mizoraFilters();if(restaurantProfile && ui.modal==='details' && ui.detailTab==='nutrition')return chosen()?mizoraNutrition(chosen()):'';if(restaurantProfile && ui.modal==='wishlist')return mizoraWishlist();if(restaurantProfile && ui.modal==='review')return mizoraReview();if(restaurantProfile && ui.modal==='language')return mizoraLanguage();if(restaurantProfile && ui.modal==='tables')return mizoraTables();
  if(ui.modal==='filters'){
   const matches=listed().length;
   return `<div class="guest-modal-backdrop" data-act="close-modal"><div class="guest-sheet filters-sheet" role="dialog" aria-modal="true" aria-label="${e(tr('filters'))}"><div class="sheet-handle"></div><div class="sheet-head"><div><span class="micro-overline">${e(db.restaurant)} / DISCOVER</span><h2>${e(tr('filters'))}</h2></div><button class="icon-close" data-act="close-modal" aria-label="${e(tr('dismiss'))}">${icon('close')}</button></div><div class="filter-scroll"><div class="filter-group"><h3>${e(tr('preferences'))}</h3><div class="filter-chip-grid">${DIET_KEYS.map(k=>`<button class="filter-chip ${ui.guestFilters[k]?'chosen':''}" data-act="toggle-diet" data-value="${k}" aria-pressed="${!!ui.guestFilters[k]}">${ui.guestFilters[k]?icon('check'):''}${e(tr(k))}</button>`).join('')}</div></div><div class="filter-group"><h3>${e(tr('spiceLevel'))}</h3><div class="spice-chips">${[[null,'noSpiceLimit'],[0,'mild'],[1,'medium'],[2,'hot']].map(([v,k])=>`<button class="filter-chip ${ui.guestFilters.spice===v?'chosen':''}" data-act="set-spice" data-value="${v===null?'any':v}">${e(tr(k))}</button>`).join('')}</div></div><div class="filter-group"><h3>${e(tr('allergyExclude'))}</h3><div class="filter-chip-grid allergen-filter-grid">${FILTER_ALLERGENS.map(a=>`<button class="filter-chip ${ui.guestFilters.exclude.includes(a)?'chosen':''}" data-act="toggle-allergen" data-value="${e(a)}">${ui.guestFilters.exclude.includes(a)?icon('check'):''}${e(allergenName(a))}</button>`).join('')}</div></div>${calorieFilter()}<p class="filter-warning">${icon('lock')} ${e(tr('demoWarning'))}</p></div><div class="filter-sheet-actions"><button class="filter-reset" data-act="clear-filters">${e(tr('clear'))}</button><button class="primary-btn" data-act="apply-filters">${e(tr('apply'))} · ${matches}</button></div></div></div>`;
@@ -625,7 +647,7 @@ function guestThemeAttributes(theme) {
   if (accent === defaultTheme.accent && surface === defaultTheme.surface && button === defaultTheme.button) return '';
   return `data-guest-theme="${button}" style="--guest-accent:${accent};--guest-surface:${surface};--guest-accent-ink:${readableInk(accent)};--guest-surface-ink:${readableInk(surface)}"`;
 }
-function guest(){return `<main class="guest-stage" lang="${ui.lang}"><div class="device-frame"><div class="phone-screen ${ui.mode}" ${guestThemeAttributes(db.theme)}>${ui.mode==='explore'?heroExplore():''}${headerGuest()}${ui.mode==='overview'?guestOverview():''}${guestCartBar()}${guestModal()}${ui.toast?`<div class="floating-toast">${e(ui.toast)}</div>`:''}</div></div></main>`}
+function guest(){return `<main class="guest-stage" lang="${ui.lang}"><div class="device-frame"><div class="phone-screen ${ui.mode}" ${guestThemeAttributes(db.theme)}>${ui.mode==='explore'?heroExplore():''}${headerGuest()}${ui.mode==='overview'?guestOverview():''}${guestCartBar()}${guestModal()}${ui.toast?`<div class="floating-toast" role="status">${e(ui.toast)}</div>`:''}</div></div></main>`}
 
 const ownerNav = [
   ['menu','Menu editing','layers','Menu'],
@@ -744,9 +766,9 @@ function qrPage() {
   const active=db.tables.filter(t=>t.active).length,filter=ui.qrFilter||'all';
   const tables=db.tables.filter(t=>(filter==='all'||(filter==='active'?t.active:!t.active))&&(!ui.qrSearch||('table '+pad(t.number)).includes(ui.qrSearch.toLowerCase())));
   return `${ownerToolbar('Table QR codes','Unique table codes for a considered guest menu experience.',`<button class="primary-btn" data-act="new-table" ${db.tables.length>=24?'disabled':''}>${icon('plus')} Add table</button>`)}
-    <div class="qr-intro panel"><div class="qr-intro-title">${icon('qr')}<div><h2>${db.tables.length} tables · ${e(db.restaurant)}</h2><p>Local previews · QR destinations are placeholders, not live restaurant links.</p></div></div><div class="qr-summary">${ownerMetric('Total tables',db.tables.length,'layers')}${ownerMetric('Active',active,'check')}${ownerMetric('Paused',db.tables.length-active,'pause')}</div></div>
+    <div class="qr-intro panel"><div class="qr-intro-title">${icon('qr')}<div><h2>${db.tables.length} tables · ${e(db.restaurant)}</h2><p>${restaurantProfile?'Public demo menu · opens Overview for each table. Browser changes remain local.':'Local previews · QR destinations are placeholders, not live restaurant links.'}</p></div></div><div class="qr-summary">${ownerMetric('Total tables',db.tables.length,'layers')}${ownerMetric('Active',active,'check')}${ownerMetric('Paused',db.tables.length-active,'pause')}</div></div>
     <div class="owner-section-tools qr-tools"><nav class="status-tabs" aria-label="Table status">${[['all','All tables',db.tables.length],['active','Active',active],['paused','Paused',db.tables.length-active]].map(([key,label,count])=>`<button data-act="qr-filter" data-value="${key}" aria-pressed="${filter===key}">${label}<small>${count}</small></button>`).join('')}</nav><div class="qr-search-tools"><div class="search-wrap">${icon('search')}<input id="table-search" type="search" placeholder="Search tables…" aria-label="Search tables" value="${e(ui.qrSearch||'')}"></div><div class="layout-switch" aria-label="Table layout"><button data-act="qr-layout" data-value="grid" aria-pressed="${ui.qrLayout!=='list'}" aria-label="Table grid">${icon('grid')}</button><button data-act="qr-layout" data-value="list" aria-pressed="${ui.qrLayout==='list'}" aria-label="Table list">${icon('menu')}</button></div></div></div>
-    <div class="qr-grid ${ui.qrLayout==='list'?'qr-list-layout':''}">${tables.map(t=>{const cart=db.carts[pad(t.number)]||{},count=Object.values(cart).reduce((sum,quantity)=>sum+quantity,0);return `<article class="table-qr panel"><div class="table-qr-head"><span class="table-number">Table ${pad(t.number)}</span><span class="status-pill ${t.active?'':'paused'}"><i></i>${t.active?'Active':'Paused'}</span></div><img class="qr-image" src="${tableQrAsset(t.number)}" alt="${e(db.restaurant)} · Table ${pad(t.number)} · placeholder QR"><div class="qr-stats"><span>${icon('layers')}<span>Local items <b>${count}</b></span></span><span>${icon('table')}<span>Subtotal <b>${fmt(cartAmount(cart))}</b></span></span></div><div class="qr-actions"><button class="tiny-action" data-act="test-table" data-value="${t.number}" ${t.active?'':'disabled'}>${icon('eye')} Preview</button><button class="tiny-action" data-act="download-qr" data-value="${t.number}" aria-label="Download table ${pad(t.number)} QR as PNG">${icon('download')} PNG</button><a class="tiny-action" href="${tableQrAsset(t.number)}" download="${restaurantId}_Table_${pad(t.number)}_DEMO.${restaurantProfile?'svg':'png'}" aria-label="Download original table QR">${icon('download')} ${restaurantProfile?'SVG':'File'}</a><button class="tiny-action" data-act="copy-qr" data-value="${t.number}" aria-label="Copy placeholder destination">${icon('copy')} Copy</button><button class="qr-pause" data-act="toggle-table" data-value="${t.number}">${icon('pause')} ${t.active?'Pause table':'Activate table'}</button></div></article>`;}).join('')}</div>${!tables.length?'<p class="owner-empty">No tables match your selection.</p>':''}`;
+    <div class="qr-grid ${ui.qrLayout==='list'?'qr-list-layout':''}">${tables.map(t=>{const cart=db.carts[pad(t.number)]||{},count=Object.values(cart).reduce((sum,quantity)=>sum+quantity,0);return `<article class="table-qr panel"><div class="table-qr-head"><span class="table-number">Table ${pad(t.number)}</span><span class="status-pill ${t.active?'':'paused'}"><i></i>${t.active?'Active':'Paused'}</span></div><img class="qr-image" src="${tableQrAsset(t.number)}" alt="${e(db.restaurant)} · Table ${pad(t.number)} · ${restaurantProfile?'menu QR':'placeholder QR'}"><div class="qr-stats"><span>${icon('layers')}<span>Local items <b>${count}</b></span></span><span>${icon('table')}<span>Subtotal <b>${fmt(cartAmount(cart))}</b></span></span></div><div class="qr-actions"><button class="tiny-action" data-act="test-table" data-value="${t.number}" ${t.active?'':'disabled'}>${icon('eye')} Preview</button><button class="tiny-action" data-act="download-qr" data-value="${t.number}" aria-label="Download table ${pad(t.number)} QR as PNG">${icon('download')} PNG</button><a class="tiny-action" href="${tableQrAsset(t.number)}" download="${restaurantId}_Table_${pad(t.number)}_DEMO.${restaurantProfile?'svg':'png'}" aria-label="Download original table QR">${icon('download')} ${restaurantProfile?'SVG':'File'}</a><button class="tiny-action" data-act="copy-qr" data-value="${t.number}" aria-label="${restaurantProfile?'Copy guest menu link':'Copy placeholder destination'}">${icon('copy')} Copy</button><button class="qr-pause" data-act="toggle-table" data-value="${t.number}">${icon('pause')} ${t.active?'Pause table':'Activate table'}</button></div></article>`;}).join('')}</div>${!tables.length?'<p class="owner-empty">No tables match your selection.</p>':''}`;
 }
 const sampleDays = [130,160,154,190,214,180,250,235,280,305,290,342,370,401];
 const sampleDishViews = {'roasted-salmon':642,'margherita-pizza':521,'aurel-steak':416,'yuzu-spritz':328,'espresso-martini':296,'lychee-highball':284};
@@ -945,7 +967,7 @@ function renderToastOnly(message) {
   else container.insertAdjacentHTML('beforeend',`<div class="floating-toast" role="status">${e(message)}</div>`);
 }
 function flipSurface(name){window.scrollTo({top:0,behavior:'instant'});ui.surface=name;ui.modal=null;ui.editor=null;if(name==='guest')event('views');render()}
-function turnDish(dir){const l=listed();if(l.length<2)return;let i=l.findIndex(x=>x.id===ui.selected);ui.selected=l[((i===-1?0:i)+dir+l.length)%l.length].id;event('opens',ui.selected);render();if(!matchMedia('(prefers-reduced-motion: reduce)').matches)root.querySelector('.explore-hero')?.animate([{transform:`translate3d(${dir*14}px,0,0)`,opacity:.94},{transform:'translate3d(0,0,0)',opacity:1}],{duration:200,easing:'cubic-bezier(.2,.7,.3,1)'})}
+function turnDish(dir){const l=listed();if(l.length<2)return;let i=l.findIndex(x=>x.id===ui.selected);ui.selected=l[((i===-1?0:i)+dir+l.length)%l.length].id;event('opens',ui.selected);render();if(!matchMedia('(prefers-reduced-motion: reduce)').matches)root.querySelector('.explore-hero')?.animate([{transform:`translate3d(0,${dir*14}px,0)`,opacity:.94},{transform:'translate3d(0,0,0)',opacity:1}],{duration:200,easing:'cubic-bezier(.2,.7,.3,1)'})}
 function showCategory(id){ui.category=id;const first=listed()[0];if(first)ui.selected=first.id;render({resetOverview:true});const t=document.querySelector(`.quick-tab[data-value="${id}"]`);t?.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'})}
 function downloadJSON(){downloadPayload(db,'Foodie_Atticoo_'+restaurantId+'_LocalDemo.json');}
 function downloadPayload(payload,filename){const a=document.createElement('a');const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
@@ -953,7 +975,7 @@ function copyText(s){if(navigator.clipboard&&window.isSecureContext)return navig
 
 const handleActions=async(act,node)=>{
 const val=node.dataset.value, id=node.dataset.id;
-if(act==='previous-dish'||act==='next-dish'){if(ui.surface==='guest'&&ui.mode==='explore'&&!ui.modal)turnDish(act==='next-dish'?1:-1);return;}
+
 switch(act){
  case 'surface':flipSurface(val);break;
  case 'guest-back':ui.mode='overview';ui.modal=null;render();break;
@@ -977,8 +999,13 @@ switch(act){
  case 'review':ui.modal='review';render();break;
  case 'open-review':if(validReviewUrl(reviewLink()))window.open(reviewLink(),'_blank','noopener,noreferrer');break;
  case 'category':showCategory(val);break;
+ case 'menu-return':ui.mode='overview';ui.modal=null;render();break;
+ case 'wishlist-toggle':if(restaurantProfile)toggleWishlist(id);break;
+ case 'wishlist-remove':if(restaurantProfile&&isSaved(id))toggleWishlist(id);break;
+ case 'wishlist':ui.modal='wishlist';render();break;
+ case 'share-dish':await shareDish();break;
  case 'mode':ui.mode=val;ui.modal=null;render();break;
- case 'open':ui.selected=id;ui.mode='explore';event('opens',id);render();break;
+ case 'open':ui.selected=id;ui.modal=null;ui.mode='explore';event('opens',id);render();break;
  case 'add':addToCart(id,1);break;
  case 'decrease':addToCart(id,-1);break;
  case 'cart':ui.modal='cart';event('cartViews');render();break;
@@ -1045,12 +1072,12 @@ switch(act){
   if (ui.table === null && table.active) ui.table = table.number;
   save();render();break;
  }
- case 'test-table':{const table=db.tables.find(t=>t.number===Number(val));if(!table?.active){alert('This table is paused. Activate it to open the guest preview.');break;}ui.table=Number(val);ui.modal=null;db.events.qrPreviews++;save();flipSurface('guest');break}
- case 'copy-qr':{const link=`https://example.com/${restaurantId}?table=${pad(val)}`;try{const copied=await copyText(link);renderToastOnly(copied===false?'Unable to copy the placeholder link':'Copied placeholder link');}catch{renderToastOnly('Unable to copy the placeholder link');}break}
+ case 'test-table':{const table=db.tables.find(t=>t.number===Number(val));if(!table?.active){alert('This table is paused. Activate it to open the guest preview.');break;}ui.table=Number(val);ui.mode=restaurantProfile?'overview':ui.mode;ui.modal=null;db.events.qrPreviews++;save();flipSurface('guest');break}
+ case 'copy-qr':{const link=restaurantProfile?guestLink(publicGuestOrigin,restaurantId,{table:Number(val)}):`https://example.com/${restaurantId}?table=${pad(val)}`;try{const copied=await copyText(link);renderToastOnly(copied===false?'Unable to copy the link':restaurantProfile?'Copied guest menu link':'Copied placeholder link');}catch{renderToastOnly('Unable to copy the link');}break}
  case 'analytics-export':downloadPayload(trafficDataset(),'Foodie_Atticoo_'+restaurantId+'_'+(ui.analyticsMode==='sample'?'Example':'Local')+'_Traffic.json');break;
  case 'owner-translations':ui.editor=db.dishes[0]?.id||'new';render();root.querySelector('.editor-language-group')?.scrollIntoView({block:'start'});break;
  case 'export':downloadJSON();break;
- case 'reset':if(confirm('Reset all saved menu edits, carts, events, requests and interactions for '+db.restaurant+' in this browser? Other restaurant profiles will remain unchanged.')){db=clone(DEFAULT_DB);ui.category='all';ui.selected=restaurantProfile ? 'mizora-03' : 'roasted-salmon';ui.table=7;ui.filter='all';ui.search='';ui.guestFilters=emptyFilters();ui.appearanceDraft=null;ui.appearanceStatus='';ui.mediaDish=null;ui.mediaDraft=null;ui.mediaError='';ui.mediaFilter='all';ui.eventEditor=null;ui.eventDraft=null;ui.eventFilter='all';ui.qrFilter='all';ui.qrSearch='';ui.viewAdded=false;ui.lang='en';save();render()}break;
+ case 'reset':if(confirm('Reset all saved menu edits, carts, wishlists, events, requests and interactions for '+db.restaurant+' in this browser? Other restaurant profiles will remain unchanged.')){db=clone(DEFAULT_DB);if(restaurantProfile)db.wishlist=[];ui.category='all';ui.selected=restaurantProfile ? 'mizora-03' : 'roasted-salmon';ui.table=7;ui.filter='all';ui.search='';ui.guestFilters=emptyFilters();ui.appearanceDraft=null;ui.appearanceStatus='';ui.mediaDish=null;ui.mediaDraft=null;ui.mediaError='';ui.mediaFilter='all';ui.eventEditor=null;ui.eventDraft=null;ui.eventFilter='all';ui.qrFilter='all';ui.qrSearch='';ui.viewAdded=false;ui.lang='en';save();render()}break;
  default:break;
 }}
 root.addEventListener('change',ev=>{
@@ -1107,7 +1134,7 @@ root.addEventListener('touchmove',ev=>{
   if(!exploreTouch)return;
   if(ev.touches.length!==1||!isExploreGestureTarget(ev.target)){exploreTouch=null;return;}
   const touch=ev.touches[0],dx=Math.abs(touch.clientX-exploreTouch.x),dy=Math.abs(touch.clientY-exploreTouch.y);
-  if(!exploreTouch.axis&&Math.max(dx,dy)>12)exploreTouch.axis=dx>dy*1.3?'x':'y';
+  if(!exploreTouch.axis&&Math.max(dx,dy)>12)exploreTouch.axis=dy>dx*1.3?'y':'x';
   // Scope Safari's fallback to a single finger on the dish, preserving pinch zoom and inner scrollers.
   if(ev.cancelable)ev.preventDefault();
 },{passive:false});
@@ -1117,12 +1144,12 @@ root.addEventListener('touchend',ev=>{
   if(!start||ev.touches.length||!isExploreGestureTarget(ev.target)||start.dish!==ui.selected||performance.now()-start.time>1200)return;
   const touch=[...ev.changedTouches].find(t=>t.identifier===start.id);if(!touch)return;
   const dx=start.x-touch.clientX,dy=start.y-touch.clientY;
-  if(start.axis!=='y'&&Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.3)turnDish(dx>0?1:-1);
+  if(start.axis!=='x'&&Math.abs(dy)>55&&Math.abs(dy)>Math.abs(dx)*1.3)turnDish(dy>0?1:-1);
 },{passive:true});
 root.addEventListener('wheel',ev=>{
-  if(ev.ctrlKey||!isExploreGestureTarget(ev.target)||Math.abs(ev.deltaX)<=Math.abs(ev.deltaY))return;
+  if(ev.ctrlKey||!isExploreGestureTarget(ev.target)||Math.abs(ev.deltaY)<=Math.abs(ev.deltaX))return;
   if(ev.cancelable)ev.preventDefault();
-  const now=performance.now();if(Math.abs(ev.deltaX)>12&&now-lastWheel>650){lastWheel=now;turnDish(ev.deltaX>0?1:-1);}
+  const now=performance.now();if(Math.abs(ev.deltaY)>12&&now-lastWheel>650){lastWheel=now;turnDish(ev.deltaY>0?1:-1);}
 },{passive:false});
 document.addEventListener('keydown',ev=>{
   const dialog=root.querySelector('[role="dialog"]');
@@ -1134,7 +1161,7 @@ document.addEventListener('keydown',ev=>{
     }
     return;
   }
-  if(ev.key==='Escape'){if(ui.modal){ui.modal=null;render()}else if(ui.editor){ui.editor=null;render()}return}if(ui.surface==='guest'&&ui.mode==='explore'&&!ui.modal&&['ArrowLeft','ArrowRight'].includes(ev.key)&&!document.activeElement?.closest('input,select,textarea,[contenteditable],#quick-tabs')){ev.preventDefault();turnDish(ev.key==='ArrowRight'?1:-1)}});
+  if(ev.key==='Escape'){if(ui.modal){ui.modal=null;render()}else if(ui.editor){ui.editor=null;render()}return}if(ui.surface==='guest'&&ui.mode==='explore'&&!ui.modal&&['ArrowUp','ArrowDown'].includes(ev.key)&&!document.activeElement?.closest('input,select,textarea,[contenteditable],#quick-tabs')){ev.preventDefault();turnDish(ev.key==='ArrowDown'?1:-1)}});
 if (ui.surface === 'guest') event('views');
 render();
 })();
