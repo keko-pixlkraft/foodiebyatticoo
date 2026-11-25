@@ -104,11 +104,11 @@
       },
       "translations": {
         "de": {
-          "name": "Sashimi Sampler",
+          "name": "Sashimi-Auswahl",
           "summary": "Fisch aus Hokkaido & Kyushu, frischer Wasabi"
         },
         "es": {
-          "name": "Sashimi Sampler",
+          "name": "Selección de sashimi",
           "summary": "Pescado de Hokkaido y Kyushu, wasabi fresco"
         }
       },
@@ -164,7 +164,7 @@
           "summary": "Avocadocreme, Limettenperlen, Yuzu"
         },
         "es": {
-          "name": "Hamachi Crudo",
+          "name": "Hamachi crudo",
           "summary": "Crema de aguacate, perlas de lima, yuzu"
         }
       },
@@ -218,11 +218,11 @@
       },
       "translations": {
         "de": {
-          "name": "Bluefin Toro Tartare",
+          "name": "Toro-Tatar vom Blauflossenthunfisch",
           "summary": "Kaviar, Kimchi-Limette, knusprige Nori-Chips"
         },
         "es": {
-          "name": "Bluefin Toro Tartare",
+          "name": "Tartar de toro de atún rojo",
           "summary": "Caviar, kimchi y lima, chips de nori crujientes"
         }
       },
@@ -273,11 +273,11 @@
       },
       "translations": {
         "de": {
-          "name": "Nigiri Sampler",
+          "name": "Nigiri-Auswahl",
           "summary": "6 Stück, Tagesauswahl des Küchenchefs"
         },
         "es": {
-          "name": "Nigiri Sampler",
+          "name": "Selección de nigiri",
           "summary": "6 piezas, selección del chef del día"
         }
       },
@@ -326,11 +326,11 @@
       },
       "translations": {
         "de": {
-          "name": "Wagyu Beef Tartare",
+          "name": "Wagyu-Rindertatar",
           "summary": "Eingelegte Senfsaat, knusprige Kartoffelchips"
         },
         "es": {
-          "name": "Wagyu Beef Tartare",
+          "name": "Tartar de ternera Wagyu",
           "summary": "Semillas de mostaza encurtidas, láminas crujientes de patata"
         }
       },
@@ -382,11 +382,11 @@
       },
       "translations": {
         "de": {
-          "name": "Hamachi Crispy Rice",
+          "name": "Knuspriger Reis mit Hamachi",
           "summary": "Wasabi, Yuzu-Trüffel-Sauce, Serrano-Chili"
         },
         "es": {
-          "name": "Hamachi Crispy Rice",
+          "name": "Arroz crujiente con hamachi",
           "summary": "Wasabi, salsa de yuzu y trufa, chile serrano"
         }
       },
@@ -436,11 +436,11 @@
       },
       "translations": {
         "de": {
-          "name": "Grilled Octopus Skewer",
+          "name": "Gegrillter Oktopusspieß",
           "summary": "Romesco, Shiso-Chimichurri, Fresno-Chili"
         },
         "es": {
-          "name": "Grilled Octopus Skewer",
+          "name": "Brocheta de pulpo a la parrilla",
           "summary": "Romesco, chimichurri de shiso, chile fresno"
         }
       },
@@ -497,11 +497,11 @@
       },
       "translations": {
         "de": {
-          "name": "House Salad",
+          "name": "Haussalat",
           "summary": "Wassermelonenrettich, gelbe Bete, Avocado, Wasabi-Aioli"
         },
         "es": {
-          "name": "House Salad",
+          "name": "Ensalada de la casa",
           "summary": "Rábano sandía, remolacha dorada, aguacate, alioli de wasabi"
         }
       },
@@ -559,11 +559,11 @@
       },
       "translations": {
         "de": {
-          "name": "Snow Crab Salad",
+          "name": "Schneekrabbensalat",
           "summary": "Gurke, Avocado, Orange, Honig-Ponzu"
         },
         "es": {
-          "name": "Snow Crab Salad",
+          "name": "Ensalada de cangrejo de las nieves",
           "summary": "Pepino, aguacate, naranja, ponzu de miel"
         }
       },
@@ -617,11 +617,11 @@
       },
       "translations": {
         "de": {
-          "name": "Beetroot Tartare",
+          "name": "Rote-Bete-Tatar",
           "summary": "Grüner Apfel, Avocado, Sesam-Ponzu, Lotus-Chips"
         },
         "es": {
-          "name": "Beetroot Tartare",
+          "name": "Tartar de remolacha",
           "summary": "Manzana verde, aguacate, ponzu de sésamo, chips de loto"
         }
       },
@@ -674,11 +674,11 @@
       },
       "translations": {
         "de": {
-          "name": "Truffle Cream Spaghetti",
+          "name": "Spaghetti mit Trüffelcreme",
           "summary": "Parmesan, Schnittlauch, gehobelter schwarzer Trüffel"
         },
         "es": {
-          "name": "Truffle Cream Spaghetti",
+          "name": "Espaguetis con crema de trufa",
           "summary": "Parmesano, cebollino, trufa negra laminada"
         }
       },
@@ -728,11 +728,11 @@
       },
       "translations": {
         "de": {
-          "name": "Wagyu Gyoza",
+          "name": "Wagyu-Gyoza",
           "summary": "Gebratene Teigtaschen, Shichimi-Ponzu"
         },
         "es": {
-          "name": "Wagyu Gyoza",
+          "name": "Gyozas de Wagyu",
           "summary": "Empanadillas doradas, ponzu shichimi"
         }
       },
@@ -782,11 +782,11 @@
       },
       "translations": {
         "de": {
-          "name": "Maine Lobster Tempura",
+          "name": "Maine-Hummer in Tempura",
           "summary": "Geräucherte Jalapeño-Aioli, Buttersalat-Wraps"
         },
         "es": {
-          "name": "Maine Lobster Tempura",
+          "name": "Tempura de bogavante de Maine",
           "summary": "Alioli de jalapeño ahumado, hojas de lechuga mantecosa"
         }
       },
@@ -837,11 +837,11 @@
       },
       "translations": {
         "de": {
-          "name": "Grilled Shrimp",
+          "name": "Gegrillte Garnelen",
           "summary": "Würzige Miso-Butter, Shiso-Kräutersalat"
         },
         "es": {
-          "name": "Grilled Shrimp",
+          "name": "Gambas a la parrilla",
           "summary": "Mantequilla de miso picante, ensalada de hierbas shiso"
         }
       },
@@ -893,11 +893,11 @@
       },
       "translations": {
         "de": {
-          "name": "Whole Roasted Branzino (2 lb)",
+          "name": "Ganzer Wolfsbarsch aus dem Ofen (2 lb)",
           "summary": "Shiso-Chimichurri, Kalamata-Oliven, Kräutersalat"
         },
         "es": {
-          "name": "Whole Roasted Branzino (2 lb)",
+          "name": "Lubina entera al horno (2 lb)",
           "summary": "Chimichurri de shiso, aceitunas kalamata, ensalada de hierbas"
         }
       },
@@ -950,11 +950,11 @@
       },
       "translations": {
         "de": {
-          "name": "Miso Black Cod",
+          "name": "Black Cod mit Miso",
           "summary": "Pilz-Dashi, Pak Choi, Ingwer-Sriracha"
         },
         "es": {
-          "name": "Miso Black Cod",
+          "name": "Bacalao negro con miso",
           "summary": "Dashi de setas, pak choi, jengibre y sriracha"
         }
       },
@@ -1012,11 +1012,11 @@
       },
       "translations": {
         "de": {
-          "name": "8oz Wagyu Skirt Steak",
+          "name": "Wagyu-Skirt-Steak (8 oz)",
           "summary": "Pilz-Dashi, Pak Choi, Ingwer-Dressing"
         },
         "es": {
-          "name": "8oz Wagyu Skirt Steak",
+          "name": "Entraña de Wagyu (8 oz)",
           "summary": "Dashi de setas, pak choi, aderezo de jengibre"
         }
       },
@@ -1069,11 +1069,11 @@
       },
       "translations": {
         "de": {
-          "name": "Spicy Chipotle Lamb Chops",
+          "name": "Pikante Chipotle-Lammkoteletts",
           "summary": "Shiso-Joghurt, Basilikum, knuspriges Furikake"
         },
         "es": {
-          "name": "Spicy Chipotle Lamb Chops",
+          "name": "Chuletas de cordero al chipotle picante",
           "summary": "Yogur de shiso, albahaca, furikake crujiente"
         }
       },
@@ -1126,11 +1126,11 @@
       },
       "translations": {
         "de": {
-          "name": "14oz Prime Ribeye",
+          "name": "Prime-Ribeye (14 oz)",
           "summary": "Yuzu Kosho, Rosmarinmarinade"
         },
         "es": {
-          "name": "14oz Prime Ribeye",
+          "name": "Ribeye Prime (14 oz)",
           "summary": "Yuzu kosho, marinada de romero"
         }
       },
@@ -1180,11 +1180,11 @@
       },
       "translations": {
         "de": {
-          "name": "Crispy Brussels Sprouts",
+          "name": "Knuspriger Rosenkohl",
           "summary": "Honig-Soja-Balsamico-Glasur"
         },
         "es": {
-          "name": "Crispy Brussels Sprouts",
+          "name": "Coles de Bruselas crujientes",
           "summary": "Glaseado de miel, soja y balsámico"
         }
       },
@@ -1234,11 +1234,11 @@
       },
       "translations": {
         "de": {
-          "name": "Grilled Sweet Corn",
+          "name": "Gegrillter Zuckermais",
           "summary": "Hausgewürz, würzige Feta-Sauce"
         },
         "es": {
-          "name": "Grilled Sweet Corn",
+          "name": "Maíz dulce a la parrilla",
           "summary": "Especias de la casa, salsa de feta picante"
         }
       },
@@ -1289,11 +1289,11 @@
       },
       "translations": {
         "de": {
-          "name": "Yuzu Cheesecake",
+          "name": "Yuzu-Cheesecake",
           "summary": "Schwarzer Sesam-Crumble, Zitrusgel"
         },
         "es": {
-          "name": "Yuzu Cheesecake",
+          "name": "Tarta de queso con yuzu",
           "summary": "Crumble de sésamo negro, gel de cítricos"
         }
       },
@@ -1343,11 +1343,11 @@
       },
       "translations": {
         "de": {
-          "name": "Matcha Chocolate Fondant",
+          "name": "Matcha-Schokoladenfondant",
           "summary": "Warmer Kern, Vanilleeis"
         },
         "es": {
-          "name": "Matcha Chocolate Fondant",
+          "name": "Fondant de chocolate y matcha",
           "summary": "Centro caliente, helado de vainilla"
         }
       },
@@ -1393,11 +1393,11 @@
       },
       "translations": {
         "de": {
-          "name": "Mochi Selection",
+          "name": "Mochi-Auswahl",
           "summary": "Drei saisonale Sorten"
         },
         "es": {
-          "name": "Mochi Selection",
+          "name": "Selección de mochi",
           "summary": "Tres sabores de temporada"
         }
       },

@@ -14,6 +14,7 @@
     "test": "node --test",
     "test:browser": "node scripts/browser-smoke.mjs",
     "test:gestures": "node scripts/gestures-smoke.mjs",
+    "test:overview": "node scripts/overview-smoke.mjs",
     "test:owner": "node scripts/owner-smoke.mjs",
     "test:information": "node scripts/information-smoke.mjs",
     "test:presentation": "node scripts/presentation-smoke.mjs",

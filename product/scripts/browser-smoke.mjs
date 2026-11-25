@@ -66,7 +66,10 @@ tap('mode','overview');check($$('.dish-card').length===24,'24 dishes');
 check($('.overview .mizora-logo')&&getComputedStyle($('.menu-photo-grid')).gridTemplateColumns.split(' ').length===3,'three-column Overview');
 const positions=$$('.menu-photo-card').map(el=>el.querySelector('[data-id]').dataset.id).join(',');
 tap('category','tapas');check($$('.dish-card').length===24&&$$('.dish-card:not(.is-muted)').length===3,'category dims nonmatches');
-check($$('.menu-photo-card').map(el=>el.querySelector('[data-id]').dataset.id).join(',')===positions,'category preserves positions');
+const categoryOrder=$$('.menu-photo-card').map(el=>el.querySelector('[data-id]').dataset.id);
+const matchingIds=$$('.menu-photo-card:not(.is-muted)').map(el=>el.querySelector('[data-id]').dataset.id);
+check(categoryOrder.slice(0,matchingIds.length).join(',')===matchingIds.join(','),'category matches appear first');
+check(categoryOrder.filter(id=>!matchingIds.includes(id)).join(',')===positions.split(',').filter(id=>!matchingIds.includes(id)).join(','),'nonmatches retain relative order');
 tap('filters');tap('toggle-diet','vegan');tap('apply-filters');check(!$('.dish-card:not(.is-muted)'),'category combines with diet');
 tap('clear-filters');check($$('.dish-card:not(.is-muted)').length===24,'clear categories and dietary filters');
 

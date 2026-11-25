@@ -180,7 +180,8 @@
 [data-restaurant="mizora"] .compact-menu .menu-card-photo em { position:absolute; left:5px; bottom:5px; padding:3px 5px; border-radius:5px; color:#f8eddf; background:#1b1411bd; font:450 10px/1 'Instrument Sans',Arial,sans-serif; }
 .card-quantity { position:absolute; top:5px; right:5px; display:grid; place-items:center; min-width:15px; height:15px; padding-inline:3px; background:#e6d8c7; color:#211918; border-radius:12px; font:500 9px/1 'Instrument Sans',Arial,sans-serif; }
 [data-restaurant="mizora"] .compact-menu .dish-card-copy { display:flex; flex-direction:column; gap:4px; padding:8px 0 0; }
-[data-restaurant="mizora"] .compact-menu .dish-card-copy strong { font:450 11px/1.25 'Instrument Sans',Arial,sans-serif; color:#f5e9da; letter-spacing:-.015em; text-wrap:pretty; }
+[data-restaurant="mizora"] .compact-menu .dish-card-copy strong { font:450 11px/1.25 'Instrument Sans',Arial,sans-serif; color:#f5e9da; letter-spacing:-.015em; text-wrap:pretty; overflow-wrap:anywhere; hyphens:auto; }
+[data-restaurant="mizora"] .hero-title-row h1,.mizora-cart-sheet .cart-item-detail > strong { min-width:0; overflow-wrap:anywhere; hyphens:auto; }
 [data-restaurant="mizora"] .compact-menu .dish-card-copy small { color:#d8c4afa6; font:350 9px/1.3 'Instrument Sans',Arial,sans-serif; }
 [data-restaurant="mizora"] .compact-menu .dish-card-copy .raw-mark { font-size:8px; margin-left:1px; }
 .card-quick-add { position:absolute; top:calc(75cqw - 27px); right:5px; display:grid; place-items:center; width:22px; height:22px; padding:0; border:1px solid #ede2d080; border-radius:50%; background:#e6d8c7; color:#211918; }

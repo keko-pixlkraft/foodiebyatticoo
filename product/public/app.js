@@ -1,7 +1,7 @@
 /* Foodie by Atticoo — self-contained local UX prototype.
    No network APIs, no real orders, no shared table state, no AI processing.
    All menus/prices/content are fictional and illustrative. */
-import { createMediaRequest, eventPhase, defaultTheme as aurelTheme, matchesCalorieLimit, mediaStatus, nextMediaStatus, normalizeTheme, nutritionFields, parseNutrition, readableInk, themePresets as sharedPresets, viewCartRate } from './prototype.js';
+import { createMediaRequest, eventPhase, defaultTheme as aurelTheme, matchesCalorieLimit, mediaStatus, nextMediaStatus, normalizeTheme, nutritionFields, parseNutrition, readableInk, refreshDefaultDishNames, themePresets as sharedPresets, viewCartRate } from './prototype.js';
 
 const restaurantId = new URLSearchParams(location.search).get('restaurant') === 'aurel-house' ? 'aurel-house' : 'mizora';
 const restaurantProfile = restaurantId === 'mizora' ? await fetch('./mizora.json').then(response => {
@@ -233,7 +233,7 @@ function loadDB() {
       restaurantEvents:Array.isArray(stored.restaurantEvents)?stored.restaurantEvents:[],
       mediaRequestLog:Array.isArray(stored.mediaRequestLog)?stored.mediaRequestLog:[],
       events: { ...baseline.events, ...stored.events },
-      dishes: Array.isArray(stored.dishes) ? stored.dishes : baseline.dishes,
+      dishes: Array.isArray(stored.dishes) ? (restaurantProfile ? refreshDefaultDishNames(stored.dishes,baseline.dishes) : stored.dishes) : baseline.dishes,
       tables: Array.isArray(stored.tables) ? stored.tables : baseline.tables,
     };
   } catch { return baseline; }
@@ -432,8 +432,10 @@ function mizoraCard(d) {
 }
 
 function mizoraOverview() {
-  const dishes=allLive();
-  const matches=listed().length;
+  const matchingIds=new Set(listed().map(d=>d.id));
+  const live=allLive();
+  const dishes=[...live.filter(d=>matchingIds.has(d.id)),...live.filter(d=>!matchingIds.has(d.id))];
+  const matches=matchingIds.size;
   const labels={
     en:{count:'matching dishes',muted:'Black-and-white dishes do not match the selected filters. Clear filters to select them.'},
     de:{count:'passende Gerichte',muted:'Schwarzweiß dargestellte Gerichte entsprechen nicht den Filtern. Zum Auswählen die Filter zurücksetzen.'},
@@ -897,7 +899,7 @@ function findAction(description, scope = root) {
     !!node.closest('.owner-mobile-bar') === description.inMobileNav);
 }
 
-function render() {
+function render({resetOverview=false}={}) {
   if (ui.surface === 'guest') ensureGuestSelected();
   const previousDialog = root.querySelector('[role="dialog"]');
   const active = describeAction(document.activeElement);
@@ -905,7 +907,8 @@ function render() {
   const categories = root.querySelector('#quick-tabs');
   const filters = root.querySelector('.filter-scroll');
   const mediaScroll = root.querySelector('.media-list')?.scrollTop;
-  if (overview) ui.overviewScroll = overview.scrollTop;
+  if (resetOverview) ui.overviewScroll=0;
+  else if (overview) ui.overviewScroll = overview.scrollTop;
   if (categories) ui.categoryScroll = categories.scrollLeft;
   if (filters) ui.filterScroll = filters.scrollTop;
   document.body.dataset.surface = ui.surface;
@@ -943,7 +946,7 @@ function renderToastOnly(message) {
 }
 function flipSurface(name){window.scrollTo({top:0,behavior:'instant'});ui.surface=name;ui.modal=null;ui.editor=null;if(name==='guest')event('views');render()}
 function turnDish(dir){const l=listed();if(l.length<2)return;let i=l.findIndex(x=>x.id===ui.selected);ui.selected=l[((i===-1?0:i)+dir+l.length)%l.length].id;event('opens',ui.selected);render();if(!matchMedia('(prefers-reduced-motion: reduce)').matches)root.querySelector('.explore-hero')?.animate([{transform:`translate3d(${dir*14}px,0,0)`,opacity:.94},{transform:'translate3d(0,0,0)',opacity:1}],{duration:200,easing:'cubic-bezier(.2,.7,.3,1)'})}
-function showCategory(id){ui.category=id;ui.overviewScroll=0;const first=listed()[0];if(first)ui.selected=first.id;render();const t=document.querySelector(`.quick-tab[data-value="${id}"]`);t?.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'})}
+function showCategory(id){ui.category=id;const first=listed()[0];if(first)ui.selected=first.id;render({resetOverview:true});const t=document.querySelector(`.quick-tab[data-value="${id}"]`);t?.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'})}
 function downloadJSON(){downloadPayload(db,'Foodie_Atticoo_'+restaurantId+'_LocalDemo.json');}
 function downloadPayload(payload,filename){const a=document.createElement('a');const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function copyText(s){if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(s);const input=document.createElement('textarea');input.value=s;input.style.position='fixed';input.style.opacity=0;document.body.appendChild(input);input.select();const ok=document.execCommand('copy');input.remove();return Promise.resolve(ok)}
@@ -969,8 +972,8 @@ switch(act){
  case 'toggle-diet':if(DIET_KEYS.includes(val))ui.guestFilters[val]=!ui.guestFilters[val];ensureGuestSelected();render();break;
  case 'set-spice':ui.guestFilters.spice=val==='any'?null:Math.max(0,Math.min(2,Number(val)));ensureGuestSelected();render();break;
  case 'toggle-allergen':if((restaurantProfile?MIZORA_ALLERGENS:FILTER_ALLERGENS).includes(val)){const a=ui.guestFilters.exclude;ui.guestFilters.exclude=a.includes(val)?a.filter(x=>x!==val):[...a,val]}ensureGuestSelected();render();break;
- case 'clear-filters':ui.guestFilters=emptyFilters();if(restaurantProfile)ui.category='all';ensureGuestSelected();render();break;
- case 'apply-filters':ui.modal=null;ui.overviewScroll=0;ensureGuestSelected();render();break;
+ case 'clear-filters':ui.guestFilters=emptyFilters();if(restaurantProfile)ui.category='all';ensureGuestSelected();render({resetOverview:true});break;
+ case 'apply-filters':ui.modal=null;ensureGuestSelected();render({resetOverview:true});break;
  case 'review':ui.modal='review';render();break;
  case 'open-review':if(validReviewUrl(reviewLink()))window.open(reviewLink(),'_blank','noopener,noreferrer');break;
  case 'category':showCategory(val);break;

@@ -5,6 +5,29 @@ export const nutritionFields = [
   { key: 'fat', label: 'Fat', unit: 'g', max: 1000, step: 0.1 },
 ] as const;
 
+type TranslatableDish = {
+  id: string;
+  name: string;
+  translations?: Record<string, { name?: string; summary?: string }>;
+};
+
+// Upgrade former English placeholders while preserving restaurant-authored content.
+export function refreshDefaultDishNames<T extends TranslatableDish>(dishes: T[], defaults: readonly TranslatableDish[]): T[] {
+  const seeds = new Map(defaults.map(dish => [dish.id, dish]));
+  return dishes.map(dish => {
+    const seed = seeds.get(dish.id);
+    if (!seed || dish.name !== seed.name) return dish;
+    const translations = { ...dish.translations };
+    for (const [language, translation] of Object.entries(seed.translations ?? {})) {
+      const saved = translations[language];
+      if (translation.name && (!saved?.name?.trim() || saved.name === seed.name)) {
+        translations[language] = { ...translation, ...saved, name: translation.name };
+      }
+    }
+    return { ...dish, translations };
+  });
+}
+
 type Nutrient = (typeof nutritionFields)[number]['key'];
 type Nutrition = Partial<Record<Nutrient, number>> & {
   serving?: string;
