@@ -64,6 +64,9 @@ await run(()=>{
  tap('wishlist');check($$('.wishlist-item').length===1&&!$('.quantity,.sheet-total'),'unique wishlist without quantities or subtotal');
  check($('.wishlist-item').textContent.includes('Snow Crab Salad'),'wishlist name');closeDialog();
  tap('wishlist');check($('.wishlist-item strong').getBoundingClientRect().width>100,'wishlist name has readable width');closeDialog();
+ tap('menu-return');tap('category','desserts');tap('wishlist');$('.wishlist-item-open[data-id="mizora-09"]').click();
+ check($('.hero-title-row h1')?.textContent.includes('Snow Crab Salad'),'wishlist opens saved dish outside active category');
+ tap('menu-return');check($('[data-act=category][data-value=desserts]').getAttribute('aria-pressed')==='true','Menu restores filters after opening saved dish');
 });
 await goto('/?restaurant=mizora&embed=guest&table=8');await run(setup);
 await run(()=>{tap('wishlist');check($$('.wishlist-item').length===1,'personal wishlist survives table change/reload');tap('wishlist-remove',undefined,'mizora-09');check($('.empty-wishlist'),'remove item');closeDialog();});

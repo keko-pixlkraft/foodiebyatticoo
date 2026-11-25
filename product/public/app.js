@@ -967,14 +967,16 @@ function renderToastOnly(message) {
   else container.insertAdjacentHTML('beforeend',`<div class="floating-toast" role="status">${e(message)}</div>`);
 }
 function flipSurface(name){window.scrollTo({top:0,behavior:'instant'});ui.surface=name;ui.modal=null;ui.editor=null;if(name==='guest')event('views');render()}
+function restoreOverviewFilters(){if(ui.overviewReturn){Object.assign(ui,ui.overviewReturn);ui.overviewReturn=null;}}
 function turnDish(dir){const l=listed();if(l.length<2)return;let i=l.findIndex(x=>x.id===ui.selected);ui.selected=l[((i===-1?0:i)+dir+l.length)%l.length].id;event('opens',ui.selected);render();if(!matchMedia('(prefers-reduced-motion: reduce)').matches)root.querySelector('.explore-hero')?.animate([{transform:`translate3d(0,${dir*14}px,0)`,opacity:.94},{transform:'translate3d(0,0,0)',opacity:1}],{duration:200,easing:'cubic-bezier(.2,.7,.3,1)'})}
-function showCategory(id){ui.category=id;const first=listed()[0];if(first)ui.selected=first.id;render({resetOverview:true});const t=document.querySelector(`.quick-tab[data-value="${id}"]`);t?.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'})}
+function showCategory(id){ui.overviewReturn=null;ui.category=id;const first=listed()[0];if(first)ui.selected=first.id;render({resetOverview:true});const t=document.querySelector(`.quick-tab[data-value="${id}"]`);t?.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'})}
 function downloadJSON(){downloadPayload(db,'Foodie_Atticoo_'+restaurantId+'_LocalDemo.json');}
 function downloadPayload(payload,filename){const a=document.createElement('a');const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function copyText(s){if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(s);const input=document.createElement('textarea');input.value=s;input.style.position='fixed';input.style.opacity=0;document.body.appendChild(input);input.select();const ok=document.execCommand('copy');input.remove();return Promise.resolve(ok)}
 
 const handleActions=async(act,node)=>{
 const val=node.dataset.value, id=node.dataset.id;
+if(['toggle-diet','set-spice','toggle-allergen','clear-filters','apply-filters','set-calorie'].includes(act))ui.overviewReturn=null;
 
 switch(act){
  case 'surface':flipSurface(val);break;
@@ -999,13 +1001,18 @@ switch(act){
  case 'review':ui.modal='review';render();break;
  case 'open-review':if(validReviewUrl(reviewLink()))window.open(reviewLink(),'_blank','noopener,noreferrer');break;
  case 'category':showCategory(val);break;
- case 'menu-return':ui.mode='overview';ui.modal=null;render();break;
+ case 'menu-return':restoreOverviewFilters();ui.mode='overview';ui.modal=null;render();break;
  case 'wishlist-toggle':if(restaurantProfile)toggleWishlist(id);break;
  case 'wishlist-remove':if(restaurantProfile&&isSaved(id))toggleWishlist(id);break;
  case 'wishlist':ui.modal='wishlist';render();break;
  case 'share-dish':await shareDish();break;
- case 'mode':ui.mode=val;ui.modal=null;render();break;
- case 'open':ui.selected=id;ui.modal=null;ui.mode='explore';event('opens',id);render();break;
+ case 'mode':if(val==='overview')restoreOverviewFilters();ui.mode=val;ui.modal=null;render();break;
+ case 'open':
+  if(ui.modal==='wishlist'&&!listed().some(d=>d.id===id)){
+    ui.overviewReturn={category:ui.category,guestFilters:clone(ui.guestFilters)};
+    ui.category='all';ui.guestFilters=emptyFilters();
+  }
+  ui.selected=id;ui.modal=null;ui.mode='explore';event('opens',id);render();break;
  case 'add':addToCart(id,1);break;
  case 'decrease':addToCart(id,-1);break;
  case 'cart':ui.modal='cart';event('cartViews');render();break;
@@ -1077,7 +1084,7 @@ switch(act){
  case 'analytics-export':downloadPayload(trafficDataset(),'Foodie_Atticoo_'+restaurantId+'_'+(ui.analyticsMode==='sample'?'Example':'Local')+'_Traffic.json');break;
  case 'owner-translations':ui.editor=db.dishes[0]?.id||'new';render();root.querySelector('.editor-language-group')?.scrollIntoView({block:'start'});break;
  case 'export':downloadJSON();break;
- case 'reset':if(confirm('Reset all saved menu edits, carts, wishlists, events, requests and interactions for '+db.restaurant+' in this browser? Other restaurant profiles will remain unchanged.')){db=clone(DEFAULT_DB);if(restaurantProfile)db.wishlist=[];ui.category='all';ui.selected=restaurantProfile ? 'mizora-03' : 'roasted-salmon';ui.table=7;ui.filter='all';ui.search='';ui.guestFilters=emptyFilters();ui.appearanceDraft=null;ui.appearanceStatus='';ui.mediaDish=null;ui.mediaDraft=null;ui.mediaError='';ui.mediaFilter='all';ui.eventEditor=null;ui.eventDraft=null;ui.eventFilter='all';ui.qrFilter='all';ui.qrSearch='';ui.viewAdded=false;ui.lang='en';save();render()}break;
+ case 'reset':if(confirm('Reset all saved menu edits, carts, wishlists, events, requests and interactions for '+db.restaurant+' in this browser? Other restaurant profiles will remain unchanged.')){db=clone(DEFAULT_DB);if(restaurantProfile)db.wishlist=[];ui.overviewReturn=null;ui.category='all';ui.selected=restaurantProfile ? 'mizora-03' : 'roasted-salmon';ui.table=7;ui.filter='all';ui.search='';ui.guestFilters=emptyFilters();ui.appearanceDraft=null;ui.appearanceStatus='';ui.mediaDish=null;ui.mediaDraft=null;ui.mediaError='';ui.mediaFilter='all';ui.eventEditor=null;ui.eventDraft=null;ui.eventFilter='all';ui.qrFilter='all';ui.qrSearch='';ui.viewAdded=false;ui.lang='en';save();render()}break;
  default:break;
 }}
 root.addEventListener('change',ev=>{
