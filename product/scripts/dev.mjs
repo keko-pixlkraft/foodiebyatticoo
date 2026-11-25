@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url';
 
 const publicDirectory = new URL('../public/', import.meta.url);
 const entryFiles = new Set(['index.html', 'app.js', 'styles.css', 'owner.css', 'prototype.js', 'mizora.json', 'mizora.css']);
-const mediaPath = /^assets\/(?:icons-v2\/(?:ICON_MANIFEST\.json|licenses\/MenuDesign_README_UNMODIFIED\.txt|(?:allergens|preferences|utility)\/[a-z0-9-]+\.svg)|(?:explore|overview)\/[a-z0-9-]+\.webp|mizora\/(?:dish-[0-9]{2}-(?:explore|overview)\.jpg|logo(?:-transparent)?\.png|(?:establishment|slate-background)\.png)|qr-mizora\/table-[0-9]{2}\.svg|brands\/google-g\.png|flags\/(?:gb|de|es)\.svg|fonts\/(?:(?:geist|instrument-sans)\.woff2|libre-caslon-text\.ttf)|qr\/table-[0-9]{2}\.(?:png|svg))$/;
+const mediaPath = /^assets\/(?:icons-v2\/(?:ICON_MANIFEST\.json|licenses\/MenuDesign_README_UNMODIFIED\.txt|(?:allergens|preferences|utility)\/[a-z0-9-]+\.svg)|(?:explore|overview)\/[a-z0-9-]+\.webp|mizora\/(?:dish-[0-9]{2}-(?:explore|overview)\.jpg|logo(?:-transparent)?\.png|(?:establishment|slate-background)\.png)|qr-mizora\/table-[0-9]{2}\.svg|brands\/(?:google-g\.png|instagram-glyph-white\.svg)|flags\/(?:gb|de|es)\.svg|fonts\/(?:(?:geist|instrument-sans)\.woff2|libre-caslon-text\.ttf)|qr\/table-[0-9]{2}\.(?:png|svg))$/;
 const contentTypes = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',

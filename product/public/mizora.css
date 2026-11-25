@@ -314,11 +314,18 @@
 [data-restaurant="mizora"] .gx-sheet .icon-close { width:32px; height:32px; }
 .gx-scroll { flex:1 1 auto; min-height:0; overflow:auto; overscroll-behavior:contain; padding:0 16px 16px; }
 .gx-links { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
-.gx-links a,.gx-categories button { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; min-height:49px; padding:6px 2px; border:1px solid #e9d9c52c; border-radius:9px; background:#ede2d00a; color:#faf1e7; font:500 10px/1.2 'Instrument Sans',Arial,sans-serif; text-align:center; text-decoration:none; }
-.gx-links a:hover,.gx-categories button:hover { border-color:#e9d9c58a; }
-.gx-link-icon { display:grid; place-items:center; }
-.gx-link-icon :is(svg,img) { width:18px; height:18px; }
-.gx-link-icon .google-brand-mark { width:21px; height:21px; object-fit:contain; background:#fff; border:0; border-radius:5px; transform:scale(1.15); }
+.gx-categories button { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; min-height:49px; padding:6px 2px; border:1px solid #e9d9c52c; border-radius:9px; background:#ede2d00a; color:#faf1e7; font:500 10px/1.2 'Instrument Sans',Arial,sans-serif; text-align:center; text-decoration:none; }
+.gx-categories button:hover { border-color:#e9d9c58a; }
+.gx-link { display:flex; flex-direction:column; align-items:center; gap:5px; min-width:0; padding:0 2px 2px; border:0; background:none; color:#faf1e7; font:500 10px/1.25 'Instrument Sans',Arial,sans-serif; text-align:center; text-decoration:none; }
+.gx-link-icon { display:grid; place-items:center; width:50px; height:50px; border:1px solid #e9d9c52c; border-radius:9px; background:#ede2d00a; }
+.gx-link[href]:hover .gx-link-icon { border-color:#e9d9c58a; background:#ede2d014; }
+.gx-link:disabled { color:#d3c1ae; opacity:1; cursor:default; }
+.gx-link:disabled .gx-link-icon { border-style:dashed; background:none; }
+.gx-link small { margin-top:-3px; color:#bca897; font-size:9px; }
+.gx-link-icon > :is(svg,img) { display:block; width:22px; height:22px; object-fit:contain; }
+.gx-google-inset { display:grid; place-items:center; width:31px; height:31px; overflow:hidden; position:relative; border-radius:6px; background:#fff; }
+/* The supplied Google PNG has a large transparent margin. Crop the margin at display time. */
+.gx-link-icon .google-brand-mark { position:absolute; inset:50% auto auto 50%; width:65px; height:65px; max-width:none; transform:translate(-50%,-50%); background:none; border-radius:0; }
 .gx-feedback { margin:14px 0; padding:14px 0; border-block:1px solid #e9d9c52b; }
 .gx-feedback:first-child { margin-top:0; }
 #gx-feedback-form { display:grid; gap:10px; }

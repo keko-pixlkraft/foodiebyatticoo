@@ -54,9 +54,65 @@ window.closeDialog=()=>document.dispatchEvent(new KeyboardEvent('keydown',{key:'
 const guest = '/?restaurant=mizora&embed=guest&table=';
 const owner = '/?restaurant=mizora&embed=owner';
 const shot = async name => {if(process.env.FOODIE_SCREENSHOTS)await screenshot('gx-'+name);};
+if(process.argv.includes('--links')){
+ const values={websiteUrl:'https://example.com/mizora',instagramUrl:'https://www.instagram.com/mizora_fixture/',reviewUrl:'https://g.page/r/test-fixture/review'};
+ await size(390,844);await goto(guest+7);await run(setup);
+ await run(async()=>{
+  tap('guest-information');
+  check($$('.gx-links button:disabled').length===3&&!$('.gx-links a'),'all missing URLs render disabled buttons');
+  check($$('.gx-links button').every(button=>button.textContent.includes('Unavailable')),'disabled state is visible');
+  await Promise.all($$('.gx-links img').map(image=>image.decode()));
+ });
+ await shot('links-unconfigured-390');
+ await goto(owner);await run(setup);
+ await run(website=>{
+  tap('owner-tab','settings');const form=$('#profile-form');
+  form.elements.websiteUrl.value=website;form.requestSubmit();
+ },values.websiteUrl);
+ await goto(guest+7);await run(setup);
+ await run(website=>{
+  tap('guest-information');check($$('.gx-links button:disabled').length===2&&$('.gx-links a')?.href===website,'configuring Website leaves the other two inactive');
+ },values.websiteUrl);
+ await shot('links-mixed-390');
+ await goto(owner);await run(setup);
+ await run(values=>{
+  tap('owner-tab','settings');const form=$('#profile-form');
+  check(form.elements.websiteUrl.value===values.websiteUrl,'saved website survives reload');
+  for(const [field,url] of Object.entries(values))form.elements[field].value=url;
+  form.requestSubmit();
+ },values);
+ await goto(guest+7);await run(setup);
+ for(const width of [320,390,430,1440]){
+  await size(width,width===1440?960:844);
+  await run(async urls=>{
+   closeDialog();tap('guest-information');await document.fonts.ready;
+   const controls=$$('.gx-links a'),rects=controls.map(link=>link.getBoundingClientRect());
+   check(controls.map(link=>link.href).join('|')===urls.join('|'),'owner settings activate the three destinations after navigation');
+   check(controls.every(link=>link.rel==='noopener noreferrer'&&link.target==='_blank'),'safe new-tab navigation');
+   check(rects.every(rect=>rect.width>=48&&rect.height>=48&&Math.abs(rect.top-rects[0].top)<1),'equal row alignment and touch targets');
+   const body=$('.gx-scroll');check(body.scrollWidth<=body.clientWidth+1&&document.documentElement.scrollWidth<=innerWidth,'no overflow');
+   check(controls.every(link=>Math.abs(link.querySelector('.gx-link-icon').getBoundingClientRect().width-50)<1),'50px icon wells');
+   await Promise.all($$('.gx-links img').map(image=>image.decode()));
+   check(document.activeElement.classList.contains('icon-close'),'close control receives focus');
+   body.scrollTop=body.scrollHeight;
+   const submit=$('#gx-feedback-form [type=submit]').getBoundingClientRect();
+   check(submit.top>=body.getBoundingClientRect().top-1&&submit.bottom<=body.getBoundingClientRect().bottom+1,'feedback submit remains reachable');
+   body.scrollTop=0;
+  },Object.values(values));
+  if(width===390)await shot('links-configured-390');
+ }
+ await run(review=>{
+  const link=()=>$('.gx-links a[href*="g.page"]')?.href;
+  for(const rating of [1,5]){$(`.gx-stars input[value="${rating}"]`).click();check(link()===review,'review independent of rating');}
+  $('#gx-feedback-form').requestSubmit();
+  check($('.gx-confirmation')&&link()===review,'local feedback works and review stays available');
+ },values.reviewUrl);
+ assert.deepEqual(errors,[],'browser exceptions');assert.deepEqual(network,[],'failed asset requests');
+ console.log('GX-01.1 passed: empty, mixed and configured links; saved settings; official assets; four viewports; feedback and independent Google link.');
+}else{
 await size(390,844);await goto(guest+7);await run(setup);
 await run(()=>{
- tap('guest-information');check(!$('.gx-links')&&$('.guest-events-empty').textContent==='No upcoming events announced','unconfigured links and events stay empty');
+ tap('guest-information');check($$('.gx-links button:disabled').length===3&&$('.guest-events-empty').textContent==='No upcoming events announced','unconfigured links stay disabled and events show the empty state');
 });
 await goto(owner);await run(setup);
 await run(()=>{
@@ -182,6 +238,7 @@ await send('Input.dispatchKeyEvent',{type:'keyUp',key:'ArrowRight',code:'ArrowRi
 await run(()=>check($('.gx-stars input:checked')?.value==='2','keyboard changes rating'));
 assert.deepEqual(errors,[],'browser exceptions');assert.deepEqual(network,[],'failed requests');
 console.log('GX-01/02/03 passed: local feedback, configured links/events, analytics and statuses, wishlist quantities/totals and legacy/visit isolation, keyboard/touch and five viewports.');
+}
  } finally {
   if(ws?.readyState===WebSocket.OPEN){ws.send(JSON.stringify({id:999999,method:'Browser.close'}));await Promise.race([once(chrome,'exit'),new Promise(resolve=>setTimeout(resolve,1500))]);}
   ws?.close();if(chrome.exitCode===null)chrome.kill();server.close();

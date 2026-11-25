@@ -647,19 +647,26 @@ function eventDateLabel(item) {
 function mizoraInformation() {
  const copy=INFORMATION_COPY[ui.lang];
  const events=db.restaurantEvents.filter(item=>item.published&&['today','upcoming'].includes(eventTiming(item))).sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
- const instagram='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none"/></svg>';
+ const unavailable={en:'Unavailable',de:'Nicht verfügbar',es:'No disponible'}[ui.lang];
+ const instagram='<img src="assets/brands/instagram-glyph-white.svg" width="22" height="22" alt="">';
+ const review=reviewLink();
  const links=[
-  validWebsiteUrl(db.websiteUrl)&&[db.websiteUrl,copy.website,icon('globe')],
-  validInstagramUrl(db.instagramUrl)&&[db.instagramUrl,'Instagram',instagram],
-  validReviewUrl(reviewLink())&&[reviewLink(),copy.reviews,googleBrandMark()],
- ].filter(Boolean);
+  [validWebsiteUrl(db.websiteUrl)?db.websiteUrl:'',copy.website,icon('globe')],
+  [validInstagramUrl(db.instagramUrl)?db.instagramUrl:'','Instagram',instagram],
+  [validReviewUrl(review)?review:'',copy.reviews,`<span class="gx-google-inset">${googleBrandMark()}</span>`],
+ ];
+ const linkRow=links.map(([url,name,mark])=>{
+  const label=`<span class="gx-link-icon" aria-hidden="true">${mark}</span><span>${e(name)}</span>`;
+  return url?`<a class="gx-link" href="${e(url)}" target="_blank" rel="noopener noreferrer">${label}</a>`:
+   `<button class="gx-link" type="button" disabled>${label}<small>${e(unavailable)}</small></button>`;
+ }).join('');
  const form=ui.feedbackSaved?`<p class="gx-confirmation" role="status" tabindex="-1">${icon('check')} ${e(copy.saved)}</p>`:`<form id="gx-feedback-form">
   <fieldset><legend><h3>${e(copy.prompt)}</h3></legend><p class="gx-copy">${e(copy.invite)}</p><div class="gx-stars">${[1,2,3,4,5].map(rating=>`<label><input type="radio" name="rating" value="${rating}" required aria-label="${rating} / 5 ${e(copy.stars)}">${icon('star')}</label>`).join('')}</div></fieldset>
   <fieldset><legend>${e(copy.topic)}</legend><input type="hidden" name="category" value=""><div class="gx-categories">${guestFeedbackCategories.map((key,i)=>`<button type="button" data-act="feedback-category" data-value="${key}" aria-pressed="false">${icon(['user','dish','clock','layers','more'][i])}<span>${e(copy.topics[i])}</span></button>`).join('')}</div></fieldset>
   <label class="gx-label" for="gx-feedback-message">${e(copy.message)}</label><textarea id="gx-feedback-message" name="message" maxlength="500" rows="3" placeholder="${e(copy.placeholder)}" aria-describedby="gx-feedback-count"></textarea><div class="gx-message-meta"><span>${icon('lock')} ${e(copy.private)}</span><output id="gx-feedback-count" for="gx-feedback-message">0 / 500</output></div>
   <p class="gx-local-note">${e(copy.local)}</p><p class="gx-feedback-error" role="alert" hidden></p><button type="submit" class="gx-primary" disabled>${e(copy.send)} ${icon('arrow')}</button>
  </form>`;
- const body=`<div class="gx-scroll restaurant-information-scroll">${links.length?`<nav class="gx-links" aria-label="${e(copy.title)}">${links.map(([url,name,mark])=>`<a href="${e(url)}" target="_blank" rel="noopener noreferrer"><span class="gx-link-icon">${mark}</span><span>${e(name)}</span></a>`).join('')}</nav>`:''}
+ const body=`<div class="gx-scroll restaurant-information-scroll"><nav class="gx-links" aria-label="${e(copy.title)}">${linkRow}</nav>
   <section class="gx-feedback">${form}</section><section class="guest-events"><h3>${e(copy.events)}</h3>${events.length?events.map(item=>`<article class="guest-event"><time datetime="${e(item.date)}">${e(eventDateLabel(item))}</time><h4>${e(item.title)}</h4>${item.description?`<p>${e(item.description)}</p>`:''}</article>`).join(''):`<p class="guest-events-empty">${e(copy.empty)}</p>`}</section></div>`;
  return guestExperienceSheet(copy.title,db.restaurant,body,'restaurant-information-sheet');
 }
