@@ -1,0 +1,3 @@
+# Preserve approved supplied SVG bytes, manifest and license across Windows checkouts.
+reference/foodie-icon-system-v2/** -text
+product/public/assets/icons-v2/** -text

@@ -11,12 +11,11 @@ test('public guest links distinguish tables from language-specific dish sharing'
   assert.equal(dish.searchParams.has('table'),false);
 });
 
-test('wishlist migration is unique, respects saved removals, and leaves old carts intact', () => {
-  assert.equal(typeof rules.normalizeWishlist,'function');
-  const carts={'07':{a:3,b:1},'08':{a:1,unknown:2}};
-  const before=structuredClone(carts),dishes=[{id:'a'},{id:'b'}];
-  assert.deepEqual(rules.normalizeWishlist(undefined,carts,dishes),['a','b']);
-  assert.deepEqual(rules.normalizeWishlist([],carts,dishes),[]);
-  assert.deepEqual(rules.normalizeWishlist(['b','b','unknown'],carts,dishes),['b']);
-  assert.deepEqual(carts,before);
+test('legacy selections preserve quantities within one table and totals use minor currency units', () => {
+  const cart={a:3,b:1,unknown:2};
+  const migrated=rules.legacyTableItems(cart,['a','a','c'],['a','b','c']);
+  assert.deepEqual(migrated,{a:3,b:1,c:1});
+  assert.deepEqual(cart,{a:3,b:1,unknown:2});
+  assert.equal(rules.selectionTotal(migrated,new Map([['a',0.1],['b',0.2],['c',4.55]]),'USD'),5.05);
+  assert.equal(rules.selectionTotal({a:2},new Map([['a',100]]),'JPY'),200);
 });

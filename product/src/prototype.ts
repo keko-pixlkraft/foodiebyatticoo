@@ -6,6 +6,51 @@ export const nutritionFields = [
 ] as const;
 
 export const publicGuestOrigin = 'https://foodiebyatticoo.vercel.app';
+export const guestFeedbackCategories = ['service','food','waiting','bill','other'] as const;
+export const guestFeedbackStatuses = ['new','review','resolved'] as const;
+export type GuestFeedback = {
+  id: string; restaurantId: string; table: number | null; visitId: string | null;
+  createdAt: string; rating: number; category: typeof guestFeedbackCategories[number] | null;
+  message: string; status: typeof guestFeedbackStatuses[number];
+};
+
+export function createGuestFeedback(rating: number, category: string, message: string, context: Pick<GuestFeedback,'id'|'restaurantId'|'table'|'visitId'|'createdAt'>): GuestFeedback {
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5 || message.length > 500) throw new RangeError('Invalid feedback');
+  const selected = guestFeedbackCategories.find(item => item === category) ?? null;
+  return {...context, rating, category:selected, message:message.trim(), status:'new'};
+}
+
+export function summarizeGuestFeedback(records: readonly GuestFeedback[]) {
+  const distribution = [0, 0, 0, 0, 0];
+  const categories = new Map(guestFeedbackCategories.map(key => [key, 0]));
+  let sum = 0;
+  for (const record of records) {
+    distribution[record.rating - 1]++;
+    sum += record.rating;
+    if (record.category) categories.set(record.category, (categories.get(record.category) ?? 0) + 1);
+  }
+  return { total:records.length, average:records.length ? sum / records.length : null, distribution,
+    categories:[...categories].filter(([,count])=>count>0).sort((a,b)=>b[1]-a[1]) };
+}
+
+export type TableVisit = {
+  id: string; restaurantId: string; table: number; currency: string;
+  updatedAt: number; items: Record<string,number>;
+};
+export const tableVisitLifetime = 4 * 60 * 60 * 1000;
+
+export function legacyTableItems(cart: Record<string,number> | undefined, saved: readonly string[], knownDishes: readonly string[]) {
+  const items = Object.fromEntries(Object.entries(cart??{}).filter(([id,quantity])=>knownDishes.includes(id)&&Number.isSafeInteger(quantity)&&quantity>0));
+  for (const id of saved) if (knownDishes.includes(id)&&!Object.hasOwn(items,id)) items[id]=1;
+  return items;
+}
+
+export function selectionTotal(items: Record<string,number>, prices: ReadonlyMap<string,number>, currency: string) {
+  const digits = new Intl.NumberFormat('en',{style:'currency',currency}).resolvedOptions().maximumFractionDigits ?? 2;
+  const scale = 10 ** digits;
+  const minor = Object.entries(items).reduce((total,[id,quantity])=>total+Math.round((prices.get(id)??0)*scale)*quantity,0);
+  return minor / scale;
+}
 export function guestLink(origin: string, restaurant: string, options: {table?: number; dish?: string; lang?: string} = {}): string {
   const url = new URL('/guest', origin);
   url.searchParams.set('restaurant', restaurant);
@@ -18,11 +63,6 @@ export function guestLink(origin: string, restaurant: string, options: {table?: 
   return url.href;
 }
 
-export function normalizeWishlist(saved: unknown, carts: Record<string, Record<string, number>>, dishes: readonly {id: string}[]): string[] {
-  const known = new Set(dishes.map(dish => dish.id));
-  const candidates = Array.isArray(saved) ? saved : Object.values(carts ?? {}).flatMap(cart => Object.entries(cart).filter(([, quantity]) => quantity > 0).map(([id]) => id));
-  return [...new Set(candidates.filter((id): id is string => typeof id === 'string' && known.has(id)))];
-}
 
 type TranslatableDish = {
   id: string;
@@ -77,6 +117,47 @@ export function matchesCalorieLimit(nutrition: Nutrition | null | undefined, lim
   if (limit === null) return true;
   const kcal = nutrition?.kcal;
   return typeof kcal === 'number' && Number.isFinite(kcal) && kcal >= 0 && kcal < limit;
+}
+
+export function matchesDishPriceLimit(price: unknown, limit: number | null): boolean {
+  if (limit === null) return true;
+  return typeof price === 'number' && Number.isFinite(price) && price >= 0 && price <= limit;
+}
+
+export function formatGuestPriceLimit(limit: number | null, currency: string, locale: string, anyLabel: string): string {
+  return limit === null ? anyLabel : '≤ ' + new Intl.NumberFormat(locale, {style:'currency',currency,minimumFractionDigits:0,maximumFractionDigits:2}).format(limit);
+}
+
+type DeclaredFilterDish = {
+  price?: unknown;
+  allergens?: readonly string[];
+  allergensVerified?: boolean;
+  allergensComplete?: boolean;
+  dietaryVerified?: boolean;
+  dietary?: Record<string, boolean | number | undefined>;
+  nutrition?: Nutrition | null;
+};
+type DeclaredGuestFilters = {
+  preferences: readonly string[];
+  exclude: readonly string[];
+  spice: number | null;
+  calorie: number | null;
+  price: number | null;
+};
+export function hasVerifiedAllergenDeclaration(dish: DeclaredFilterDish, knownAllergens: readonly string[]): boolean {
+  return dish.allergensVerified === true && dish.allergensComplete !== false && Array.isArray(dish.allergens) &&
+    dish.allergens.every(key => knownAllergens.includes(key));
+}
+export function matchesDeclaredGuestFilters(dish: DeclaredFilterDish, filters: DeclaredGuestFilters, knownAllergens: readonly string[]): boolean {
+  if (filters.preferences.length && (dish.dietaryVerified !== true || filters.preferences.some(key => dish.dietary?.[key] !== true))) return false;
+  if (filters.exclude.length) {
+    if (!hasVerifiedAllergenDeclaration(dish, knownAllergens) || filters.exclude.some(key => !knownAllergens.includes(key) || dish.allergens!.includes(key))) return false;
+  }
+  if (filters.spice !== null) {
+    const spice = dish.dietary?.spice;
+    if (typeof spice !== 'number' || !Number.isFinite(spice) || spice < 0 || spice > filters.spice) return false;
+  }
+  return matchesCalorieLimit(dish.nutrition, filters.calorie) && matchesDishPriceLimit(dish.price, filters.price);
 }
 
 type GuestTheme = { accent: string; surface: string; button: 'pill' | 'rounded' | 'outline' };

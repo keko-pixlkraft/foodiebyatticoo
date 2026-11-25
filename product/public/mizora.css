@@ -304,6 +304,71 @@
 .nutrition-card .nutrition-values :is(dt,dd) { margin:0; }
 .nutrition-card .nutrition-values dd { font-variant-numeric:tabular-nums; color:#fff6eb; }
 .nutrition-card > p { margin:13px 0 0; font-size:9px; line-height:1.4; color:#c4b19f; }
+[data-restaurant="mizora"] .nutrition-backdrop.gx-backdrop { padding:12px 10px max(10px,env(safe-area-inset-bottom)); }
+.nutrition-card.gx-sheet { width:100%; max-width:480px; max-height:100%; padding:0; display:flex; flex-direction:column; }
+.gx-sheet .gx-heading { justify-content:space-between; align-items:flex-start; margin:0; padding:17px 16px 13px; }
+.gx-heading h2 { margin:3px 0 0; font:500 26px/1.12 'Instrument Sans',Arial,sans-serif; letter-spacing:-.04em; }
+.gx-eyebrow,.gx-subtitle { margin:0; color:#d3c1ae; font-size:10px; }
+.gx-eyebrow { letter-spacing:.11em; text-transform:uppercase; }
+.gx-subtitle { margin-top:6px; }
+[data-restaurant="mizora"] .gx-sheet .icon-close { width:32px; height:32px; }
+.gx-scroll { flex:1 1 auto; min-height:0; overflow:auto; overscroll-behavior:contain; padding:0 16px 16px; }
+.gx-links { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+.gx-links a,.gx-categories button { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; min-height:49px; padding:6px 2px; border:1px solid #e9d9c52c; border-radius:9px; background:#ede2d00a; color:#faf1e7; font:500 10px/1.2 'Instrument Sans',Arial,sans-serif; text-align:center; text-decoration:none; }
+.gx-links a:hover,.gx-categories button:hover { border-color:#e9d9c58a; }
+.gx-link-icon { display:grid; place-items:center; }
+.gx-link-icon :is(svg,img) { width:18px; height:18px; }
+.gx-link-icon .google-brand-mark { width:21px; height:21px; object-fit:contain; background:#fff; border:0; border-radius:5px; transform:scale(1.15); }
+.gx-feedback { margin:14px 0; padding:14px 0; border-block:1px solid #e9d9c52b; }
+.gx-feedback:first-child { margin-top:0; }
+#gx-feedback-form { display:grid; gap:10px; }
+.gx-feedback fieldset { border:0; padding:0; margin:0; min-width:0; }
+.gx-feedback legend { padding:0; font-size:12px; font-weight:600; }
+.gx-feedback h3 { margin:0; font-size:16px; font-weight:550; }
+.gx-copy,.gx-local-note,.gx-feedback-error { margin:4px 0 0; color:#d3c1ae; font-size:11px; line-height:1.4; }
+.gx-feedback-error { color:#ffd0c1; }
+.gx-stars,.gx-categories { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:5px; margin-top:6px; }
+.gx-stars label { position:relative; min-height:42px; display:grid; place-items:center; border-radius:8px; border:1px solid #e9d9c52c; color:#dac5b0; cursor:pointer; }
+.gx-stars input { position:absolute; inset:0; width:100%; height:100%; margin:0; opacity:0; cursor:pointer; }
+.gx-stars .ic { width:21px; height:21px; }
+.gx-stars label:is(:has(input:checked),:has(~ label input:checked)) { color:#f3ba79; background:#eaa76514; }
+.gx-stars label:is(:has(input:checked),:has(~ label input:checked)) .ic { fill:currentColor; }
+.gx-stars label:has(input:focus-visible) { outline:2px solid #ead9c5; outline-offset:2px; }
+.gx-categories .ic,.gx-primary .ic { width:15px; height:15px; }
+.gx-categories button[aria-pressed="true"] { color:#2b2522; background:#efe0ce; border-color:#efe0ce; }
+.gx-label { font-size:11px; font-weight:600; }
+.gx-feedback textarea { width:100%; resize:vertical; min-height:57px; max-height:150px; border:1px solid #e9d9c533; border-radius:9px; padding:8px; background:#211c1a; color:inherit; font:inherit; font-size:13px; }
+.gx-feedback textarea::placeholder { color:#bda995; }
+.gx-message-meta { display:flex; justify-content:space-between; gap:8px; color:#d3c1ae; font-size:10px; font-variant-numeric:tabular-nums; }
+.gx-message-meta .ic { width:12px; height:12px; vertical-align:middle; }
+.gx-primary { display:flex; width:100%; align-items:center; justify-content:center; gap:8px; padding:8px; min-height:42px; border:1px solid #efe0ce; border-radius:9px; background:#efe0ce; color:#2b2522; font:600 12px/1.2 'Instrument Sans',Arial,sans-serif; }
+.gx-primary:disabled { opacity:.5; cursor:default; }
+.gx-confirmation { display:flex; align-items:center; gap:8px; padding:12px; margin:0; background:#ede2d010; border-radius:9px; font-size:12px; }
+.gx-confirmation .ic { width:17px; height:17px; color:#edcda8; }
+.gx-sheet .guest-events-empty { padding:0; }
+.wishlist-toggle[data-has-items="true"] .ic { fill:currentColor; }
+.gx-wishlist-items { list-style:none; margin:3px 0 0; padding:0; }
+.gx-wishlist-item { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; padding:11px 0; border-bottom:1px solid #e9d9c52b; }
+.gx-wishlist-item .wishlist-item-open { gap:9px; }
+.gx-wishlist-item img { flex:none; width:49px; height:43px; border-radius:8px; object-fit:cover; }
+.gx-wishlist-item strong { display:block; font-size:12px; line-height:1.3; overflow-wrap:anywhere; }
+.gx-wishlist-item small { display:block; margin-top:3px; color:#d3c1ae; font-size:10px; }
+.gx-line-total { align-self:center; font-variant-numeric:tabular-nums; }
+.gx-line-actions { grid-column:1 / -1; display:flex; align-items:center; justify-content:space-between; padding-left:58px; }
+.gx-quantity { display:flex; align-items:center; gap:7px; font-size:12px; font-variant-numeric:tabular-nums; }
+.gx-quantity output { min-width:17px; text-align:center; }
+.gx-line-actions button,.gx-new-visit { display:inline-grid; place-items:center; min-width:36px; min-height:36px; border:1px solid #e9d9c52b; border-radius:8px; background:#ede2d00a; color:inherit; }
+.gx-line-actions button:hover,.gx-new-visit:hover { border-color:#e9d9c58a; }
+.gx-line-actions .ic { width:14px; height:14px; }
+.gx-new-visit { margin-top:10px; padding:4px 9px; font:inherit; font-size:11px; }
+.gx-wishlist-footer { padding:10px 16px 12px; border-top:1px solid #e9d9c52b; }
+.gx-wishlist-footer p { margin:8px 0 0; text-align:center; color:#d3c1ae; font-size:10px; }
+.gx-wishlist-totals { display:flex; justify-content:space-between; gap:7px; margin-bottom:10px; color:#d3c1ae; font-size:11px; }
+.gx-wishlist-totals strong { display:block; margin-top:2px; color:#faf1e7; font-size:17px; font-variant-numeric:tabular-nums; }
+.gx-wishlist-totals span:last-child { text-align:right; }
+.gx-wishlist-empty { display:grid; justify-items:center; gap:8px; padding:16px 0 5px; color:#d3c1ae; font-size:12px; }
+.gx-wishlist-empty p { margin:0; }
+.gx-wishlist-empty .ic { width:25px; height:25px; }
 .icon-filter { border-radius:12px; min-height:65px; }
 .icon-filter > .food-icon { width:25px; height:25px; }
 .icon-filter[data-value="vegetarian"] .food-icon,.icon-filter[data-value="vegan"] .food-icon { color:#91bc80; }
@@ -472,6 +537,59 @@
 .guest-event h4 { margin:9px 0 0; color:#f2e4d1; font:500 16px/1.35 'Instrument Sans',Arial,sans-serif; overflow-wrap:anywhere; }
 .guest-event p { margin:9px 0 0; color:#c6b49e; font-size:12px; line-height:1.65; white-space:pre-line; overflow-wrap:anywhere; }
 .guest-events-empty { margin:0; padding:18px 0 4px; color:#ac9985; font-size:11px; line-height:1.6; }
+
+/* Approved Foodie Icon System V2: original SVG art is loaded without colour effects. */
+[data-restaurant="mizora"] .guest-stage {
+  --foodie-icon-filter-size:34px;
+  --foodie-icon-explore-size:21px;
+  --foodie-icon-explore-label-size:10.5px;
+  --foodie-icon-ink:#f7ebdd;
+  --foodie-icon-selected-outline:#f2dfca;
+}
+.guest-stage .foodie-filter-icon { display:block; flex:none; width:var(--foodie-icon-filter-size); height:var(--foodie-icon-filter-size); object-fit:contain; }
+.icon-filter-sheet .icon-filter { min-height:82px; gap:7px; padding:9px 4px; }
+.icon-filter-sheet .icon-filter > span { width:100%; max-width:100%; font-size:10px; line-height:1.25; white-space:normal; overflow-wrap:anywhere; hyphens:auto; }
+.icon-filter-sheet .allergen-icon-grid { grid-template-columns:repeat(5,minmax(0,1fr)); grid-auto-rows:1fr; gap:6px; align-items:stretch; }
+.icon-filter-sheet .allergen-icon-grid .icon-filter { justify-content:flex-start; min-height:61px; gap:4px; padding:5px 2px; border-radius:9px; background:#eee4d6; border-color:#f4e9da55; }
+.icon-filter-sheet .allergen-icon-grid .foodie-filter-icon { width:27px; height:27px; }
+.icon-filter-sheet .allergen-icon-grid .icon-filter > span { color:#392c24; font-size:9.5px; overflow-wrap:break-word; }
+@media(max-width:350px) {
+  .icon-filter-sheet .allergen-icon-grid .icon-filter { padding-inline:1px; }
+}
+.icon-filter-sheet .icon-filter.is-selected { border-color:var(--foodie-icon-selected-outline); box-shadow:inset 0 0 0 1px var(--foodie-icon-selected-outline); }
+.icon-filter-sheet .allergen-icon-grid .icon-filter.is-selected { background:#3a2925; }
+.icon-filter-sheet .allergen-icon-grid .icon-filter.is-selected > span { color:#f7ebdd; }
+.budget-filter legend { display:flex; align-items:center; gap:8px; }
+.budget-filter legend .foodie-filter-icon { width:25px; height:25px; }
+.budget-note { margin:-3px 0 10px; color:#c6b29d; font-size:10px; line-height:1.4; }
+.budget-options { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+.budget-options button { min-width:0; min-height:38px; padding:7px 3px; border:1px solid #e6d8c72e; border-radius:9px; background:#e6d8c708; color:#e6d8c7; font:500 11px/1.2 'Instrument Sans',Arial,sans-serif; font-variant-numeric:tabular-nums; }
+.budget-options button[aria-pressed="true"] { color:#211918; background:#e6d8c7; border-color:#e6d8c7; }
+.icon-filter-sheet .energy-heat-grid { grid-template-columns:1fr; gap:0; }
+.icon-filter-sheet .chili-options { grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+.icon-filter-sheet .chili-options button { min-height:55px; flex-direction:column; gap:5px; padding:6px 2px; font-size:10px; }
+.spice-icon-row { display:flex; justify-content:center; gap:1px; min-height:18px; }
+.spice-icon-row .foodie-filter-icon { width:18px; height:18px; }
+.guest-stage .dish-information { display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:7px; min-height:48px; }
+.guest-stage .dish-information .allergen-peek.icon-badges-v2 { display:block; max-width:none; min-width:0; padding:0; }
+.badge-strip { display:flex; align-items:flex-start; gap:4px; }
+.foodie-micro-badge { min-width:var(--foodie-icon-explore-size); display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--foodie-icon-ink); }
+.foodie-micro-badge .foodie-micro-icon { display:block; width:var(--foodie-icon-explore-size); height:var(--foodie-icon-explore-size); object-fit:contain; }
+.foodie-micro-badge > span { display:block; max-width:100%; font-size:var(--foodie-icon-explore-label-size); line-height:1.15; font-weight:500; text-align:center; overflow-wrap:anywhere; }
+.dish-information .badge-overflow { flex:none; justify-content:center; min-width:24px; min-height:34px; padding:2px; border:0; background:none; color:#f7ebdd; font-size:11px; }
+.dish-information .badge-overflow:hover { text-decoration:underline; }
+@media(max-width:360px) {
+  .dish-information .nutrition-peek { gap:4px; padding-inline:6px; font-size:10px; }
+  .dish-information .nutrition-peek .food-icon { width:12px; height:12px; }
+}
+.guest-stage .allergen-card .guest-allergen-icons { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px 6px; }
+[data-restaurant="mizora"] .guest-stage .guest-allergen-icons .allergen-icon-pill { display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:5px; min-width:0; padding:0; border:0; background:none; }
+.guest-allergen-icons .allergen-icon-pill em { font-weight:500; font-size:10px; line-height:1.25; letter-spacing:normal; text-align:center; white-space:normal; overflow-wrap:anywhere; hyphens:auto; }
+.guest-stage .guest-allergen-icons .foodie-filter-icon { width:24px; height:24px; }
+.confirmed-preference-title { margin:18px 0 9px; font-size:13px; }
+.guest-preference-details { display:flex; flex-wrap:wrap; gap:8px; }
+.guest-preference-details > span { display:flex; align-items:center; gap:7px; font-size:11px; }
+.guest-preference-details .foodie-filter-icon { width:27px; height:27px; }
 @media(max-width:350px) {
   [data-restaurant="mizora"] .mizora-sheet .sheet-head { padding-inline:16px; }
   [data-restaurant="mizora"] .language-sheet .language-choices { padding-inline:16px; }

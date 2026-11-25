@@ -74,7 +74,7 @@ tap('filters');tap('toggle-diet','vegan');tap('apply-filters');check(!$('.dish-c
 tap('clear-filters');check($$('.dish-card:not(.is-muted)').length===24,'clear categories and dietary filters');
 
 tap('filters');tap('toggle-diet','vegan');tap('toggle-diet','glutenFree');tap('set-calorie','500');tap('toggle-allergen','Milk');tap('apply-filters');
-check($$('.dish-card').length===24 && $$('.dish-card:not(.is-muted)').length===1 && $('.dish-card:not(.is-muted)').textContent.includes('Beetroot Tartare'),'stable overview with combined filters');check($('.is-muted button').disabled,'nonmatches disabled');
+check($$('.dish-card').length===24 && $$('.dish-card:not(.is-muted)').length===0,'unverified dishes excluded by combined filters');check($('.is-muted button').disabled,'nonmatches disabled');
 tap('filters');tap('clear-filters');tap('apply-filters');tap('open',undefined,'mizora-03');
 tap('surface','owner');check($('.owner-logo').textContent.includes('Atticoo'),'brand');
 });
@@ -85,14 +85,14 @@ await run(()=>{tap('filters');tap('clear-filters');tap('apply-filters');tap('ope
 await run(()=>{tap('surface','guest');tap('mode','explore');check(getComputedStyle($('.hero-image')).objectFit==='contain','full photograph');tap('filters');});
 await screenshot('filters-refined');
 await run(()=>{
-check($$('.allergen-icon-grid .food-icon').length===14,'14 distinct allergen icons');
+check($$('.allergen-icon-grid .foodie-filter-icon').length===14,'14 distinct allergen icons');
 check(!$('.refine-tabs'),'no filter tabs');
 tap('toggle-allergen','Lupin');check($('[data-act=toggle-allergen][data-value=Lupin]').getAttribute('aria-pressed')==='true','lupin toggles');
 tap('toggle-allergen','Lupin');
 tap('set-spice','2');check($('[data-act=set-spice][data-value="2"]').getAttribute('aria-pressed')==='true','chili control');
 tap('set-spice','any');
 });
-await run(()=>{closeDialog();tap('nutrition');check($('.nutrition-source').textContent.includes('Estimate'),'estimate label');check($$('.nutrition-values div').length===3&&!$('.nutrition-card progress,.nutrition-card meter,.detail-switch'),'compact macro card');});
+await run(()=>{closeDialog();tap('mode','overview');tap('open',undefined,'mizora-03');tap('nutrition');check($('.nutrition-source').textContent.includes('Estimate'),'estimate label');check($$('.nutrition-values div').length===3&&!$('.nutrition-card progress,.nutrition-card meter,.detail-switch'),'compact macro card');});
 await screenshot('nutrition-refined');
 await run(()=>{closeDialog();tap('nutrition');check($('.nutrition-total').textContent.includes('350'),'nutrition estimate');
 check(document.activeElement.classList.contains('icon-close'),'dialog initial focus');
@@ -105,16 +105,16 @@ await run(()=>tap('mode','overview'));await screenshot('overview');
 await run(()=>tap('surface','owner'));
 await size(1440,900);await screenshot('owner');
 await run(()=>{check(!$('[data-act=owner-tab][data-value=appearance]')&&!$('.owner-preview'),'appearance removed');check(getComputedStyle($('.app-wrap')).backgroundColor==='rgb(21, 18, 17)','dark owner palette');});
-await run(()=>{
+await run(async()=>{
 tap('owner-tab','menu');tap('edit',undefined,'mizora-03');
 const form=$('#dish-form');form.elements.nutrition_kcal.value='275';form.elements.nutrition_source.value='entered';form.requestSubmit();check(!$('#dish-form'),'save nutrition');
 tap('surface','guest');tap('mode','explore');tap('nutrition');check($('.hero-price').textContent.includes('32'),'menu price');check($('.nutrition-total').textContent.includes('275 kcal'),'nutrition');closeDialog();
 tap('filters');tap('set-calorie','300');tap('apply-filters');tap('mode','overview');check($$('.dish-card:not(.is-muted)').length===1 && $$('.dish-card').length===24,'calorie dims nonmatches');
 tap('filters');tap('clear-filters');tap('apply-filters');
-tap('wishlist-toggle',undefined,'mizora-03');tap('wishlist');check($('.wishlist-item').textContent.includes('32'),'wishlist price');
-check(!$('.mizora-cart-sheet .sheet-disclaimer')&&!/demo|browser|no order|configured/i.test($('.mizora-cart-sheet').textContent),'no internal wishlist copy');
-check(!$('.mizora-cart-sheet [data-act=review]')&&!/Google/.test($('.mizora-cart-sheet').textContent),'wishlist contains no review promotion');
-tap('wishlist-remove',undefined,'mizora-03');check($('.empty-wishlist'),'wishlist removal');closeDialog();
+tap('wishlist-toggle',undefined,'mizora-03');await new Promise(r=>setTimeout(r,60));tap('wishlist');check($('.wishlist-item').textContent.includes('32'),'wishlist price');
+check($('.gx-wishlist-footer').textContent.includes('For planning only'),'planning disclaimer');
+check(!$('.wishlist-sheet [data-act=review]')&&!/Google/.test($('.wishlist-sheet').textContent),'wishlist contains no review promotion');
+tap('wishlist-remove',undefined,'mizora-03');await new Promise(r=>setTimeout(r,60));check($('.empty-wishlist'),'wishlist removal');closeDialog();
 for(const lang of ['de','es','en']){tap('language');tap('set-language',lang);check($('.guest-stage').lang===lang,'language '+lang);}
 tap('surface','owner');tap('owner-tab','media');const request=$('#media-request-form');request.querySelector('[value=lighting]').checked=true;request.requestSubmit();check($('.media-state').textContent==='Update requested','request');
 tap('owner-tab','analytics');check($('.analytics-metrics'),'analytics');tap('owner-tab','qr');check($$('.table-qr').length===12,'QR');
@@ -135,7 +135,8 @@ check(dock.width<=phone.width,'dock fits');
 const add=$('.dish-add').getBoundingClientRect();
 const energy=$('.nutrition-peek').getBoundingClientRect();
 check(add.bottom<dock.top&&Math.abs(add.top-energy.top)<6,'cart aligned with energy above dock');
-check(add.left>$('.allergen-peek').getBoundingClientRect().right,'cart does not cover allergens');
+const allergens=$('.allergen-peek')?.getBoundingClientRect();
+check(!allergens||add.left>=allergens.right||add.top>=allergens.bottom,'wishlist does not cover allergens');
 check(getComputedStyle($('.mizora-dock .is-active')).backgroundColor==='rgb(237, 226, 208)','active navigation tile');
 const categories=$('.quick-tabs').getBoundingClientRect(),flag=$('.language-flag-control').getBoundingClientRect();
 check(categories.bottom<=flag.top+1&&flag.right<=phone.right,'flag beneath categories');
@@ -149,8 +150,8 @@ check(parseFloat(getComputedStyle($('.quick-tab')).borderRadius)>=10,'Overview c
 tap('filters');check($('[role=dialog]').getBoundingClientRect().top>=phone.top,'filters fit height');closeDialog();
 tap('open',undefined,'mizora-03');tap('nutrition');check($('[role=dialog]').getBoundingClientRect().left>=phone.left,'nutrition fits width');closeDialog();
 tap('wishlist');await checkImages('Wishlist');
-check($('.mizora-cart-sheet').getBoundingClientRect().top>=phone.top,'cart fits height');
-check(!$('.mizora-cart-sheet [data-act=review]'),'no review invitation in cart');
+check($('.wishlist-sheet').getBoundingClientRect().top>=phone.top,'cart fits height');
+check(!$('.wishlist-sheet [data-act=review]'),'no review invitation in cart');
 
 tap('surface','owner');
 for(const tab of ['menu','media','events','analytics','qr','settings']){tap('owner-tab',tab);await checkImages(tab);}
@@ -201,12 +202,7 @@ await run(()=>{
   tap('surface','owner');tap('owner-tab','settings');
   const form=$('#profile-form');form.elements.reviewUrl.value='https://g.page/r/test-fixture/review';form.requestSubmit();
   tap('surface','guest');tap('wishlist');check(!$('[role=dialog] [data-act=review]'),'configured review stays out of cart');
-  closeDialog();tap('mode','overview');tap('guest-information');check($('.restaurant-channels [data-act=review]'),'review in restaurant menu');tap('review');
-  const originalOpen=window.open;let opened;
-  window.open=(...args)=>{opened=args;return null;};
-  try {tap('open-review');check(opened[0]==='https://g.page/r/test-fixture/review'&&opened[2]==='noopener,noreferrer','review navigation remains safe');}
-  finally {window.open=originalOpen;}
-  tap('guest-information');check($('.restaurant-information-sheet'),'review returns to restaurant menu');closeDialog();
+  closeDialog();tap('mode','overview');tap('guest-information');const review=$('.gx-links a[href*="g.page"]');check(review?.rel==='noopener noreferrer','Google review remains an independent safe link');closeDialog();
   tap('surface','owner');tap('owner-tab','settings');
   const reset=$('#profile-form');reset.elements.reviewUrl.value='';reset.requestSubmit();
 });

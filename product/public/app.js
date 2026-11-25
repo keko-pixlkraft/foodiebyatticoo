@@ -1,13 +1,14 @@
 /* Foodie by Atticoo — self-contained local UX prototype.
    No network APIs, no real orders, no shared table state, no AI processing.
    All menus/prices/content are fictional and illustrative. */
-import { createMediaRequest, eventPhase, defaultTheme as aurelTheme, matchesCalorieLimit, mediaStatus, nextMediaStatus, normalizeTheme, nutritionFields, parseNutrition, readableInk, guestLink, normalizeWishlist, publicGuestOrigin, refreshDefaultDishNames, themePresets as sharedPresets, viewCartRate } from './prototype.js';
+import { createGuestFeedback, guestFeedbackCategories, guestFeedbackStatuses, summarizeGuestFeedback, createMediaRequest, eventPhase, defaultTheme as aurelTheme, matchesCalorieLimit, matchesDeclaredGuestFilters, formatGuestPriceLimit, hasVerifiedAllergenDeclaration, mediaStatus, nextMediaStatus, normalizeTheme, nutritionFields, parseNutrition, readableInk, guestLink, legacyTableItems, selectionTotal, tableVisitLifetime, publicGuestOrigin, refreshDefaultDishNames, themePresets as sharedPresets, viewCartRate } from './prototype.js';
 
 const restaurantId = new URLSearchParams(location.search).get('restaurant') === 'aurel-house' ? 'aurel-house' : 'mizora';
 const restaurantProfile = restaurantId === 'mizora' ? await fetch('./mizora.json').then(response => {
   if (!response.ok) throw new Error('Unable to load MIZORA menu');
   return response.json();
 }) : null;
+const iconManifest=restaurantProfile?await fetch('./assets/icons-v2/ICON_MANIFEST.json').then(response=>{if(!response.ok)throw Error('Unable to load approved icon manifest');return response.json();}):null;
 const defaultTheme = restaurantProfile?.theme || aurelTheme;
 const themePresets = restaurantProfile ? [{name:'MIZORA',theme:defaultTheme},...sharedPresets.slice(1)] : sharedPresets;
 
@@ -94,6 +95,18 @@ const ALLERGEN_LOCALIZED={
  de:{Gluten:'Gluten',Milk:'Milch',Eggs:'Eier',Fish:'Fisch',Crustaceans:'Krebstiere',Molluscs:'Weichtiere',Peanuts:'Erdnüsse','Tree nuts':'Schalenfrüchte',Soy:'Soja',Sesame:'Sesam',Celery:'Sellerie',Mustard:'Senf',Sulphites:'Sulfite',Lupin:'Lupinen'},
  es:{Gluten:'Gluten',Milk:'Leche',Eggs:'Huevos',Fish:'Pescado',Crustaceans:'Crustáceos',Molluscs:'Moluscos',Peanuts:'Cacahuetes','Tree nuts':'Frutos secos',Soy:'Soja',Sesame:'Sésamo',Celery:'Apio',Mustard:'Mostaza',Sulphites:'Sulfitos',Lupin:'Altramuces'}
 };
+const ICON_KEYS={Gluten:'gluten',Crustaceans:'crustaceans',Eggs:'eggs',Fish:'fish',Peanuts:'peanuts',Soy:'soybeans',Milk:'milk','Tree nuts':'tree_nuts',Celery:'celery',Mustard:'mustard',Sesame:'sesame',Sulphites:'sulphites',Lupin:'lupin',Molluscs:'molluscs',glutenFree:'gluten-free',lactoseFree:'lactose-free'};
+function guestIconEntry(key){return [...(iconManifest?.allergens||[]),...(iconManifest?.preferences||[]),...(iconManifest?.utility||[])].find(entry=>entry.key===(ICON_KEYS[key]||key));}
+function guestIconImage(key,className='foodie-filter-icon'){
+ const entry=guestIconEntry(key);return entry?`<img class="${className}" src="assets/icons-v2/${e(entry.file.replace('assets/',''))}" width="34" height="34" alt="" aria-hidden="true" data-icon-key="${e(entry.key)}">`:'';
+}
+function guestAllergenName(key){return guestIconEntry(key)?.full[ui.lang]||allergenName(key);}
+function filterAllergenLabel(key){
+ if(key==='Sulphites')return {en:'Sulfur',de:'Sulfite',es:'Sulfitos'}[ui.lang];
+ if(key==='Gluten'||key==='Sesame')return guestIconEntry(key).short[ui.lang];
+ return guestAllergenName(key);
+}
+function confirmedPreferences(d){return d.dietaryVerified===true?DIET_KEYS.filter(key=>d.dietary?.[key]===true&&!(key==='vegetarian'&&d.dietary?.vegan===true)):[];}
 function allergenName(a){if(restaurantProfile && ui.lang==='en' && a==='Crustaceans')return 'Crustaceans';return ALLERGEN_LOCALIZED[ui.lang]?.[a] || ALLERGEN_META[a]?.label || a;}
 
 const EXPLORE_FOCUS={
@@ -108,6 +121,7 @@ const EXPLORE_FOCUS={
  'lychee-highball':'center 40%'
 };
 function renderAllergenChips(list=[],compact=false){
+ if(restaurantProfile&&ui.surface==='guest'&&list.length)return `<div class="allergen-icons guest-allergen-icons">${list.map(a=>`<span class="allergen-icon-pill" role="img" aria-label="${e(guestAllergenName(a))}">${guestIconImage(a)}<em>${e(guestAllergenName(a))}</em></span>`).join('')}</div>`;
  if(!list.length) return compact?'<span class="allergen-hint">Ask our team about allergens</span>':'<p class="allergen-copy compact-copy">Allergens are not confirmed in this demonstration. Please ask the restaurant team.</p>';
  return `<div class="allergen-icons ${compact?'compact':''}">${list.map(a=>{const meta=ALLERGEN_META[a]||{icon:'spark',label:a};return `<span class="allergen-icon-pill" title="${e(meta.label)}">${restaurantProfile?foodIcon(a):icon(meta.icon)}<em>${e(allergenName(a))}</em></span>`}).join('')}</div>`;
 }
@@ -178,20 +192,25 @@ const NUTRITION_I18N = {
   }
 };
 const MIZORA_I18N = {"en":{"sampleNutrition":"Estimated from menu ingredients","nutritionNote":"Demo estimate per menu portion. Portions and recipes are assumed; values may vary substantially.","allergenNotVerified":"Possible allergens estimated from the menu. Other allergens and cross-contact may be present. Please confirm with your server.","demoWarning":"Demo guidance based on menu ingredients and estimated portions. Confirm dietary needs and allergies with your server.","demoMenu":"Prices in USD. * Consuming raw or undercooked fish, shellfish or meat may increase your risk of foodborne illness. Please inform your server of any allergies.","calorieNote":"Approximate kcal per menu portion.","allergyExclude":"Possible allergens to avoid","preferences":"Your preferences","noSpiceLimit":"Any heat"},"de":{"sampleNutrition":"Aus den Menüzutaten geschätzt","nutritionNote":"Demo-Schätzung pro Menüportion. Portionsgrößen und Rezepturen sind angenommen; tatsächliche Werte können deutlich abweichen.","allergenNotVerified":"Mögliche Allergene aus der Menübeschreibung geschätzt. Weitere Allergene und Kreuzkontakt sind möglich. Bitte beim Service bestätigen.","demoWarning":"Demo-Orientierung aus Menüzutaten und geschätzten Portionen. Ernährungswünsche und Allergien beim Service bestätigen.","demoMenu":"Preise in USD. * Roher oder nicht durchgegarter Fisch, Meeresfrüchte und Fleisch können lebensmittelbedingte Erkrankungen verursachen. Bitte informiere den Service über Allergien.","calorieNote":"Ungefähre kcal pro Menüportion.","allergyExclude":"Mögliche Allergene vermeiden","preferences":"Deine Wünsche","noSpiceLimit":"Beliebig"},"es":{"sampleNutrition":"Estimación según los ingredientes","nutritionNote":"Estimación de demo por ración del menú. Porciones y recetas supuestas; los valores reales pueden variar considerablemente.","allergenNotVerified":"Posibles alérgenos estimados según el menú. Puede haber otros alérgenos y contacto cruzado. Confirma con el personal.","demoWarning":"Orientación de demo basada en ingredientes y raciones estimadas. Confirma tus necesidades y alergias con el personal.","demoMenu":"Precios en USD. * El pescado, marisco o carne crudos o poco cocinados pueden aumentar el riesgo de enfermedades alimentarias. Informa al personal de tus alergias.","calorieNote":"Kcal aproximadas por ración.","allergyExclude":"Posibles alérgenos a evitar","preferences":"Tus preferencias","noSpiceLimit":"Cualquiera"}};
+const ICON_COPY={
+ en:{priceHint:'Max price per dish',declarationWarning:'Dietary and allergen filters require complete restaurant-confirmed declarations. Unverified dishes are excluded. Confirm allergies with staff.',lactoseNote:'Lactose-free does not mean milk-allergen-free. Halal is a restaurant declaration, not certification.'},
+ de:{priceHint:'Höchstpreis pro Gericht',declarationWarning:'Ernährungs- und Allergenfilter benötigen vollständige, vom Restaurant bestätigte Angaben. Ungeprüfte Gerichte werden ausgeschlossen. Allergien beim Service bestätigen.',lactoseNote:'Laktosefrei bedeutet nicht milchallergenfrei. Halal ist eine Restaurantangabe, keine Zertifizierung.'},
+ es:{priceHint:'Precio máximo por plato',declarationWarning:'Los filtros dietéticos y de alérgenos requieren declaraciones completas confirmadas por el restaurante. Se excluyen platos sin verificar. Consulta tus alergias con el personal.',lactoseNote:'Sin lactosa no significa libre de alérgenos de la leche. Halal es una declaración del restaurante, no una certificación.'}
+};
 const WISHLIST_I18N={
  en:{wishlist:'Wishlist',saveDish:'Add to wishlist',removeDish:'Remove from wishlist',savedDish:'Saved to wishlist',removedDish:'Removed from wishlist',wishlistEmpty:'Your next favourites',wishlistHint:'Save the dishes you would love to try.',menuReturn:'Menu',shareDish:'Share dish',linkCopied:'Link copied',shareFailed:'Unable to share or copy this link',unavailable:'Currently unavailable'},
  de:{wishlist:'Merkliste',saveDish:'Auf die Merkliste',removeDish:'Von der Merkliste entfernen',savedDish:'Auf der Merkliste gespeichert',removedDish:'Von der Merkliste entfernt',wishlistEmpty:'Deine nächsten Lieblingsgerichte',wishlistHint:'Merke dir die Gerichte, die du probieren möchtest.',menuReturn:'Menü',shareDish:'Gericht teilen',linkCopied:'Link kopiert',shareFailed:'Link konnte nicht geteilt oder kopiert werden',unavailable:'Zurzeit nicht verfügbar'},
  es:{wishlist:'Favoritos',saveDish:'Guardar en favoritos',removeDish:'Quitar de favoritos',savedDish:'Guardado en favoritos',removedDish:'Eliminado de favoritos',wishlistEmpty:'Tus próximos favoritos',wishlistHint:'Guarda los platos que te gustaría probar.',menuReturn:'Menú',shareDish:'Compartir plato',linkCopied:'Enlace copiado',shareFailed:'No se pudo compartir ni copiar el enlace',unavailable:'No disponible actualmente'}
 };
 const EXPLORE_I18N={en:{swipe:'Swipe up / down',previousDish:'Previous dish',nextDish:'Next dish'},de:{swipe:'Nach oben / unten wischen',previousDish:'Vorheriges Gericht',nextDish:'Nächstes Gericht'},es:{swipe:'Desliza arriba / abajo',previousDish:'Plato anterior',nextDish:'Siguiente plato'}};
-function tr(key){return WISHLIST_I18N[ui.lang]?.[key] || EXPLORE_I18N[ui.lang]?.[key] || (restaurantProfile && MIZORA_I18N[ui.lang]?.[key]) || NUTRITION_I18N[ui.lang]?.[key]||UI_I18N[ui.lang]?.[key]||UI_I18N.en[key]||key;}
+function tr(key){return ICON_COPY[ui.lang]?.[key] || WISHLIST_I18N[ui.lang]?.[key] || EXPLORE_I18N[ui.lang]?.[key] || (restaurantProfile && MIZORA_I18N[ui.lang]?.[key]) || NUTRITION_I18N[ui.lang]?.[key]||UI_I18N[ui.lang]?.[key]||UI_I18N.en[key]||key;}
 function dishText(d,key){return d?.translations?.[ui.lang]?.[key] || DISH_I18N[d?.id]?.[ui.lang]?.[key] || d?.[key] || '';}
 function catLabel(id){const category=CATS.find(c=>c.id===id);return restaurantProfile ? category?.[ui.lang] || category?.name || id : tr(id)||catsName(id);}
 function seedDietary(d){return {vegetarian:false,vegan:false,glutenFree:false,lactoseFree:false,halal:false,spice:0,...(DEMO_DIETARY[d.id]||{}),...(d.dietary||{})};}
 const CALORIE_LIMITS = [300, 500, 700];
-const emptyFilters = () => ({vegetarian:false,vegan:false,glutenFree:false,lactoseFree:false,halal:false,spice:null,exclude:[],calorie:null});
-function activeFilterCount(){return DIET_KEYS.filter(k=>ui.guestFilters[k]).length+ui.guestFilters.exclude.length+(ui.guestFilters.spice!==null?1:0)+(ui.guestFilters.calorie!==null?1:0)+(restaurantProfile&&ui.category!=='all'?1:0);}
-function canShow(d){const f=ui.guestFilters,profile=seedDietary(d);if(DIET_KEYS.some(k=>f[k]&&!profile[k]))return false;if(restaurantProfile&&f.spice!==null&&typeof d.dietary?.spice!=='number')return false;if(f.exclude.some(a=>(d.allergens||[]).includes(a)))return false;if(f.spice!==null&&Number(profile.spice)>f.spice)return false;return matchesCalorieLimit(d.nutrition,f.calorie);}
+const emptyFilters = () => ({vegetarian:false,vegan:false,glutenFree:false,lactoseFree:false,halal:false,spice:null,exclude:[],calorie:null,price:null});
+function activeFilterCount(){return DIET_KEYS.filter(k=>ui.guestFilters[k]).length+ui.guestFilters.exclude.length+(ui.guestFilters.spice!==null?1:0)+(ui.guestFilters.calorie!==null?1:0)+(restaurantProfile&&ui.category!=='all'?1:0)+(ui.guestFilters.price!==null?1:0);}
+function canShow(d){const f=ui.guestFilters;if(restaurantProfile)return matchesDeclaredGuestFilters(d,{preferences:DIET_KEYS.filter(k=>f[k]),exclude:f.exclude,spice:f.spice,calorie:f.calorie,price:f.price},MIZORA_ALLERGENS);const profile=seedDietary(d);if(DIET_KEYS.some(k=>f[k]&&!profile[k]))return false;if(restaurantProfile&&f.spice!==null&&typeof d.dietary?.spice!=='number')return false;if(f.exclude.some(a=>(d.allergens||[]).includes(a)))return false;if(f.spice!==null&&Number(profile.spice)>f.spice)return false;return matchesCalorieLimit(d.nutrition,f.calorie);}
 function ensureGuestSelected(){const l=listed();if(!l.some(x=>x.id===ui.selected))ui.selected=l[0]?.id||null;}
 function reviewLink(){return typeof db.reviewUrl==='string'&&db.reviewEnabled!==false?db.reviewUrl:'';}
 function validReviewUrl(value){try{const u=new URL(value);return u.protocol==='https:'&&(/^(?:[a-z0-9-]+\.)?google\.(?:com|es|de|fr|it|co\.uk)$/.test(u.hostname)||['g.page','g.co','maps.app.goo.gl'].includes(u.hostname));}catch{return false;}}
@@ -212,7 +231,7 @@ const DEFAULT_DB = {
   dishes: SEED.map(d => ({ ...d, nutrition: d.nutrition || SAMPLE_NUTRITION[d.id] || null })),
   menuRevision: restaurantProfile?.menuRevision || 0,
   tables: Array.from({ length: 12 }, (_, i) => ({ number: i + 1, active: true })),
-  carts: {}, mediaRequests: {}, mediaRequestLog: [], guestLang: 'en', reviewUrl: '', reviewEnabled: true, instagramUrl:'', restaurantEvents:[],
+  carts: {}, mediaRequests: {}, mediaRequestLog: [], guestLang: 'en', reviewUrl: '', reviewEnabled: true, instagramUrl:'', websiteUrl:'', restaurantEvents:[],
   events: { byLanguage:{}, byDay:{}, views: 0, opens: 0, adds: 0, cartViews: 0, qrPreviews: 0, byDish: {}, byTable: {}, measuredViews: 0, viewsWithAdd: 0, dishViews: {} },
 };
 function loadDB() {
@@ -238,14 +257,12 @@ function loadDB() {
       restaurantEvents:Array.isArray(stored.restaurantEvents)?stored.restaurantEvents:[],
       mediaRequestLog:Array.isArray(stored.mediaRequestLog)?stored.mediaRequestLog:[],
       events: { ...baseline.events, ...stored.events },
-      ...(restaurantProfile ? {wishlist:normalizeWishlist(stored.wishlist,stored.carts,Array.isArray(stored.dishes)?stored.dishes:baseline.dishes)} : {}),
       dishes: Array.isArray(stored.dishes) ? (restaurantProfile ? refreshDefaultDishNames(stored.dishes,baseline.dishes) : stored.dishes) : baseline.dishes,
       tables: Array.isArray(stored.tables) ? stored.tables : baseline.tables,
     };
   } catch { return baseline; }
 }
 let db=loadDB();
-if(restaurantProfile)db.wishlist=normalizeWishlist(db.wishlist,db.carts,db.dishes);
 const entryParams=new URLSearchParams(location.search);
 const entryDish=restaurantProfile&&db.dishes.find(d=>d.id===entryParams.get('dish')&&d.live);
 const entryLanguage=['en','de','es'].includes(entryParams.get('lang'))?entryParams.get('lang'):null;
@@ -298,14 +315,69 @@ function event(key,dishId) {
   save();
 }
 function setToast(s){ui.toast=s;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{ui.toast='';document.querySelector('.floating-toast')?.remove()},2800)}
-function isSaved(id){return db.wishlist?.includes(id)||false;}
-function toggleWishlist(id){
- if(!dish(id))return;
- const saved=isSaved(id);db.wishlist=saved?db.wishlist.filter(item=>item!==id):[...db.wishlist,id];
- if(saved)save();else event('wishlistAdds',id);
- renderToastOnly(tr(saved?'removedDish':'savedDish'));render();
+const tableWishlistKey=DB_KEY+':table-visits:v1';
+const WISHLIST_VISIT_COPY={
+ en:{title:'Our Wishlist',shared:'Shared table selection',items:'Selected items',total:'Estimated total',explore:'Continue exploring',note:'For planning only · No order or payment is placed',newVisit:'New visit',confirm:'Start a new visit and clear this table’s current selection?',local:'Shared between tabs in this browser',empty:'Nothing selected yet',plus:'Add one',minus:'Remove one',remove:'Remove item',error:'Could not save the selection.'},
+ de:{title:'Unsere Merkliste',shared:'Gemeinsame Tischauswahl',items:'Ausgewählte Gerichte',total:'Geschätzte Summe',explore:'Weiter entdecken',note:'Nur zur Planung · Es wird nichts bestellt oder bezahlt',newVisit:'Neuer Besuch',confirm:'Einen neuen Besuch starten und die aktuelle Tischauswahl leeren?',local:'In diesem Browser zwischen Tabs geteilt',empty:'Noch keine Gerichte ausgewählt',plus:'Einmal hinzufügen',minus:'Einmal abziehen',remove:'Gericht entfernen',error:'Die Auswahl konnte nicht gespeichert werden.'},
+ es:{title:'Nuestros favoritos',shared:'Selección compartida de la mesa',items:'Platos seleccionados',total:'Total estimado',explore:'Seguir explorando',note:'Solo para planificar · No se realiza ningún pedido ni pago',newVisit:'Nueva visita',confirm:'¿Iniciar una nueva visita y borrar la selección actual de esta mesa?',local:'Compartida entre pestañas de este navegador',empty:'Todavía no hay platos seleccionados',plus:'Añadir uno',minus:'Quitar uno',remove:'Eliminar plato',error:'No se pudo guardar la selección.'},
+};
+let currentTableVisit=null;
+function readTableVisits(){
+ const stored=JSON.parse(localStorage.getItem(tableWishlistKey));
+ return stored?.visits?stored:{visits:{},personalMigrated:false};
 }
-function wishlistButton(d,className){const saved=isSaved(d.id);return `<button type="button" class="${className} wishlist-toggle" data-act="wishlist-toggle" data-id="${e(d.id)}" aria-pressed="${saved}" aria-label="${e(tr(saved?'removeDish':'saveDish')+' · '+dishText(d,'name'))}">${icon('heart')}${saved?'':'<span class="wishlist-plus" aria-hidden="true">+</span>'}</button>`;}
+function newTableVisit(table,items={}){
+ return {id:crypto.randomUUID?.()||uid(),restaurantId,table,currency:restaurantProfile.currency,updatedAt:Date.now(),items};
+}
+function activeTableVisit(state,table){
+ const visit=state.visits[table];
+ return visit?.restaurantId===restaurantId&&visit.table===table&&Date.now()-visit.updatedAt<tableVisitLifetime?visit:null;
+}
+function ensureTableVisit(state,table){
+ const active=activeTableVisit(state,table);
+ if(active)return active;
+ // Each legacy table is imported only on its first visit. A personal list belongs to the first selected table.
+ const items=state.visits[table]?{}:legacyTableItems(db.carts?.[pad(table)],state.personalMigrated?[]:db.wishlist??[],db.dishes.map(item=>item.id));
+ state.personalMigrated=true;
+ return state.visits[table]=newTableVisit(table,items);
+}
+function syncTableVisit(){
+ if(!restaurantProfile||ui.table===null)return null;
+ try{
+  const state=readTableVisits(),active=activeTableVisit(state,ui.table);
+  if(active)return active;
+  const visit=ensureTableVisit(state,ui.table);
+  localStorage.setItem(tableWishlistKey,JSON.stringify(state));
+  return visit;
+ }catch{return null;}
+}
+async function updateTableWishlist(action,id){
+ const table=ui.table,expectedId=currentTableVisit?.id;
+ if(ui.surface!=='guest'||!restaurantProfile||table===null||!expectedId)return;
+ const d=dish(id);
+ if(action!=='reset'&&(!d||(!d.live&&action==='increase')))return;
+ const copy=WISHLIST_VISIT_COPY[ui.lang];
+ if(action==='reset'&&!confirm(copy.confirm))return;
+ const update=()=>{
+  const state=readTableVisits(),visit=activeTableVisit(state,table);
+  if(!visit||visit.id!==expectedId)return;
+  if(action==='reset')state.visits[table]=newTableVisit(table);
+  else{
+   const quantity=Object.hasOwn(visit.items,id)?visit.items[id]:0;
+   if(action==='remove'||(action==='decrease'&&quantity<=1))delete visit.items[id];
+   else visit.items[id]=quantity+(action==='increase'?1:-1);
+   visit.updatedAt=Date.now();
+  }
+  localStorage.setItem(tableWishlistKey,JSON.stringify(state));
+ };
+ try{if(navigator.locks)await navigator.locks.request(tableWishlistKey,update);else update();}
+ catch{setToast(copy.error);}
+ render();
+}
+function wishlistButton(d,className){
+ const quantity=currentTableVisit?.items[d.id]||0;
+ return `<button type="button" class="${className} wishlist-toggle" data-act="wishlist-toggle" data-id="${e(d.id)}" data-has-items="${quantity>0}" aria-label="${e(tr('saveDish')+' · '+dishText(d,'name'))}" ${ui.table===null?'disabled':''}>${icon('heart')}<span class="wishlist-plus" aria-hidden="true">+</span></button>`;
+}
 async function shareDish(){
  if(ui.sharePending||!chosen())return;
  const d=chosen(),data={title:db.restaurant,text:dishText(d,'name'),url:guestLink(location.origin,restaurantId,{dish:d.id,lang:ui.lang})};
@@ -318,6 +390,9 @@ async function shareDish(){
 function addToCart(id,n){if(ui.table===null || !dish(id))return;const k=pad(ui.table);const c=db.carts[k]||(db.carts[k]={});c[id]=Math.max(0,(Number(c[id])||0)+n);if(c[id]===0)delete c[id];if(n>0)event('adds',id);else save();setToast(n>0?tr('add'):tr('selection'));render()}
 
 function icon(name){const paths={
+ trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 10v7m4-7v7"/>',
+ user:'<circle cx="12" cy="8" r="3.5"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/>',
+ more:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
  heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',
  share:'<path d="M12 15V2m-4 4 4-4 4 4M5 10H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-1"/>',
  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3M4 4l2 2M18 18l2 2M4 20l2-2M18 6l2-2"/>',
@@ -404,24 +479,25 @@ function mizoraHeader() {
 }
 
 function mizoraDock() {
-  const cartLabel=tr('wishlist');
+  const cartLabel=WISHLIST_VISIT_COPY[ui.lang].title;
   return `<nav class="guest-cartbar mizora-dock" aria-label="${e(tr('selection'))}">
     ${[['explore',tr('explore'),'mode'],['overview',tr('overview'),'mode'],['filters',tr('filters'),'filters'],['wishlist',cartLabel,'wishlist']].map(([id,label,action])=>{
       const selected=ui.modal ? ui.modal===id : ui.mode===id;
-      const badge=id==='wishlist'?db.wishlist.length:id==='filters'?activeFilterCount():0;
+      const badge=id==='wishlist'?Object.values(currentTableVisit?.items||{}).reduce((sum,count)=>sum+count,0):id==='filters'?activeFilterCount():0;
       return `<button data-act="${action}" ${action==='mode'?`data-value="${id}"`:''} class="${selected?'is-active':''}" aria-label="${e(label)}${badge?' ('+badge+')':''}" aria-pressed="${selected}"><span class="dock-icon">${id==='filters'?icon('filter'):id==='wishlist'?icon('heart'):foodIcon(id)}${badge?`<b class="dock-badge">${badge}</b>`:''}</span><span>${e(label)}</span></button>`;
     }).join('')}</nav>`;
 }
 
 function mizoraDishInformation(d) {
-  const kcal=d.nutrition?.kcal;
-  const label=Number.isFinite(kcal)?'≈ '+new Intl.NumberFormat(ui.lang,{maximumFractionDigits:0}).format(kcal)+' kcal':tr('nutrition');
-  const allergens=d.allergens || [];
-  return `<div class="dish-information"><button class="nutrition-peek" data-act="nutrition" aria-label="${e(tr('nutrition')+' · '+label)}">${foodIcon('energy')}<span>${e(label)}</span></button>
-    <span class="allergen-peek" role="img" aria-label="${e(tr('allergens')+': '+(allergens.map(allergenName).join(', ') || tr('allergenNotVerified')))}" title="${e(allergens.map(allergenName).join(', ') || tr('allergenNotVerified'))}">
-      ${allergens.length?allergens.slice(0,4).map(a=>`<span data-value="${e(a)}" title="${e(allergenName(a))}">${foodIcon(a)}</span>`).join(''):foodIcon('unknown')}
-      ${allergens.length===1?`<span>${e(allergenName(allergens[0]))}</span>`:''}${allergens.length>4?`<span>+${allergens.length-4}</span>`:''}
-    </span>${wishlistButton(d,'dish-add')}</div>`;
+ const kcal=d.nutrition?.kcal,label=Number.isFinite(kcal)?'≈ '+new Intl.NumberFormat(ui.lang,{maximumFractionDigits:0}).format(kcal)+' kcal':tr('nutrition');
+ const allergens=d.allergens||[],badges=[...allergens.map(key=>({key,allergen:true})),...confirmedPreferences(d).map(key=>({key,allergen:false}))];
+ const full=badges.map(({key,allergen})=>allergen?guestAllergenName(key):guestIconEntry(key)?.full[ui.lang]||tr(key));
+ const visibleCount=4;
+ const hiddenCount=badges.length-visibleCount;
+ const more=hiddenCount>0?`<button class="badge-overflow" data-act="details" data-value="more" aria-label="${e(tr('details')+': '+full.slice(visibleCount).join(', '))}">+${hiddenCount}</button>`:'';
+ const groupLabel=hasVerifiedAllergenDeclaration(d,MIZORA_ALLERGENS)?tr('allergens'):tr('allergenNotVerified');
+ return `<div class="dish-information"><button class="nutrition-peek" data-act="nutrition" aria-label="${e(tr('nutrition')+' · '+label)}">${foodIcon('energy')}<span>${e(label)}</span></button>
+ <div class="allergen-peek icon-badges-v2" role="group" aria-label="${e(groupLabel)}"><div class="badge-strip">${badges.slice(0,visibleCount).map(({key,allergen},index)=>{const entry=guestIconEntry(key);return `<span class="foodie-micro-badge" role="img" ${allergen?`data-allergen="${e(key)}"`:''} aria-label="${e(full[index])}" title="${e(full[index])}">${guestIconImage(key,'foodie-micro-icon')}<span>${e(entry?.short?.[ui.lang]||full[index])}</span></span>`;}).join('')}${more}</div></div>${wishlistButton(d,'dish-add')}</div>`;
 }
 
 function headerGuest(){if(restaurantProfile)return mizoraHeader();return `<div class="guest-status"><span>9:41</span><div class="island"></div><span>▥  ◕  ▰</span></div><div class="restaurant-header"><button class="glass-icon" data-act="guest-back" title="${e(tr('overview'))}" aria-label="${e(tr('overview'))}">${icon('menu')}</button><div class="rest-brand">${restaurantProfile ? '<div class="mizora-logo"><img src="assets/mizora/logo-transparent.png" alt="MIZORA · Mediterranean · Japanese"></div>' : '<span class="rest-symbol">∿</span><strong>'+e(db.restaurant)+'</strong><small>'+e(db.tagline)+'</small>'}</div><div class="guest-header-tools">${db.reviewEnabled!==false?`<button class="glass-icon review-top-icon" data-act="review" title="${e(tr('reviewEntry'))}" aria-label="${e(tr('reviewEntry'))}">${icon('star')}</button>`:''}<button class="lang-pill" data-act="language" aria-label="${e(tr('language'))}">${ui.lang.toUpperCase()} ⌄</button></div></div><div class="quick-tabs" id="quick-tabs" aria-label="${e(tr('category'))}">${CATS.map(c=>`<button class="quick-tab ${ui.category===c.id?'is-active':''}" data-act="category" data-value="${c.id}">${e(catLabel(c.id))}</button>`).join('')}</div><div class="guest-toggle"><button class="${ui.mode==='explore'?'active':''}" data-act="mode" data-value="explore">${icon('spark')} ${e(tr('explore'))}</button><button class="${ui.mode==='overview'?'active':''}" data-act="mode" data-value="overview">${icon('menu')} ${e(tr('overview'))}</button><button class="filter-launch ${activeFilterCount()?'filter-on':''}" data-act="filters" aria-label="${e(tr('filters'))}">${icon('filter')}<span>${e(tr('filters'))}</span>${activeFilterCount()?`<b>${activeFilterCount()}</b>`:''}</button></div>`}
@@ -504,15 +580,16 @@ function nutritionPanel(d) {
 
 
 function mizoraFilters() {
-  const option=(action,value,label,glyph,selected)=>`<button type="button" class="icon-filter ${selected?'is-selected':''}" data-act="${action}" data-value="${e(value)}" aria-pressed="${selected}" aria-label="${e(label)}" title="${e(label)}">${glyph}<span>${e(label)}</span></button>`;
+  const option=(action,value,label,glyph,selected,fullLabel=label)=>`<button type="button" class="icon-filter ${selected?'is-selected':''}" data-act="${action}" data-value="${e(value)}" aria-pressed="${selected}" aria-label="${e(fullLabel===label?label:`${label} · ${fullLabel}`)}" title="${e(fullLabel)}">${glyph}<span>${e(label)}</span></button>`;
   return `<div class="guest-modal-backdrop" data-act="close-modal"><section class="guest-sheet filters-sheet icon-filter-sheet mizora-sheet" role="dialog" aria-modal="true" aria-label="${e(tr('filters'))}">
     <div class="sheet-handle"></div><header class="sheet-head"><h2>${e(tr('filters'))}</h2><button class="icon-close" data-act="close-modal" aria-label="${e(tr('dismiss'))}">${icon('close')}</button></header>
     <div class="filter-scroll">
-      <fieldset class="icon-filter-group"><legend>${e(tr('preferences'))}</legend><div class="diet-icon-grid">${DIET_KEYS.map(key=>option('toggle-diet',key,tr(key),foodIcon(key),!!ui.guestFilters[key])).join('')}</div></fieldset>
+      <fieldset class="icon-filter-group"><legend>${e(tr('preferences'))}</legend><div class="diet-icon-grid">${DIET_KEYS.map(key=>option('toggle-diet',key,guestIconEntry(key).full[ui.lang],guestIconImage(key),!!ui.guestFilters[key])).join('')}</div></fieldset>
+      <fieldset class="icon-filter-group budget-filter"><legend>${guestIconImage('budget')}<span>${e(guestIconEntry('budget').full[ui.lang])}</span></legend><p class="budget-note">${e(tr('priceHint'))}</p><div class="budget-options">${iconManifest.budget_thresholds_major.map(value=>{const label=formatGuestPriceLimit(value,restaurantProfile.currency||'EUR',ui.lang,tr('any'));return `<button type="button" data-act="set-price" data-value="${value??'any'}" aria-pressed="${ui.guestFilters.price===value}" aria-label="${e(tr('priceHint')+': '+label)}">${e(label)}</button>`;}).join('')}</div></fieldset>
       <div class="energy-heat-grid"><fieldset class="icon-filter-group"><legend>${e(tr('calorieLimit'))}</legend><div class="energy-options">${[null,...CALORIE_LIMITS].map(value=>`<button data-act="set-calorie" data-value="${value??'any'}" aria-pressed="${ui.guestFilters.calorie===value}" aria-label="${e(value===null?tr('anyCalories'):tr('underCalories').replace('{limit}',value))}">${value===null?'∞':'< '+value}</button>`).join('')}</div></fieldset>
-      <fieldset class="icon-filter-group"><legend>${e(tr('spiceLevel'))}</legend><div class="chili-options">${[[null,'noSpiceLimit'],[0,'mild'],[1,'medium'],[2,'hot']].map(([value,key])=>`<button data-act="set-spice" data-value="${value??'any'}" aria-pressed="${ui.guestFilters.spice===value}" aria-label="${e(tr(key))}" title="${e(tr(key))}">${value===null?foodIcon('anyHeat'):Array.from({length:value+1},()=>foodIcon('chili')).join('')}</button>`).join('')}</div></fieldset></div>
-      <fieldset class="icon-filter-group"><legend>${e(tr('allergyExclude'))}</legend><div class="allergen-icon-grid">${MIZORA_ALLERGENS.map(a=>option('toggle-allergen',a,allergenName(a),foodIcon(a),ui.guestFilters.exclude.includes(a))).join('')}</div></fieldset>
-      <p class="filter-warning">${e(tr('demoWarning'))}</p>
+      <fieldset class="icon-filter-group"><legend>${e(tr('spiceLevel'))}</legend><div class="chili-options">${[[null,'noSpiceLimit'],[0,'mild'],[1,'medium'],[2,'hot']].map(([value,key])=>`<button data-act="set-spice" data-value="${value??'any'}" aria-pressed="${ui.guestFilters.spice===value}" aria-label="${e(tr(key))}" title="${e(tr(key))}"><span class="spice-icon-row">${value===null?'':Array.from({length:value+1},()=>guestIconImage('spice')).join('')}</span><span>${e(tr(value===null?'any':key))}</span></button>`).join('')}</div></fieldset></div>
+      <fieldset class="icon-filter-group"><legend>${e(tr('allergyExclude'))}</legend><div class="allergen-icon-grid">${MIZORA_ALLERGENS.map(a=>option('toggle-allergen',a,filterAllergenLabel(a),guestIconImage(a),ui.guestFilters.exclude.includes(a),guestAllergenName(a))).join('')}</div></fieldset>
+      <p class="filter-warning">${e(tr('declarationWarning'))}</p><p class="filter-warning">${e(tr('demoWarning'))} ${e(tr('lactoseNote'))}</p>
     </div><footer class="filter-sheet-actions"><button class="filter-reset" data-act="clear-filters">${e(tr('clear'))}${activeFilterCount()?` (${activeFilterCount()})`:''}</button><button class="primary-btn" data-act="apply-filters">${e(tr('apply'))}<span>${listed().length}</span>${icon('arrow')}</button></footer>
   </section></div>`;
 }
@@ -544,11 +621,22 @@ const MIZORA_SHEET_COPY = {
 };
 
 const INFORMATION_COPY={
-  en:{title:'At MIZORA',reviews:'Google reviews',events:'Events',empty:'No events announced yet.',unavailable:'Currently unavailable',back:'Back to restaurant menu'},
-  de:{title:'Bei MIZORA',reviews:'Google-Bewertungen',events:'Events',empty:'Noch keine Events angekündigt.',unavailable:'Derzeit nicht verfügbar',back:'Zurück zum Restaurantmenü'},
-  es:{title:'En MIZORA',reviews:'Reseñas en Google',events:'Eventos',empty:'Aún no hay eventos anunciados.',unavailable:'No disponible actualmente',back:'Volver al menú del restaurante'},
+ en:{title:'Your experience',website:'Website',reviews:'Google Reviews',events:'Events',empty:'No upcoming events announced',back:'Back to your experience',prompt:'How was your visit?',invite:'Share your experience privately with the MIZORA management team.',topic:'What would you like to tell us?',topics:['Service','Food','Waiting time','Bill','Other'],message:'Anything else? (optional)',placeholder:'Share your experience in a few words…',private:'Private to the restaurant',local:'Demo feedback stays in this browser.',send:'Send private feedback',saved:'Feedback saved in this demo browser.',error:'Could not save feedback. Please try again.',stars:'stars'},
+ de:{title:'Dein Erlebnis',website:'Website',reviews:'Google-Bewertungen',events:'Events',empty:'Keine bevorstehenden Events angekündigt',back:'Zurück zu deinem Erlebnis',prompt:'Wie war dein Besuch?',invite:'Teile dein Erlebnis vertraulich mit dem MIZORA-Management.',topic:'Was möchtest du uns mitteilen?',topics:['Service','Essen','Wartezeit','Rechnung','Sonstiges'],message:'Noch etwas? (optional)',placeholder:'Beschreibe dein Erlebnis in wenigen Worten…',private:'Vertraulich für das Restaurant',local:'Demo-Feedback bleibt in diesem Browser.',send:'Privates Feedback senden',saved:'Feedback wurde in diesem Demo-Browser gespeichert.',error:'Feedback konnte nicht gespeichert werden. Bitte erneut versuchen.',stars:'Sterne'},
+ es:{title:'Tu experiencia',website:'Sitio web',reviews:'Reseñas en Google',events:'Eventos',empty:'No hay próximos eventos anunciados',back:'Volver a tu experiencia',prompt:'¿Qué tal tu visita?',invite:'Comparte tu experiencia en privado con el equipo de MIZORA.',topic:'¿Qué te gustaría contarnos?',topics:['Servicio','Comida','Espera','Cuenta','Otro'],message:'¿Algo más? (opcional)',placeholder:'Comparte tu experiencia en pocas palabras…',private:'Privado para el restaurante',local:'Los comentarios de prueba quedan en este navegador.',send:'Enviar comentarios privados',saved:'Tus comentarios se guardaron en este navegador de prueba.',error:'No se pudieron guardar los comentarios. Inténtalo de nuevo.',stars:'estrellas'},
 };
-
+const feedbackKey=DB_KEY+':guest-feedback:v1';
+function readFeedback(){
+ try {const records=JSON.parse(localStorage.getItem(feedbackKey));return Array.isArray(records)?records.filter(record=>record?.restaurantId===restaurantId&&Number.isInteger(record.rating)&&record.rating>=1&&record.rating<=5):[];}
+ catch{return [];}
+}
+function validWebsiteUrl(value){
+ try{const url=new URL(value);return url.protocol==='https:'&&!url.username&&!url.password;}
+ catch{return false;}
+}
+function guestExperienceSheet(title,eyebrow,body,variant,subtitle=''){
+ return `<div class="guest-modal-backdrop nutrition-backdrop gx-backdrop" data-act="close-modal"><section class="nutrition-card gx-sheet ${variant}" role="dialog" aria-modal="true" aria-labelledby="gx-title"><header class="gx-heading"><div><p class="gx-eyebrow">${e(eyebrow)}</p><h2 id="gx-title">${e(title)}</h2>${subtitle?`<p class="gx-subtitle">${e(subtitle)}</p>`:''}</div><button class="icon-close" data-act="close-modal" aria-label="${e(tr('dismiss'))}">${icon('close')}</button></header>${body}</section></div>`;
+}
 function validInstagramUrl(value) {
   try {const url=new URL(value);return url.protocol==='https:'&&['instagram.com','www.instagram.com'].includes(url.hostname)&&!url.username&&!url.password&&!url.port;}catch{return false;}
 }
@@ -557,16 +645,36 @@ function eventDateLabel(item) {
   return Number.isNaN(date.getTime())?item.date:new Intl.DateTimeFormat(ui.lang,{day:'numeric',month:'short',year:'numeric'}).format(date)+(item.time?' · '+item.time:'');
 }
 function mizoraInformation() {
-  const copy=INFORMATION_COPY[ui.lang];
-  const events=db.restaurantEvents.filter(item=>item.published).slice().sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
-  const instagram='<span class="instagram-symbol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none"/></svg></span>';
-  return `<div class="guest-modal-backdrop" data-act="close-modal"><section class="guest-sheet filters-sheet icon-filter-sheet mizora-sheet restaurant-information-sheet" role="dialog" aria-modal="true" aria-label="${e(copy.title)}">
-    <div class="sheet-handle"></div><header class="sheet-head"><h2>${e(copy.title)}</h2><button class="icon-close" data-act="close-modal" aria-label="${e(tr('dismiss'))}">${icon('close')}</button></header>
-    <div class="restaurant-information-scroll"><nav class="restaurant-channels" aria-label="${e(copy.title)}">
-      ${validInstagramUrl(db.instagramUrl)?`<a class="restaurant-channel" href="${e(db.instagramUrl)}" target="_blank" rel="noopener noreferrer">${instagram}<span>Instagram</span>${icon('arrow')}</a>`:`<div class="restaurant-channel is-unavailable">${instagram}<span>Instagram<small>${e(copy.unavailable)}</small></span></div>`}
-      ${db.reviewEnabled!==false?`<button class="restaurant-channel" data-act="review">${googleBrandMark()}<span>${e(copy.reviews)}</span>${icon('arrow')}</button>`:''}</nav>
-      <section class="guest-events"><h3>${e(copy.events)}</h3>${events.length?events.map(item=>`<article class="guest-event"><time datetime="${e(item.date)}">${e(eventDateLabel(item))}</time><h4>${e(item.title)}</h4>${item.description?`<p>${e(item.description)}</p>`:''}</article>`).join(''):`<p class="guest-events-empty">${e(copy.empty)}</p>`}</section>
-    </div></section></div>`;
+ const copy=INFORMATION_COPY[ui.lang];
+ const events=db.restaurantEvents.filter(item=>item.published&&['today','upcoming'].includes(eventTiming(item))).sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
+ const instagram='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none"/></svg>';
+ const links=[
+  validWebsiteUrl(db.websiteUrl)&&[db.websiteUrl,copy.website,icon('globe')],
+  validInstagramUrl(db.instagramUrl)&&[db.instagramUrl,'Instagram',instagram],
+  validReviewUrl(reviewLink())&&[reviewLink(),copy.reviews,googleBrandMark()],
+ ].filter(Boolean);
+ const form=ui.feedbackSaved?`<p class="gx-confirmation" role="status" tabindex="-1">${icon('check')} ${e(copy.saved)}</p>`:`<form id="gx-feedback-form">
+  <fieldset><legend><h3>${e(copy.prompt)}</h3></legend><p class="gx-copy">${e(copy.invite)}</p><div class="gx-stars">${[1,2,3,4,5].map(rating=>`<label><input type="radio" name="rating" value="${rating}" required aria-label="${rating} / 5 ${e(copy.stars)}">${icon('star')}</label>`).join('')}</div></fieldset>
+  <fieldset><legend>${e(copy.topic)}</legend><input type="hidden" name="category" value=""><div class="gx-categories">${guestFeedbackCategories.map((key,i)=>`<button type="button" data-act="feedback-category" data-value="${key}" aria-pressed="false">${icon(['user','dish','clock','layers','more'][i])}<span>${e(copy.topics[i])}</span></button>`).join('')}</div></fieldset>
+  <label class="gx-label" for="gx-feedback-message">${e(copy.message)}</label><textarea id="gx-feedback-message" name="message" maxlength="500" rows="3" placeholder="${e(copy.placeholder)}" aria-describedby="gx-feedback-count"></textarea><div class="gx-message-meta"><span>${icon('lock')} ${e(copy.private)}</span><output id="gx-feedback-count" for="gx-feedback-message">0 / 500</output></div>
+  <p class="gx-local-note">${e(copy.local)}</p><p class="gx-feedback-error" role="alert" hidden></p><button type="submit" class="gx-primary" disabled>${e(copy.send)} ${icon('arrow')}</button>
+ </form>`;
+ const body=`<div class="gx-scroll restaurant-information-scroll">${links.length?`<nav class="gx-links" aria-label="${e(copy.title)}">${links.map(([url,name,mark])=>`<a href="${e(url)}" target="_blank" rel="noopener noreferrer"><span class="gx-link-icon">${mark}</span><span>${e(name)}</span></a>`).join('')}</nav>`:''}
+  <section class="gx-feedback">${form}</section><section class="guest-events"><h3>${e(copy.events)}</h3>${events.length?events.map(item=>`<article class="guest-event"><time datetime="${e(item.date)}">${e(eventDateLabel(item))}</time><h4>${e(item.title)}</h4>${item.description?`<p>${e(item.description)}</p>`:''}</article>`).join(''):`<p class="guest-events-empty">${e(copy.empty)}</p>`}</section></div>`;
+ return guestExperienceSheet(copy.title,db.restaurant,body,'restaurant-information-sheet');
+}
+function submitGuestFeedback(form){
+ if(ui.feedbackSaved||form!==root.querySelector('#gx-feedback-form'))return;
+ const data=new FormData(form),error=form.querySelector('.gx-feedback-error');
+ try{
+  const feedback=createGuestFeedback(Number(data.get('rating')),String(data.get('category')||''),String(data.get('message')||''),{
+   id:crypto.randomUUID?.()||uid(), restaurantId, table:ui.table, visitId:currentTableVisit?.id??null, createdAt:new Date().toISOString(),
+  });
+  localStorage.setItem(feedbackKey,JSON.stringify([feedback,...readFeedback()]));
+  ui.feedbackSaved=true;
+  render();
+  root.querySelector('.gx-confirmation')?.focus();
+ }catch{error.hidden=false;error.textContent=INFORMATION_COPY[ui.lang].error;}
 }
 
 function localToday(){const now=new Date();return [now.getFullYear(),pad(now.getMonth()+1),pad(now.getDate())].join('-');}
@@ -602,9 +710,20 @@ function mizoraTables() {
 }
 
 function mizoraWishlist(){
- const items=db.wishlist.map(dish).filter(Boolean);
- return `<div class="guest-modal-backdrop cart-backdrop" data-act="close-modal"><section class="guest-sheet mizora-sheet mizora-cart-sheet wishlist-sheet" role="dialog" aria-modal="true" aria-label="${e(tr('wishlist'))}"><div class="sheet-handle"></div><header class="sheet-head"><div><span class="wishlist-eyebrow">${e(db.restaurant)}</span><h2>${e(tr('wishlist'))}</h2></div><button class="icon-close" data-act="close-modal" aria-label="${e(tr('dismiss'))}">${icon('close')}</button></header>
- <ul class="cart-items wishlist-items">${items.length?items.map(d=>`<li class="cart-item wishlist-item"><button class="wishlist-item-open" data-act="open" data-id="${e(d.id)}" ${d.live?'':'disabled'}>${dishPhoto(d,'overview',{alt:''})}<span class="cart-item-detail"><strong>${e(dishText(d,'name'))}</strong><span>${d.live?fmt(d.price):e(tr('unavailable'))}</span></span></button><button class="wishlist-remove" data-act="wishlist-remove" data-id="${e(d.id)}" aria-label="${e(tr('removeDish')+' · '+dishText(d,'name'))}">${icon('heart')}</button></li>`).join(''):`<li class="empty-cart empty-wishlist">${icon('heart')}<h3>${e(tr('wishlistEmpty'))}</h3><p>${e(tr('wishlistHint'))}</p></li>`}</ul><footer class="cart-footer"><button class="cart-continue" data-act="close-modal">${e(tr('continue'))}${icon('arrow')}</button></footer></section></div>`;
+ const copy=WISHLIST_VISIT_COPY[ui.lang],visit=currentTableVisit;
+ const items=Object.entries(visit?.items||{}).map(([id,quantity])=>({d:dish(id),quantity})).filter(item=>item.d);
+ const prices=new Map(items.map(({d})=>[d.id,d.price]));
+ const total=selectionTotal(Object.fromEntries(items.map(({d,quantity})=>[d.id,quantity])),prices,visit?.currency||restaurantProfile.currency);
+ const count=items.reduce((sum,item)=>sum+item.quantity,0);
+ const table=ui.table===null?'':` · ${tr('changeTable')} ${pad(ui.table)}`;
+ const quantityButton=(action,description,d,mark,disabled=false)=>`<button type="button" data-act="${action}" data-id="${e(d.id)}" aria-label="${e(description+' · '+dishText(d,'name'))}" ${disabled?'disabled':''}>${icon(mark)}</button>`;
+ const selected=items.length?`<ul class="gx-wishlist-items">${items.map(({d,quantity})=>`<li class="wishlist-item gx-wishlist-item">
+  <button class="wishlist-item-open" data-act="open" data-id="${e(d.id)}" ${d.live?'':'disabled'}>${dishPhoto(d,'overview',{alt:''})}<span><strong>${e(dishText(d,'name'))}</strong><small>${e(fmt(d.price))} · ${e(tr('each'))}</small></span></button><strong class="gx-line-total">${e(fmt(selectionTotal({[d.id]:quantity},prices,visit.currency)))}</strong>
+  <div class="gx-line-actions"><div class="gx-quantity" role="group" aria-label="${e(dishText(d,'name'))}">${quantityButton('wishlist-decrease',copy.minus,d,'minus')}<output>${quantity}</output>${quantityButton('wishlist-increase',copy.plus,d,'plus',!d.live)}</div>${quantityButton('wishlist-remove',copy.remove,d,'trash')}</div>
+ </li>`).join('')}</ul>`:`<div class="empty-wishlist gx-wishlist-empty">${icon('heart')}<p>${e(copy.empty)}</p></div>`;
+ const body=`<div class="gx-scroll gx-wishlist-scroll"><p class="gx-local-note">${e(copy.local)}</p>${selected}${visit?`<button class="gx-new-visit" data-act="wishlist-reset">${e(copy.newVisit)}</button>`:''}</div>
+ <footer class="gx-wishlist-footer"><div class="gx-wishlist-totals" role="status"><span>${e(copy.items)} <strong>${count}</strong></span><span>${e(copy.total)} <strong>${e(fmt(total))}</strong></span></div><button class="gx-primary" data-act="close-modal">${e(copy.explore)} ${icon('arrow')}</button><p>${e(copy.note)}</p></footer>`;
+ return guestExperienceSheet(copy.title,db.restaurant+table,body,'wishlist-sheet',copy.shared);
 }
 
 function mizoraReview() {
@@ -630,13 +749,13 @@ function guestModal(){if(!ui.modal)return '';if(restaurantProfile && ui.modal===
  }
  if(ui.modal==='details'){
   const d=chosen();if(!d)return '';
-  const allergenNote=d.allergensVerified?tr('verifiedInfo'):tr('allergenNotVerified');
+  const allergenNote=(restaurantProfile?hasVerifiedAllergenDeclaration(d,MIZORA_ALLERGENS):d.allergensVerified)?tr('verifiedInfo'):tr('allergenNotVerified');
   const nutrition = ui.detailTab === 'nutrition';
   return `<div class="guest-modal-backdrop allergen-backdrop" data-act="close-modal">
     <section class="allergen-card" role="dialog" aria-modal="true" aria-label="${e(tr('details'))}">
       <div class="allergen-card-head"><h2>${e(tr(nutrition ? 'nutrition' : 'allergens'))}</h2><button class="icon-close" data-act="close-modal" aria-label="${e(tr('dismiss'))}">${icon('close')}</button></div>
       <div class="detail-switch" role="group" aria-label="${e(tr('details'))}">${['allergens','nutrition'].map(tab => `<button data-act="detail-tab" data-value="${tab}" aria-pressed="${tab === ui.detailTab}">${e(tr(tab))}</button>`).join('')}</div>
- ${nutrition ? nutritionPanel(d) : `${d.allergens?.length ? renderAllergenChips(d.allergens,true) : `<p class="allergen-empty">${e(tr('noAllergens'))}</p>`}<p class="allergen-card-note">${e(allergenNote)}</p>`}
+ ${nutrition ? nutritionPanel(d) : `${d.allergens?.length ? renderAllergenChips(d.allergens,true) : `<p class="allergen-empty">${e(tr('noAllergens'))}</p>`}${restaurantProfile&&confirmedPreferences(d).length?`<h3 class="confirmed-preference-title">${e(tr('preferences'))}</h3><div class="guest-preference-details">${confirmedPreferences(d).map(key=>`<span>${guestIconImage(key)}${e(guestIconEntry(key).full[ui.lang])}</span>`).join('')}</div>`:''}<p class="allergen-card-note">${e(allergenNote)}</p>${restaurantProfile?`<p class="allergen-card-note">${e(tr('lactoseNote'))}</p>`:''}`}
     </section></div>`;
  }
  if(ui.modal==='tables')return `<div class="guest-modal-backdrop" data-act="close-modal"><div class="guest-sheet ${restaurantProfile?'mizora-table-sheet':''}" role="dialog" aria-modal="true" aria-label="${e(tr('changeTableTitle'))}"><div class="sheet-handle"></div><div class="sheet-head"><div><span class="micro-overline">${e(db.restaurant)}${restaurantProfile?'':' / DEMO'}</span><h2>${e(tr('changeTableTitle'))}</h2></div><button class="icon-close" data-act="close-modal" aria-label="${e(tr('dismiss'))}">${icon('close')}</button></div><div class="table-pick-grid">${db.tables.map(t=>`<button class="${t.number===ui.table?'active':''}" data-act="set-table" data-value="${t.number}" ${t.active ? '' : 'disabled'}>${e(tr('changeTable'))} ${pad(t.number)}</button>`).join('')}</div>${restaurantProfile?'':`<p class="sheet-disclaimer">${e(tr('tableNote'))}</p>`}</div></div>`;
@@ -806,6 +925,18 @@ function languageAnalytics() {
   }).join('')}<p class="analytics-footnote">${total?total+' recorded interactions. Not unique guests.':'New menu opens and language selections will appear here.'}</p></section>`;
 }
 
+const FEEDBACK_STATUS_LABELS={new:'New',review:'In review',resolved:'Resolved'};
+function guestFeedbackAnalytics(){
+ const records=readFeedback(),summary=summarizeGuestFeedback(records);
+ const average=summary.average===null?'—':new Intl.NumberFormat('en',{maximumFractionDigits:1,minimumFractionDigits:1}).format(summary.average)+' / 5';
+ const topic=key=>INFORMATION_COPY.en.topics[guestFeedbackCategories.indexOf(key)];
+ return `<section class="panel gx-owner-feedback" aria-labelledby="gx-owner-feedback-title">
+  <div class="panel-top"><div><h2 id="gx-owner-feedback-title">Guest feedback</h2><p>Private feedback from this demo browser.</p></div><span class="data-tag">Local responses</span></div>
+  <div class="gx-owner-feedback-summary">${ownerMetric('Total responses',summary.total,'eye')}${ownerMetric('Average rating',average,'star')}</div>
+  ${summary.total?`<div class="gx-owner-feedback-insights"><section><h3>Rating distribution</h3><ul>${summary.distribution.map((count,i)=>`<li><span>${i+1} star${i?'s':''}</span><meter min="0" max="${summary.total}" value="${count}" aria-label="${i+1} star responses"></meter><b>${count}</b></li>`).join('')}</ul></section><section><h3>Top categories</h3>${summary.categories.length?`<ul>${summary.categories.map(([key,count])=>`<li><span>${e(topic(key))}</span><b>${count}</b></li>`).join('')}</ul>`:'<p class="analytics-footnote">Guests have left category selection open.</p>'}</section></div>
+  <ul class="gx-owner-feedback-list">${records.map(record=>`<li><div class="gx-owner-feedback-record"><div><strong>${icon('star')} ${record.rating} / 5${record.category&&topic(record.category)?' · '+e(topic(record.category)):''}</strong><p><time datetime="${e(record.createdAt)}">${e(new Date(record.createdAt).toLocaleString('en',{dateStyle:'medium',timeStyle:'short'}))}</time>${record.table?' · Table '+pad(record.table):''}</p></div><label class="gx-owner-feedback-status"><span>Review status</span><select id="feedback-status-${e(record.id)}" data-feedback-status="${e(record.id)}">${guestFeedbackStatuses.map(key=>`<option value="${key}" ${record.status===key?'selected':''}>${FEEDBACK_STATUS_LABELS[key]}</option>`).join('')}</select></label></div>${record.message?`<p class="gx-owner-feedback-message">${e(record.message)}</p>`:''}</li>`).join('')}</ul><p class="analytics-footnote gx-feedback-status-error" role="alert" hidden>Could not save the review status.</p>`:`<div class="analytics-empty">${icon('star')}<p>No private feedback yet.</p><small>Responses from Your experience appear here after a guest saves feedback in this browser.</small></div>`}
+ </section>`;
+}
 function analytics() {
   const rate = viewCartRate(db.events.measuredViews,db.events.viewsWithAdd);
   const cartValue = Object.values(db.carts).reduce((sum,cart) => sum + Math.round(cartAmount(cart)*100),0) / 100;
@@ -819,6 +950,7 @@ function analytics() {
       <div class="analytics-metrics">${metrics.map(([label,value,symbol]) => ownerMetric(label,value,symbol)).join('')}</div>
       <p class="analytics-footnote">${db.events.viewsWithAdd} of ${db.events.measuredViews} measured menu opens included a cart addition. Cart value reflects local selections, not orders or revenue.</p>
     </section>
+    ${restaurantProfile?guestFeedbackAnalytics():''}
     <div class="analytics-grid">${trafficChart()}${languageAnalytics()}
       ${rankList('Popular dishes',db.dishes.filter(d => d.category !== 'drinks'))}
       <section class="panel"><div class="panel-top"><h2>Table activity</h2><span class="data-tag">${db.events.qrPreviews} QR previews</span></div><div class="table-activity">${db.tables.map(t => `<div class="${db.events.byTable[pad(t.number)]?'has-activity':''}"><span>Table ${pad(t.number)}</span><b>${db.events.byTable[pad(t.number)] || 0}</b><small>${t.active?'Active':'Paused'}</small></div>`).join('')}</div><p class="analytics-footnote">Local menu opens and interactions attributed to each table.</p></section>
@@ -826,7 +958,7 @@ function analytics() {
     </div>`;
 }
 function settings(){return `${ownerToolbar('Settings','Manage reviews, guest languages, local data and restaurant preferences.')}<div class="settings-layout">
- <section class="panel feedback-settings"><div class="settings-card-heading">${icon('star')}<div><h2>Guest feedback & review links</h2><p>Optional ways for guests to connect with your restaurant.</p></div></div><form id="profile-form"><label class="form-field">Instagram profile<input name="instagramUrl" type="url" placeholder="https://www.instagram.com/…/" value="${e(db.instagramUrl||'')}"></label><label class="form-field">Google review link<input name="reviewUrl" type="url" placeholder="Paste your official Google review URL" value="${e(db.reviewUrl||'')}" aria-describedby="review-link-hint"></label><label class="review-enabled"><input type="checkbox" name="reviewEnabled" ${db.reviewEnabled!==false?'checked':''}> Show review link in guest menu</label><p class="settings-hint" id="review-link-hint">HTTPS Google links only. Reviews are voluntary, with no incentives, ratings gate or automatic pop-up.</p><button class="primary-btn" type="submit">${icon('check')} Save feedback settings</button></form></section>
+ <section class="panel feedback-settings"><div class="settings-card-heading">${icon('star')}<div><h2>Guest feedback & review links</h2><p>Optional ways for guests to connect with your restaurant.</p></div></div><form id="profile-form">${restaurantProfile?`<label class="form-field">Website URL<input name="websiteUrl" type="url" placeholder="https://…" value="${e(db.websiteUrl||'')}"></label>`:''}<label class="form-field">Instagram profile<input name="instagramUrl" type="url" placeholder="https://www.instagram.com/…/" value="${e(db.instagramUrl||'')}"></label><label class="form-field">Google review link<input name="reviewUrl" type="url" placeholder="Paste your official Google review URL" value="${e(db.reviewUrl||'')}" aria-describedby="review-link-hint"></label><label class="review-enabled"><input type="checkbox" name="reviewEnabled" ${db.reviewEnabled!==false?'checked':''}> Show review link in guest menu</label><p class="settings-hint" id="review-link-hint">HTTPS Google links only. Reviews are voluntary, with no incentives, ratings gate or automatic pop-up.</p><button class="primary-btn" type="submit">${icon('check')} Save feedback settings</button></form></section>
  <section class="panel language-settings"><div class="settings-card-heading">${icon('globe')}<div><h2>Guest languages</h2><p>Three languages, included in your guest menu.</p></div></div><div class="language-summary" aria-label="Included guest languages">${GUEST_LANGUAGES.map(l=>`<span>${languageFlag(l.id)}${l.id.toUpperCase()}</span>`).join('')}</div><p class="helper-copy">English, Deutsch and Español are bundled offline. The guest language button changes the interface, categories and available menu descriptions.</p><div class="translation-entry"><div>${icon('globe')}<span><b>Dish translations in Menu Editing</b><small>Edit names and descriptions for each language.</small></span></div><button class="secondary-btn" data-act="owner-translations">${icon('pencil')} Open translations</button></div></section>
  <section class="panel data-settings"><div class="settings-card-heading">${icon('layers')}<div><h2>Local workspace data</h2><p>Your browser workspace for ${e(db.restaurant)}.</p></div></div><div class="settings-action-row">${icon('layers')}<span><b>Selected restaurant</b><small>${e(db.restaurant)} · ${db.dishes.length} dishes · ${db.tables.length} tables</small></span><span class="data-tag">Browser only</span></div><div class="settings-action-row">${icon('clock')}<span><b>Reset to sample menu</b><small>Restore this restaurant’s original prototype content.</small></span><button class="secondary-btn" data-act="reset">Reset demo</button></div><div class="settings-action-row">${icon('download')}<span><b>Export local data</b><small>Download menu, tables, events, requests and settings.</small></span><button class="secondary-btn" data-act="export">${icon('download')} Export</button></div><p class="workspace-note">Changes affect this browser only. No live orders or shared restaurant data are connected.</p></section>
  <section class="panel preferences-settings"><div class="settings-card-heading">${icon('settings')}<div><h2>Restaurant preferences</h2><p>The current configuration of your guest experience.</p></div></div><dl class="preferences-list"><div><dt>${icon('dish')} Menu profile</dt><dd>${e(db.restaurant)}</dd></div><div><dt>${icon('image')} Photography</dt><dd>9:16 Explore · 4:3 Overview</dd></div><div><dt>${icon('qr')} QR destinations</dt><dd>Demo placeholders</dd></div><div><dt>${icon('leaf')} Dietary information</dt><dd>${db.dishes.every(d=>d.dietaryVerified)?'Restaurant checked':'Confirmation required'}</dd></div></dl><p class="settings-hint">Dietary and allergen estimates require restaurant confirmation. Cross-contact cannot be checked here.</p>${ownerGuestPreview('Open guest menu')}</section></div>`;}
@@ -922,13 +1054,19 @@ function findAction(description, scope = root) {
 }
 
 function render({resetOverview=false}={}) {
-  if (ui.surface === 'guest') ensureGuestSelected();
+  if (ui.surface === 'guest') {
+    ensureGuestSelected();
+    const priorVisit=currentTableVisit?.id;
+    currentTableVisit=syncTableVisit();
+    if(priorVisit&&priorVisit!==currentTableVisit?.id)ui.feedbackSaved=false;
+  }
   const previousDialog = root.querySelector('[role="dialog"]');
   const active = describeAction(document.activeElement);
   const overview = root.querySelector('#overview-scroll');
   const categories = root.querySelector('#quick-tabs');
   const filters = root.querySelector('.filter-scroll');
   const mediaScroll = root.querySelector('.media-list')?.scrollTop;
+  const sheetScroll = previousDialog?.querySelector('.gx-scroll')?.scrollTop;
   if (resetOverview) ui.overviewScroll=0;
   else if (overview) ui.overviewScroll = overview.scrollTop;
   if (categories) ui.categoryScroll = categories.scrollLeft;
@@ -946,6 +1084,7 @@ function render({resetOverview=false}={}) {
   if (newFilters) newFilters.scrollTop = ui.filterScroll;
   const dialog = root.querySelector('[role="dialog"]');
   if (dialog) {
+    if(previousDialog?.className===dialog.className&&sheetScroll!==undefined){const body=dialog.querySelector('.gx-scroll');if(body)body.scrollTop=sheetScroll;}
     for (let branch = dialog.parentElement; branch && branch !== root; branch = branch.parentElement) {
       const content = [...branch.children].find(child => child.contains(dialog));
       for (const sibling of branch.children) if (sibling !== content) sibling.inert = true;
@@ -976,12 +1115,18 @@ function copyText(s){if(navigator.clipboard&&window.isSecureContext)return navig
 
 const handleActions=async(act,node)=>{
 const val=node.dataset.value, id=node.dataset.id;
-if(['toggle-diet','set-spice','toggle-allergen','clear-filters','apply-filters','set-calorie'].includes(act))ui.overviewReturn=null;
+if(['toggle-diet','set-spice','toggle-allergen','clear-filters','apply-filters','set-calorie','set-price'].includes(act))ui.overviewReturn=null;
 
 switch(act){
  case 'surface':flipSurface(val);break;
  case 'guest-back':ui.mode='overview';ui.modal=null;render();break;
  case 'guest-information':db=loadDB();ui.modal='guest-information';render();break;
+ case 'feedback-category':{
+  const form=node.form,input=form.elements.category;
+  input.value=input.value===val?'':val;
+  for(const button of form.querySelectorAll('[data-act=feedback-category]'))button.setAttribute('aria-pressed',String(button.dataset.value===input.value));
+  break;
+ }
  case 'new-event':ui.eventEditor=null;ui.eventDraft=null;render();document.querySelector('#event-form input')?.focus();break;
  case 'event-filter':ui.eventFilter=val;render();break;
  case 'qr-filter':ui.qrFilter=val;render();break;
@@ -1002,8 +1147,11 @@ switch(act){
  case 'open-review':if(validReviewUrl(reviewLink()))window.open(reviewLink(),'_blank','noopener,noreferrer');break;
  case 'category':showCategory(val);break;
  case 'menu-return':restoreOverviewFilters();ui.mode='overview';ui.modal=null;render();break;
- case 'wishlist-toggle':if(restaurantProfile)toggleWishlist(id);break;
- case 'wishlist-remove':if(restaurantProfile&&isSaved(id))toggleWishlist(id);break;
+ case 'wishlist-toggle':
+ case 'wishlist-increase':await updateTableWishlist('increase',id);break;
+ case 'wishlist-decrease':await updateTableWishlist('decrease',id);break;
+ case 'wishlist-remove':await updateTableWishlist('remove',id);break;
+ case 'wishlist-reset':await updateTableWishlist('reset');break;
  case 'wishlist':ui.modal='wishlist';render();break;
  case 'share-dish':await shareDish();break;
  case 'mode':if(val==='overview')restoreOverviewFilters();ui.mode=val;ui.modal=null;render();break;
@@ -1030,6 +1178,7 @@ switch(act){
   if(!ownerNav.some(([key])=>key===val))break;
   if (ui.ownerTab !== val) window.scrollTo({top:0,behavior:'instant'});
   ui.ownerTab=val;ui.editor=null;render();break;
+ case 'set-price':ui.guestFilters.price=iconManifest.budget_thresholds_major.includes(Number(val))&&val!=='any'?Number(val):null;ensureGuestSelected();render();break;
  case 'set-calorie':
   ui.guestFilters.calorie=CALORIE_LIMITS.includes(Number(val)) ? Number(val) : null;
   ensureGuestSelected();render();break;
@@ -1084,11 +1233,20 @@ switch(act){
  case 'analytics-export':downloadPayload(trafficDataset(),'Foodie_Atticoo_'+restaurantId+'_'+(ui.analyticsMode==='sample'?'Example':'Local')+'_Traffic.json');break;
  case 'owner-translations':ui.editor=db.dishes[0]?.id||'new';render();root.querySelector('.editor-language-group')?.scrollIntoView({block:'start'});break;
  case 'export':downloadJSON();break;
- case 'reset':if(confirm('Reset all saved menu edits, carts, wishlists, events, requests and interactions for '+db.restaurant+' in this browser? Other restaurant profiles will remain unchanged.')){db=clone(DEFAULT_DB);if(restaurantProfile)db.wishlist=[];ui.overviewReturn=null;ui.category='all';ui.selected=restaurantProfile ? 'mizora-03' : 'roasted-salmon';ui.table=7;ui.filter='all';ui.search='';ui.guestFilters=emptyFilters();ui.appearanceDraft=null;ui.appearanceStatus='';ui.mediaDish=null;ui.mediaDraft=null;ui.mediaError='';ui.mediaFilter='all';ui.eventEditor=null;ui.eventDraft=null;ui.eventFilter='all';ui.qrFilter='all';ui.qrSearch='';ui.viewAdded=false;ui.lang='en';save();render()}break;
+ case 'reset':if(confirm('Reset all saved menu edits, feedback, selections, events, requests and interactions for '+db.restaurant+' in this browser? Other restaurant profiles will remain unchanged.')){db=clone(DEFAULT_DB);if(restaurantProfile){localStorage.removeItem(feedbackKey);localStorage.removeItem(tableWishlistKey);ui.feedbackSaved=false;}ui.overviewReturn=null;ui.category='all';ui.selected=restaurantProfile ? 'mizora-03' : 'roasted-salmon';ui.table=7;ui.filter='all';ui.search='';ui.guestFilters=emptyFilters();ui.appearanceDraft=null;ui.appearanceStatus='';ui.mediaDish=null;ui.mediaDraft=null;ui.mediaError='';ui.mediaFilter='all';ui.eventEditor=null;ui.eventDraft=null;ui.eventFilter='all';ui.qrFilter='all';ui.qrSearch='';ui.viewAdded=false;ui.lang='en';save();render()}break;
  default:break;
 }}
 root.addEventListener('change',ev=>{
   const input=ev.target;
+  if(input.dataset.feedbackStatus&&ui.surface==='owner'&&ui.ownerTab==='analytics'){
+    const records=readFeedback(),record=records.find(item=>item.id===input.dataset.feedbackStatus);
+    if(record&&guestFeedbackStatuses.includes(input.value)){
+      const prior=record.status;
+      try{record.status=input.value;localStorage.setItem(feedbackKey,JSON.stringify(records));}
+      catch{input.value=prior;root.querySelector('.gx-feedback-status-error').hidden=false;}
+    }
+    return;
+  }
   if(input.id==='media-dish-select'){ui.mediaDish=input.value;ui.mediaDraft=null;ui.mediaError='';render();return;}
   if(input.dataset.dishCategory){const item=dish(input.dataset.dishCategory);if(item&&CATS.slice(1).some(c=>c.id===input.value)){item.category=input.value;save();render();}return;}
   if(input.dataset.dishPrice){const item=dish(input.dataset.dishPrice),price=Number(input.value);if(item&&input.value!==''&&input.checkValidity()&&Number.isFinite(price)&&price>=0&&price<=999){item.price=price;if(restaurantProfile)item.menuMatched=false;save();render();}else input.reportValidity();}
@@ -1121,11 +1279,18 @@ root.addEventListener('submit',ev=>{
   if(current)Object.assign(current,item);else db.restaurantEvents.push(item);
   ui.eventEditor=item.id;ui.eventDraft=null;save();render();root.querySelector('#event-form .primary-btn')?.focus({preventScroll:true});
 });
+root.addEventListener('input',ev=>{
+ const input=ev.target,form=input.form;
+ if(form?.id!=='gx-feedback-form')return;
+ if(input.name==='rating')form.querySelector('[type=submit]').disabled=false;
+ if(input.name==='message')form.querySelector('output').textContent=input.value.length+' / 500';
+});
+root.addEventListener('submit',ev=>{if(ev.target.id==='gx-feedback-form'){ev.preventDefault();submitGuestFeedback(ev.target);}});
 root.addEventListener('input',ev=>{if(['event-form','profile-form'].includes(ev.target.form?.id))ev.target.setCustomValidity('');});
 root.addEventListener('click',async ev=>{const node=ev.target.closest('[data-act]');if(!node)return;const act=node.dataset.act;if(['close-modal','close-editor'].includes(act)&&ev.target!==node && (node.classList.contains('guest-modal-backdrop')||node.classList.contains('editor-backdrop')))return;ev.preventDefault();if(!root.querySelector('[role="dialog"]'))dialogTrigger=describeAction(node);await handleActions(act,node)});
 root.addEventListener('input',ev=>{if(ev.target.form?.id==='appearance-form'){updateAppearancePreview(ev.target);return}if(ev.target.getAttribute('aria-invalid')){ev.target.removeAttribute('aria-invalid');ev.target.removeAttribute('aria-describedby');document.getElementById('nutrition-error').hidden=true}if(ev.target.id==='table-search'){const input=ev.target,a=input.selectionStart,b=input.selectionEnd;ui.qrSearch=input.value;render();const next=document.getElementById('table-search');next?.focus();try{next?.setSelectionRange(a,b)}catch{}}if(ev.target.id==='owner-search'){const input=ev.target;const a=input.selectionStart,b=input.selectionEnd;ui.search=input.value;render();const next=document.getElementById('owner-search');next?.focus();try{next?.setSelectionRange(a,b)}catch{}}});
 
-root.addEventListener('submit',ev=>{if(ev.target.id==='appearance-form'){ev.preventDefault();saveAppearance(ev.target);return}if(ev.target.id==='dish-form'){ev.preventDefault();const fd=new FormData(ev.target),name=String(fd.get('name')||'').trim(),summary=String(fd.get('summary')||'').trim(),price=Number(fd.get('price')),components=String(fd.get('components')||'').split(',').map(s=>s.trim()).filter(Boolean);if(!name||!summary||!Number.isFinite(price)||price<0)return;const existing=ui.editor==='new'?null:dish(ui.editor),id=existing?.id||uid();const nutrition=readNutritionForm(ev.target,fd);if(nutrition===undefined)return;const record={...(existing||{}),nutrition,...(restaurantProfile ? {menuMatched:!!existing?.menuMatched && existing.name===name && existing.summary===summary && existing.price===price} : {}),id,name,summary,price,components,category:fd.get('category'),live:fd.has('live'),featured:fd.has('featured'),allergens:fd.getAll('allergen'),allergensVerified:fd.has('verified'),dietaryVerified:fd.has('dietaryVerified'),dietary:{...Object.fromEntries(DIET_KEYS.map(k=>[k,fd.has('diet_'+k)])),...(fd.get('spice')!=='' ? {spice:Number(fd.get('spice')||0)} : {})},translations:Object.fromEntries(['de','es'].map(lang=>[lang,{name:String(fd.get(lang+'_name')||'').trim(),summary:String(fd.get(lang+'_summary')||'').trim()}])),customPhoto:existing?.customPhoto||null,source:existing?.source||'Local menu entry'};if(existing)Object.assign(existing,record);else db.dishes.push(record);ui.selected=id;ui.editor=null;save();render();return}if(ev.target.id==='profile-form'){ev.preventDefault();const fd=new FormData(ev.target);const instagramUrl=String(fd.get('instagramUrl')||'').trim();if(instagramUrl&&!validInstagramUrl(instagramUrl)){ev.target.elements.instagramUrl.setCustomValidity('Enter an HTTPS Instagram profile URL.');ev.target.elements.instagramUrl.reportValidity();return;}const reviewUrl=String(fd.get('reviewUrl')||'').trim();if(reviewUrl&&!validReviewUrl(reviewUrl)){ev.target.elements.reviewUrl.setCustomValidity('Enter an HTTPS Google review link (google.com, g.page or maps.app.goo.gl).');ev.target.elements.reviewUrl.reportValidity();return;}db.instagramUrl=instagramUrl;db.reviewUrl=reviewUrl;db.reviewEnabled=fd.has('reviewEnabled');save();render();renderToastOnly('Feedback settings saved locally')}});
+root.addEventListener('submit',ev=>{if(ev.target.id==='appearance-form'){ev.preventDefault();saveAppearance(ev.target);return}if(ev.target.id==='dish-form'){ev.preventDefault();const fd=new FormData(ev.target),name=String(fd.get('name')||'').trim(),summary=String(fd.get('summary')||'').trim(),price=Number(fd.get('price')),components=String(fd.get('components')||'').split(',').map(s=>s.trim()).filter(Boolean);if(!name||!summary||!Number.isFinite(price)||price<0)return;const existing=ui.editor==='new'?null:dish(ui.editor),id=existing?.id||uid();const nutrition=readNutritionForm(ev.target,fd);if(nutrition===undefined)return;const record={...(existing||{}),nutrition,...(restaurantProfile ? {menuMatched:!!existing?.menuMatched && existing.name===name && existing.summary===summary && existing.price===price} : {}),id,name,summary,price,components,category:fd.get('category'),live:fd.has('live'),featured:fd.has('featured'),allergens:fd.getAll('allergen'),allergensVerified:fd.has('verified'),dietaryVerified:fd.has('dietaryVerified'),dietary:{...Object.fromEntries(DIET_KEYS.map(k=>[k,fd.has('diet_'+k)])),...(fd.get('spice')!=='' ? {spice:Number(fd.get('spice')||0)} : {})},translations:Object.fromEntries(['de','es'].map(lang=>[lang,{name:String(fd.get(lang+'_name')||'').trim(),summary:String(fd.get(lang+'_summary')||'').trim()}])),customPhoto:existing?.customPhoto||null,source:existing?.source||'Local menu entry'};if(existing)Object.assign(existing,record);else db.dishes.push(record);ui.selected=id;ui.editor=null;save();render();return}if(ev.target.id==='profile-form'){ev.preventDefault();const fd=new FormData(ev.target);const websiteUrl=String(fd.get('websiteUrl')||'').trim();if(websiteUrl&&!validWebsiteUrl(websiteUrl)){ev.target.elements.websiteUrl.setCustomValidity('Enter an HTTPS website URL.');ev.target.elements.websiteUrl.reportValidity();return;}const instagramUrl=String(fd.get('instagramUrl')||'').trim();if(instagramUrl&&!validInstagramUrl(instagramUrl)){ev.target.elements.instagramUrl.setCustomValidity('Enter an HTTPS Instagram profile URL.');ev.target.elements.instagramUrl.reportValidity();return;}const reviewUrl=String(fd.get('reviewUrl')||'').trim();if(reviewUrl&&!validReviewUrl(reviewUrl)){ev.target.elements.reviewUrl.setCustomValidity('Enter an HTTPS Google review link (google.com, g.page or maps.app.goo.gl).');ev.target.elements.reviewUrl.reportValidity();return;}db.websiteUrl=websiteUrl;db.instagramUrl=instagramUrl;db.reviewUrl=reviewUrl;db.reviewEnabled=fd.has('reviewEnabled');save();render();renderToastOnly('Feedback settings saved locally')}});
 root.addEventListener('scroll',ev=>{if(ev.target.id==='overview-scroll')ui.overviewScroll=ev.target.scrollTop;if(ev.target.id==='quick-tabs')ui.categoryScroll=ev.target.scrollLeft},true);
 let exploreTouch=null,lastWheel=0;
 const isExploreGestureTarget=target=>ui.surface==='guest'&&ui.mode==='explore'&&!ui.modal&&target.closest('.explore-hero')&&!target.closest('button,a,input,select,textarea,[contenteditable]');
@@ -1169,6 +1334,10 @@ document.addEventListener('keydown',ev=>{
     return;
   }
   if(ev.key==='Escape'){if(ui.modal){ui.modal=null;render()}else if(ui.editor){ui.editor=null;render()}return}if(ui.surface==='guest'&&ui.mode==='explore'&&!ui.modal&&['ArrowUp','ArrowDown'].includes(ev.key)&&!document.activeElement?.closest('input,select,textarea,[contenteditable],#quick-tabs')){ev.preventDefault();turnDish(ev.key==='ArrowDown'?1:-1)}});
+window.addEventListener('storage',ev=>{
+ if(ev.key===tableWishlistKey&&ui.surface==='guest'&&!['guest-information','language','filters'].includes(ui.modal))render();
+ if(ev.key===feedbackKey&&ui.surface==='owner'&&ui.ownerTab==='analytics')render();
+});
 if (ui.surface === 'guest') event('views');
 render();
 })();

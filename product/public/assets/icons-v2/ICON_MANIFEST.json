@@ -1,0 +1,371 @@
+{
+  "brand": "Foodie by Atticoo",
+  "version": "2.0.0",
+  "upstream": {
+    "name": "MenuDesign 14 allergen colour icons",
+    "url": "https://menudesign.net/allergens/icons/",
+    "license": "Terms and ISC note in licenses/MenuDesign_README_UNMODIFIED.txt",
+    "original_files_sha256": {
+      "01-gluten": "c398a394dd630c1f1b4eb65a1e58f3f52c81da8b296929e82fab9685324f6150",
+      "02-crustaceans": "4273340ddaa84a0fc38bc76f801acc49e163b2be212f8a29fe7b980a28eba85f",
+      "03-eggs": "04c4f29041027698f018c083f769f86022cf5c0b85395fe6db8e36a7214ddf6f",
+      "04-fish": "7be3bf4a98175f4cdcd8f82dedfc5dff1a43b2703fbf30caffc27a86af5425ef",
+      "05-peanuts": "efe586ada80e51ffa17e1d8c422ef8036959ad9e17d23f72d8ec9ec6e78cd354",
+      "06-soybeans": "d5fea05365f79dda1e2b357e9de1413cff5d86a52a9488464714fe38f17a15c1",
+      "07-milk": "28a77d1337902b0f0aea4652f4f1bb150f356a9d856894c0e59149345eba2c62",
+      "08-tree-nuts": "b48e3fa4fb3b3f7cb14e7525b498c0e504a9d5d22545acc9f8920524325212b9",
+      "09-celery": "753d404ab833f7f1180538b992d248068e7f662a67573934950d5102fec4c46c",
+      "10-mustard": "ac4605d5ed54cf6495efc5ad86a04ef5e8578f2df6fd9de56153ae8e4a90d833",
+      "11-sesame": "96b8f7e2284ee7668b20874e186d7f1aeda66b1e818b7fcf321261b860b94884",
+      "12-sulphites": "b5b57e7934685bd57a51ca739d6831cb632d416bd2af6e8f58adad2cea49d591",
+      "13-lupin": "ef053529eeead1c9324e9368e760e234756708707e8d2264c612bd9d73605180",
+      "14-molluscs": "777d5237d6dc32063ea66d75af7abb3c84098921e5c5181c7650fa8233a66d72"
+    },
+    "original_icons_unchanged": true
+  },
+  "allergens": [
+    {
+      "key": "gluten",
+      "file": "assets/allergens/01-gluten.svg",
+      "source": "MenuDesign colour SVG, unchanged",
+      "full": {
+        "en": "Cereals containing gluten",
+        "de": "Glutenhaltiges Getreide",
+        "es": "Cereales con gluten"
+      },
+      "short": {
+        "en": "Gluten",
+        "de": "Gluten",
+        "es": "Gluten"
+      }
+    },
+    {
+      "key": "crustaceans",
+      "file": "assets/allergens/02-crustaceans.svg",
+      "source": "MenuDesign colour SVG, unchanged",
+      "full": {
+        "en": "Crustaceans",
+        "de": "Krebstiere",
+        "es": "Crustáceos"
+      },
+      "short": {
+        "en": "Crust.",
+        "de": "Krebst.",
+        "es": "Crust."
+      }
+    },
+    {
+      "key": "eggs",
+      "file": "assets/allergens/03-eggs.svg",
+      "source": "MenuDesign colour SVG, unchanged",
+      "full": {
+        "en": "Eggs",
+        "de": "Eier",
+        "es": "Huevos"
+      },
+      "short": {
+        "en": "Eggs",
+        "de": "Eier",
+        "es": "Huevos"
+      }
+    },
+    {
+      "key": "fish",
+      "file": "assets/allergens/04-fish.svg",
+      "source": "MenuDesign colour SVG, unchanged",
+      "full": {
+        "en": "Fish",
+        "de": "Fisch",
+        "es": "Pescado"
+      },
+      "short": {
+        "en": "Fish",
+        "de": "Fisch",
+        "es": "Pescado"
+      }
+    },
+    {
+      "key": "peanuts",
+      "file": "assets/allergens/05-peanuts.svg",
+      "source": "MenuDesign colour SVG, unchanged",
+      "full": {
+        "en": "Peanuts",
+        "de": "Erdnüsse",
+        "es": "Cacahuetes"
+      },
+      "short": {
+        "en": "Peanuts",
+        "de": "Erdnüsse",
+        "es": "Cacahuetes"
+      }
+    },
+    {
+      "key": "soybeans",
+      "file": "assets/allergens/06-soybeans.svg",
+      "source": "MenuDesign colour SVG, unchanged",
+      "full": {
+        "en": "Soybeans",
+        "de": "Soja",
+        "es": "Soja"
+      },
+      "short": {
+        "en": "Soy",
+        "de": "Soja",
+        "es": "Soja"
+      }
+    },
+    {
+      "key": "milk",
+      "file": "assets/allergens/07-milk.svg",
+      "source": "MenuDesign colour SVG, unchanged",
+      "full": {
+        "en": "Milk",
+        "de": "Milch",
+        "es": "Leche"
+      },
+      "short": {
+        "en": "Milk",
+        "de": "Milch",
+        "es": "Leche"
+      }
+    },
+    {
+      "key": "tree_nuts",
+      "file": "assets/allergens/08-tree-nuts.svg",
+      "source": "MenuDesign colour SVG, unchanged",
+      "full": {
+        "en": "Tree nuts",
+        "de": "Schalenfrüchte",
+        "es": "Frutos de cáscara"
+      },
+      "short": {
+        "en": "T. nuts",
+        "de": "Schalenfr.",
+        "es": "Fr. cásc."
+      }
+    },
+    {
+      "key": "celery",
+      "file": "assets/allergens/09-celery.svg",
+      "source": "MenuDesign colour SVG, unchanged",
+      "full": {
+        "en": "Celery",
+        "de": "Sellerie",
+        "es": "Apio"
+      },
+      "short": {
+        "en": "Celery",
+        "de": "Sellerie",
+        "es": "Apio"
+      }
+    },
+    {
+      "key": "mustard",
+      "file": "assets/allergens/10-mustard.svg",
+      "source": "MenuDesign colour SVG, unchanged",
+      "full": {
+        "en": "Mustard",
+        "de": "Senf",
+        "es": "Mostaza"
+      },
+      "short": {
+        "en": "Mustard",
+        "de": "Senf",
+        "es": "Mostaza"
+      }
+    },
+    {
+      "key": "sesame",
+      "file": "assets/allergens/11-sesame.svg",
+      "source": "MenuDesign colour SVG, unchanged",
+      "full": {
+        "en": "Sesame seeds",
+        "de": "Sesam",
+        "es": "Sésamo"
+      },
+      "short": {
+        "en": "Sesame",
+        "de": "Sesam",
+        "es": "Sésamo"
+      }
+    },
+    {
+      "key": "sulphites",
+      "file": "assets/allergens/12-sulphites.svg",
+      "source": "MenuDesign colour SVG, unchanged",
+      "full": {
+        "en": "Sulphur dioxide and sulphites",
+        "de": "Schwefeldioxid und Sulfite",
+        "es": "Dióxido de azufre y sulfitos"
+      },
+      "short": {
+        "en": "Sulph.",
+        "de": "Sulfite",
+        "es": "Sulfitos"
+      }
+    },
+    {
+      "key": "lupin",
+      "file": "assets/allergens/13-lupin.svg",
+      "source": "MenuDesign colour SVG, unchanged",
+      "full": {
+        "en": "Lupin",
+        "de": "Lupinen",
+        "es": "Altramuces"
+      },
+      "short": {
+        "en": "Lupin",
+        "de": "Lupinen",
+        "es": "Altramuces"
+      }
+    },
+    {
+      "key": "molluscs",
+      "file": "assets/allergens/14-molluscs.svg",
+      "source": "MenuDesign colour SVG, unchanged",
+      "full": {
+        "en": "Molluscs",
+        "de": "Weichtiere",
+        "es": "Moluscos"
+      },
+      "short": {
+        "en": "Molluscs",
+        "de": "Weicht.",
+        "es": "Moluscos"
+      }
+    }
+  ],
+  "preferences": [
+    {
+      "key": "vegetarian",
+      "file": "assets/preferences/vegetarian.svg",
+      "full": {
+        "en": "Vegetarian",
+        "de": "Vegetarisch",
+        "es": "Vegetariano"
+      },
+      "short": {
+        "en": "Veg",
+        "de": "Veg",
+        "es": "Veg"
+      },
+      "source": "Foodie custom circular design; gluten-free/lactose-free contain licensed MenuDesign pictograms with slash",
+      "verification": "Use only if confirmed by restaurant; do not infer from dish photo"
+    },
+    {
+      "key": "vegan",
+      "file": "assets/preferences/vegan.svg",
+      "full": {
+        "en": "Vegan",
+        "de": "Vegan",
+        "es": "Vegano"
+      },
+      "short": {
+        "en": "Vegan",
+        "de": "Vegan",
+        "es": "Vegano"
+      },
+      "source": "Foodie custom circular design; gluten-free/lactose-free contain licensed MenuDesign pictograms with slash",
+      "verification": "Use only if confirmed by restaurant; do not infer from dish photo"
+    },
+    {
+      "key": "gluten-free",
+      "file": "assets/preferences/gluten-free.svg",
+      "full": {
+        "en": "Gluten-free",
+        "de": "Glutenfrei",
+        "es": "Sin gluten"
+      },
+      "short": {
+        "en": "Gluten-free",
+        "de": "Glutenfrei",
+        "es": "Sin gluten"
+      },
+      "source": "Foodie custom circular design; gluten-free/lactose-free contain licensed MenuDesign pictograms with slash",
+      "verification": "Use only if confirmed by restaurant; do not infer from dish photo"
+    },
+    {
+      "key": "lactose-free",
+      "file": "assets/preferences/lactose-free.svg",
+      "full": {
+        "en": "Lactose-free",
+        "de": "Laktosefrei",
+        "es": "Sin lactosa"
+      },
+      "short": {
+        "en": "Lactose-free",
+        "de": "Laktosefrei",
+        "es": "Sin lactosa"
+      },
+      "source": "Foodie custom circular design; gluten-free/lactose-free contain licensed MenuDesign pictograms with slash",
+      "verification": "Use only if confirmed by restaurant; do not infer from dish photo"
+    },
+    {
+      "key": "halal",
+      "file": "assets/preferences/halal.svg",
+      "full": {
+        "en": "Halal",
+        "de": "Halal",
+        "es": "Halal"
+      },
+      "short": {
+        "en": "Halal",
+        "de": "Halal",
+        "es": "Halal"
+      },
+      "source": "Foodie custom circular design; gluten-free/lactose-free contain licensed MenuDesign pictograms with slash",
+      "verification": "Use only if confirmed by restaurant; do not infer from dish photo"
+    }
+  ],
+  "utility": [
+    {
+      "key": "spice",
+      "file": "assets/utility/spice.svg",
+      "full": {
+        "en": "Spice level",
+        "de": "Schärfegrad",
+        "es": "Nivel de picante"
+      }
+    },
+    {
+      "key": "budget",
+      "file": "assets/utility/budget.svg",
+      "full": {
+        "en": "Maximum dish price",
+        "de": "Maximaler Gerichtspreis",
+        "es": "Precio máximo por plato"
+      }
+    }
+  ],
+  "budget_thresholds_minor_units": "Not fixed: use currency major units (restaurant config).",
+  "budget_thresholds_major": [
+    null,
+    20,
+    40,
+    60,
+    80,
+    100,
+    150,
+    200
+  ],
+  "behavior": {
+    "budget": "maximum menu-item price, inclusive (<= threshold), not cart total",
+    "currency": "render with restaurant currency (USD in current MIZORA screenshot), never hardcode $ across tenants",
+    "unknown_price": "do not include in constrained price results",
+    "unknown_allergen": "do not present as allergen-free",
+    "unknown_dietary": "do not mark as diet-certified",
+    "unknown_spice": "do not silently classify as mild",
+    "unknown_calories": "do not include in constrained calorie results",
+    "combined_filters": "logical AND between active preferences, allergen exclusions, calories, price, max spice; retain currently approved UI semantics",
+    "filter_allergens": "selected allergen means avoid/exclude",
+    "allergen_exclusion_requires_verified_complete_information": true
+  },
+  "explore_badge": {
+    "icon_px_recommended": 24,
+    "label_px_recommended": "10-11 (legible, tested)",
+    "min_badge_width_px": 48,
+    "max_bages_preferred": 3,
+    "fallback": "Show +N and offer full accessible Details if needed",
+    "accessible_name": "always the full localized label; abbreviation must not be sole accessible name"
+  }
+}

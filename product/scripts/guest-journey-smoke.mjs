@@ -51,17 +51,15 @@ window.tap=(a,v,id)=>{const s='[data-act="'+a+'"]'+(v===undefined?'':'[data-valu
 window.closeDialog=()=>document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));
 };
 await size(390,844);await goto('/?restaurant=mizora&embed=guest&table=7');await run(setup);
-await run(()=>{
+await run(async()=>{
  check($('.phone-screen.overview'),'QR/menu entry starts with Overview');
  $('#overview-scroll').scrollTop=200;window.returnTop=$('#overview-scroll').scrollTop;
  tap('open',undefined,'mizora-09');check($('.phone-screen.explore'),'dish opens Explore');
  check($('[data-act=menu-return]')&&!$('.explore-navigation,.swipe-indicator'),'compact menu return, no swipe text');
  tap('menu-return');check($('#overview-scroll').scrollTop===returnTop,'Menu restores Overview position');
- tap('open',undefined,'mizora-09');tap('wishlist-toggle',undefined,'mizora-09');
- check($('[data-act=wishlist-toggle]').getAttribute('aria-pressed')==='true','saved heart state');
- const metrics=JSON.parse(localStorage.getItem('foodie:attico:mizora:demo:v1')).events;
- check(metrics.wishlistAdds===1&&metrics.adds===0,'wishlist saves do not fabricate cart analytics');
- tap('wishlist');check($$('.wishlist-item').length===1&&!$('.quantity,.sheet-total'),'unique wishlist without quantities or subtotal');
+ tap('open',undefined,'mizora-09');tap('wishlist-toggle',undefined,'mizora-09');await new Promise(r=>setTimeout(r,60));
+ check($('[data-act=wishlist-toggle]').dataset.hasItems==='true','saved heart state');
+ tap('wishlist');check($$('.wishlist-item').length===1&&$('.gx-quantity'),'wishlist includes quantity');
  check($('.wishlist-item').textContent.includes('Snow Crab Salad'),'wishlist name');closeDialog();
  tap('wishlist');check($('.wishlist-item strong').getBoundingClientRect().width>100,'wishlist name has readable width');closeDialog();
  tap('menu-return');tap('category','desserts');tap('wishlist');$('.wishlist-item-open[data-id="mizora-09"]').click();
@@ -69,7 +67,7 @@ await run(()=>{
  tap('menu-return');check($('[data-act=category][data-value=desserts]').getAttribute('aria-pressed')==='true','Menu restores filters after opening saved dish');
 });
 await goto('/?restaurant=mizora&embed=guest&table=8');await run(setup);
-await run(()=>{tap('wishlist');check($$('.wishlist-item').length===1,'personal wishlist survives table change/reload');tap('wishlist-remove',undefined,'mizora-09');check($('.empty-wishlist'),'remove item');closeDialog();});
+await run(()=>{tap('wishlist');check($('.empty-wishlist'),'another table starts with an independent selection');closeDialog();});
 await goto('/?restaurant=mizora&embed=guest&dish=mizora-09&lang=es&table=7');await run(setup);
 await run(async()=>{
  check($('.phone-screen.explore')&&$('.guest-stage').lang==='es','shared dish opens Explore in requested language');
@@ -93,13 +91,13 @@ await run(async()=>{
 await goto('/?restaurant=mizora&embed=guest&dish=missing&lang=invalid');await run(setup);
 await run(()=>check($('.phone-screen.overview'),'invalid dish falls back to Overview'));
 await run(()=>{
- const key='foodie:attico:mizora:demo:v1',db=JSON.parse(localStorage.getItem(key));delete db.wishlist;db.carts={'07':{'mizora-03':3},'08':{'mizora-03':1,'mizora-09':2}};localStorage.setItem(key,JSON.stringify(db));
+ const key='foodie:attico:mizora:demo:v1',db=JSON.parse(localStorage.getItem(key));delete db.wishlist;localStorage.removeItem(key+':table-visits:v1');db.carts={'07':{'mizora-03':3},'08':{'mizora-03':1,'mizora-09':2}};localStorage.setItem(key,JSON.stringify(db));
 });
 await goto('/?restaurant=mizora&embed=guest');await run(setup);
-await run(()=>{
- tap('wishlist');check($$('.wishlist-item').length===2,'legacy carts migrate to unique favorites');
+await run(async()=>{
+ tap('wishlist');check($$('.wishlist-item').length===1&&$('.gx-quantity output').textContent==='3','legacy table quantities migrate without blending tables');
  const db=JSON.parse(localStorage.getItem('foodie:attico:mizora:demo:v1'));check(db.carts['07']['mizora-03']===3,'legacy carts retained');
- tap('wishlist-remove',undefined,'mizora-03');tap('wishlist-remove',undefined,'mizora-09');closeDialog();
+ tap('wishlist-remove',undefined,'mizora-03');await new Promise(r=>setTimeout(r,60));closeDialog();
 });
 await goto('/?restaurant=mizora&embed=guest');await run(setup);
 await run(()=>{tap('wishlist');check($('.empty-wishlist'),'removed migrated items stay removed');closeDialog();});
@@ -112,14 +110,14 @@ for(const width of [320,390,430,1280,1440]){
  check(menu.right<lang.left&&Math.abs(menu.top-lang.top)<2,'Menu/language aligned '+width);
  const dock=$('.mizora-dock').getBoundingClientRect();check(dock.bottom<=innerHeight+1,'visible dock '+width);
  tap('wishlist');check($('[role=dialog]').getBoundingClientRect().top>=0,'wishlist fits '+width);
- check($('.cart-continue').getBoundingClientRect().bottom<=$('.phone-screen').getBoundingClientRect().bottom+1,'wishlist footer visible '+width);
+ check($('.gx-wishlist-footer .gx-primary').getBoundingClientRect().bottom<=$('.phone-screen').getBoundingClientRect().bottom+1,'wishlist footer visible '+width);
  for(const title of $$('.wishlist-item strong'))check(title.getBoundingClientRect().width>100&&title.scrollWidth<=title.clientWidth+1,'wishlist text fits '+width);
  closeDialog();
  },width);
  if(process.env.FOODIE_SCREENSHOTS&&width===390){await screenshot('guest-explore-vertical');await run(()=>{tap('wishlist-toggle',undefined,'mizora-03');tap('wishlist');});await screenshot('guest-wishlist');await run(()=>closeDialog());}
 }
 assert.deepEqual(errors,[],'browser exceptions');assert.deepEqual(network,[],'failed requests');
-console.log('Guest journey passed: Overview entry, Menu return/scroll, unique persistent personal wishlist and legacy migration, localized dish deep links, native share/cancel/copy fallback without table, layouts 320/390/430/1280/1440px.');
+console.log('Guest journey passed: Overview entry, Menu return/scroll, table-isolated wishlist and legacy migration, localized dish deep links, native share/cancel/copy fallback without table, layouts 320/390/430/1280/1440px.');
  } finally {
   if(ws?.readyState===WebSocket.OPEN){ws.send(JSON.stringify({id:999999,method:'Browser.close'}));await Promise.race([once(chrome,'exit'),new Promise(resolve=>setTimeout(resolve,1500))]);}
   ws?.close();if(chrome.exitCode===null)chrome.kill();server.close();
